@@ -1,0 +1,1042 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Home - Team Dialogika</title>
+    
+    <!-- Bootstrap 5.3 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <!-- Google Fonts: Poppins -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="assets/css/style.css" rel="stylesheet" />
+    <style>
+        /* New Project Placeholder Card */
+        .btn-new-project-placeholder {
+            border: 2px dashed #cbd5e1;
+            border-radius: 16px;
+            background-color: #f8fafc;
+            color: #64748b;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            min-height: 200px;
+            transition: all 0.2s ease;
+            cursor: pointer;
+            text-decoration: none;
+        }
+        .btn-new-project-placeholder:hover {
+            border-color: var(--dlg-blue);
+            color: var(--dlg-blue);
+            background-color: #eff6ff;
+            transform: translateY(-5px);
+        }
+        .new-proj-icon {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            opacity: 0.5;
+        }
+
+        /* Modal Styling (Mirip Basecamp) */
+        .modal-content {
+            border-radius: 12px;
+            border: none;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+        }
+        .modal-header { border-bottom: 1px solid #f3f4f6; padding: 20px 30px; }
+        .modal-body { padding: 30px; }
+        .modal-title { font-weight: 800; color: #111; font-size: 1.5rem; }
+        
+        .form-label { font-weight: 700; color: #374151; margin-bottom: 8px; font-size: 0.95rem; }
+        .form-control, .form-select {
+            padding: 10px 15px; border-radius: 6px; border: 1px solid #d1d5db;
+            font-size: 0.95rem;
+        }
+        .form-control:focus { border-color: var(--dlg-blue); box-shadow: 0 0 0 3px rgba(11, 43, 106, 0.1); }
+
+        /* Rich Editor di Modal (Re-use style from List) */
+        .modal-editor-box {
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            overflow: hidden;
+        }
+        .modal-editor-toolbar {
+            background: #fff; border-bottom: 1px solid #f3f4f6; padding: 5px 10px;
+            display: flex; gap: 8px; flex-wrap: wrap;
+        }
+        .modal-editor-content {
+            min-height: 120px; padding: 15px; outline: none; background: #fff;
+        }
+
+        /* Toggle Switch */
+        .form-check-input:checked {
+            background-color: #108a00;
+            border-color: #108a00;
+        }
+
+        .project-card-actions i {
+            cursor: pointer;
+        }
+        .project-card-actions .project-trash-icon {
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.15s ease;
+        }
+        .project-card:hover .project-card-actions .project-trash-icon {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .project-card-actions-unpinned i {
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.15s ease;
+        }
+        .project-card:hover .project-card-actions-unpinned i {
+            opacity: 1;
+            pointer-events: auto;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- 1. TOP BAR FIXED -->
+    <nav class="top-bar">
+        <!-- Left: Mobile Toggle & Search -->
+        <div class="d-flex align-items-center">
+            <button class="mobile-toggle me-3" onclick="toggleSidebar()">
+                <i class="bi bi-list"></i>
+            </button>
+            <div class="input-group d-none d-md-flex" style="width: 250px;">
+                <span class="input-group-text bg-light border-end-0 rounded-start-pill text-muted"><i class="bi bi-search"></i></span>
+                <input type="text" class="form-control bg-light border-start-0 rounded-end-pill" placeholder="Search...">
+            </div>
+        </div>
+
+        <!-- CENTER: LOGO DIALOGIKA -->
+        <div class="logo-center">
+            <img src="https://www.dialogika.co/assets/img/logo.webp" alt="Dialogika Logo" height="35">
+        </div>
+
+        <!-- Right: Profile -->
+        <div class="d-flex align-items-center gap-3">
+            <div class="text-end d-none d-lg-block lh-1">
+                <span id="user-name-display" class="d-block fw-bold small text-dark">Loading...</span>
+                <small id="user-role-display" class="text-muted" style="font-size:0.7rem">User</small>
+            </div>
+            <div class="profile-img-container">
+                <img id="user-photo-display" src="https://i.pravatar.cc/300" alt="Profile" class="profile-img">
+            </div>
+        </div>
+    </nav>
+
+    <div class="dashboard-container">
+        
+        <div id="sidebarContainer"></div>
+
+        <!-- 3. MAIN CONTENT (Code-28 Rich Content) -->
+        <main class="main-content">
+            
+            <div class="mb-4">
+                <h4 id="welcomeMessage" class="fw-bold mb-0">Welcome!</h4>
+                <small class="text-muted">Here is your daily update.</small>
+            </div>
+
+            <div class="d-flex justify-content-between align-items-center mb-2">
+                <h6 class="fw-bold text-muted text-uppercase small">Who is Online</h6>
+                <span id="onlineActiveBadge" class="badge bg-success bg-opacity-10 text-success rounded-pill px-3">0 Active</span>
+            </div>
+            <div class="online-scroll-container mb-4" id="onlineUsersContainer"></div>
+
+            <!-- OPPORTUNITY -->
+            <div class="opportunity-card">
+                <div class="opp-icon-box"><i class="bi bi-stars fs-3"></i></div>
+                <div class="flex-grow-1">
+                    <div class="d-flex justify-content-between align-items-center mb-1">
+                        <h6 class="fw-bold mb-0 text-dark">New Opportunity!</h6>
+                    </div>
+                    <p class="mb-0 small text-muted">Webinar collaboration with <strong>Kampus Merdeka</strong> is tentative but high priority.</p>
+                </div>
+                <button class="btn btn-dlg-blue px-4 d-none d-sm-block rounded-pill">Details</button>
+            </div>
+
+            <!-- PINNED PROJECTS SECTION -->
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h5 class="fw-bold mb-0 text-dark">📌 Pinned Projects</h5>
+                <button class="btn btn-sm text-muted fw-bold" type="button" data-bs-toggle="collapse" data-bs-target="#hiddenProjects">
+                    More Projects <i class="bi bi-chevron-down ms-1"></i>
+                </button>
+            </div>
+
+            <!-- CONTAINER PROJECT (Diisi oleh JS) -->
+            <div class="row g-4 mb-2" id="pinnedProjectsContainer">
+                
+                <!-- Loading State (Sementara) -->
+                <div class="col-12 text-center py-5">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- HIDDEN PROJECTS (COLLAPSE) -->
+            <div class="collapse mb-5" id="hiddenProjects">
+                <div class="row g-4 mt-0" id="otherProjectsContainer">
+                    <!-- Project yang tidak di-pin akan muncul disini -->
+                </div>
+            </div>
+            
+
+            <!-- APPS OVERVIEW (FULL GRID) -->
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h5 class="fw-bold mb-0 text-dark">Apps Overview</h5>
+                <div class="d-none d-sm-block text-muted small"><i class="bi bi-grid-fill me-1"></i> All Apps</div>
+            </div>
+
+                <div class="row row-cols-3 row-cols-md-4 row-cols-lg-6 g-3 mb-5">
+                    <div class="col"><a href="#" class="app-box"><div class="app-icon-wrapper grad-blue"><i class="bi bi-chat-quote-fill"></i></div><div class="app-title">Discuss</div></a></div>
+                    <div class="col"><a href="#" class="app-box"><div class="app-icon-wrapper grad-yellow"><i class="bi bi-lightbulb-fill"></i></div><div class="app-title">Idea</div></a></div>
+                    <div class="col"><a href="#" class="app-box"><div class="app-icon-wrapper grad-green"><i class="bi bi-calendar-check-fill"></i></div><div class="app-title">Appointment</div></a></div>
+                    <div class="col"><a href="#" class="app-box"><div class="app-icon-wrapper grad-purple"><i class="bi bi-book-half"></i></div><div class="app-title">Knowledge</div></a></div>
+                    <div class="col"><a href="#" class="app-box"><div class="app-icon-wrapper grad-red"><i class="bi bi-calendar-event-fill"></i></div><div class="app-title">Event</div></a></div>
+                    <div class="col"><a href="#" class="app-box"><div class="app-icon-wrapper grad-green"><i class="bi bi-clipboard-data-fill"></i></div><div class="app-title">Survey</div></a></div>
+                    <div class="col"><a href="#" class="app-box"><div class="app-icon-wrapper grad-blue"><i class="bi bi-cart-fill"></i></div><div class="app-title">Purchase</div></a></div>
+                    <div class="col"><a href="#" class="app-box"><div class="app-icon-wrapper grad-yellow"><i class="bi bi-credit-card-2-front-fill"></i></div><div class="app-title">Payment</div></a></div>
+                    <div class="col"><a href="#" class="app-box"><div class="app-icon-wrapper grad-green"><i class="bi bi-box-seam-fill"></i></div><div class="app-title">Inventory</div></a></div>
+                    <div class="col"><a href="#" class="app-box"><div class="app-icon-wrapper grad-purple"><i class="bi bi-kanban-fill"></i></div><div class="app-title">Project</div></a></div>
+                    <div class="col"><a href="#" class="app-box"><div class="app-icon-wrapper grad-blue"><i class="bi bi-check-circle-fill"></i></div><div class="app-title">Approval</div></a></div>
+                    <div class="col"><a href="#" class="app-box"><div class="app-icon-wrapper grad-red"><i class="bi bi-grid-1x2-fill"></i></div><div class="app-title">Dashboard</div></a></div>
+                </div>
+
+            <!-- TASKS & STATUS -->
+            <div class="row g-4 mb-5">
+                <div class="col-lg-6">
+                    <div class="card border-0 shadow-sm h-100 rounded-4">
+                        <div class="card-body p-4">
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <h6 class="fw-bold mb-0 text-dark"><i class="bi bi-exclamation-circle text-warning me-2"></i>Needs Approval</h6>
+                                <span class="badge bg-warning text-dark rounded-pill">3</span>
+                            </div>
+                            <div class="d-flex flex-column gap-3">
+                                <div class="p-3 bg-light rounded-3 d-flex justify-content-between align-items-center">
+                                    <div><p class="fw-bold mb-0 small">Budget Proposal</p><small class="text-muted" style="font-size:0.7rem">Sarah (Finance)</small></div>
+                                    <div class="d-flex gap-2"><button class="btn btn-sm bg-white border text-danger"><i class="bi bi-x"></i></button><button class="btn btn-sm btn-dark"><i class="bi bi-check"></i></button></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-6">
+                    <div class="card border-0 shadow-sm h-100 rounded-4">
+                        <div class="card-body p-4">
+                            <div class="d-flex justify-content-between align-items-center mb-1">
+                                <h6 class="fw-bold mb-0 text-dark"><i class="bi bi-check2-all text-success me-2"></i>Last Day Completed</h6>
+                            </div>
+                            <p class="text-muted small fst-italic mb-3 text-purple">"Great work yesterday! Keep the momentum going. 🚀"</p>
+                            <div class="d-flex flex-column gap-2">
+                                <div class="d-flex align-items-center justify-content-between border-bottom pb-2">
+                                    <span class="text-muted small text-decoration-line-through">Meeting Report: Client A</span>
+                                    <i class="bi bi-check-circle-fill text-success small"></i>
+                                </div>
+                                <div class="d-flex align-items-center justify-content-between">
+                                    <span class="text-muted small text-decoration-line-through">Fix Login Bug</span>
+                                    <i class="bi bi-check-circle-fill text-success small"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAGS -->
+            <div class="mb-5">
+                <h6 class="fw-bold text-muted text-uppercase small mb-3">Quick Tags</h6>
+                <div class="d-flex flex-wrap">
+                    <a href="#" class="tag-pill tag-blue">#Marketing</a>
+                    <a href="#" class="tag-pill tag-yellow">#Development</a>
+                    <a href="#" class="tag-pill tag-green">#HR_Recruitment</a>
+                    <a href="#" class="tag-pill tag-purple">#Design_System</a>
+                    <a href="#" class="tag-pill tag-red">#Quarter_4</a>
+                    <a href="#" class="tag-pill tag-blue">#Finance</a>
+                </div>
+            </div>
+
+        </main>
+
+        <!-- MOBILE BOTTOM NAVIGATION -->
+        <div class="bottom-nav">
+            <a href="#" class="nav-item-mobile active"><i class="bi bi-house-door-fill"></i></a>
+            <a href="#" class="nav-item-mobile"><i class="bi bi-search"></i></a>
+            
+            <button class="nav-btn-plus" type="button" data-bs-toggle="offcanvas" data-bs-target="#actionSheet">
+                <i class="bi bi-plus-lg"></i>
+            </button>
+            
+            <a href="#" class="nav-item-mobile position-relative">
+                <i class="bi bi-bell"></i>
+                <span class="position-absolute top-0 start-100 translate-middle p-1 bg-danger border border-light rounded-circle" style="width:10px; height:10px; margin-left:-15px; margin-top:10px;"></span>
+            </a>
+            <a href="#" class="nav-item-mobile"><i class="bi bi-person"></i></a>
+        </div>
+
+        <!-- MOBILE ACTION SHEET -->
+        <div class="offcanvas offcanvas-bottom custom-bottom-sheet" tabindex="-1" id="actionSheet">
+            <div class="offcanvas-header justify-content-center pb-0">
+                <div style="width: 40px; height: 4px; background: #e2e8f0; border-radius: 10px;"></div>
+            </div>
+            <div class="offcanvas-body pt-4">
+                <h6 class="fw-bold mb-3 ps-2">Create New</h6>
+                <a href="#" class="action-option">
+                    <div class="d-flex align-items-center justify-content-center rounded-3 me-3" style="width:40px; height:40px; background:#e0f2fe; color:#0284c7;"><i class="bi bi-sticky"></i></div>
+                    <div><span class="d-block fw-bold small">Capture</span><small class="text-muted" style="font-size: 0.7rem;">Quick ideas & memos</small></div>
+                </a>
+                <a href="#" class="action-option">
+                    <div class="d-flex align-items-center justify-content-center rounded-3 me-3" style="width:40px; height:40px; background:#f0fdf4; color:#16a34a;"><i class="bi bi-check2-square"></i></div>
+                    <div><span class="d-block fw-bold small">Reminder</span><small class="text-muted" style="font-size: 0.7rem;">Assign to yourself or team</small></div>
+                </a>
+            </div>
+        </div>
+
+    </div>
+    
+    <!-- --- MODAL: NEW PROJECT --- -->
+    <div class="modal fade" id="newProjectModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Create a new project</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <!-- Di dalam Modal Body -->
+                    <form id="createProjectForm"> <!-- Tambahkan ID pada form -->
+                        
+                        <!-- Name -->
+                        <div class="mb-4">
+                            <label class="form-label">Name</label>
+                            <input type="text" id="inputProjectName" class="form-control form-control-lg" placeholder="e.g. Website Redesign">
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="form-label">Department</label>
+                            <div id="departmentOptions" class="d-flex flex-wrap gap-2"></div>
+                        </div>
+
+                        <!-- Description (Rich Editor) -->
+                        <div class="mb-4">
+                            <label class="form-label">Description <span class="text-muted fw-normal">(optional)</span></label>
+                            <div class="modal-editor-box">
+                                <div class="modal-editor-toolbar">
+                                    <!-- Toolbar buttons... biarkan saja -->
+                                    <button type="button" class="btn btn-sm btn-light border"><b>B</b></button>
+                                    <button type="button" class="btn btn-sm btn-light border"><i>I</i></button>
+                                </div>
+                                <!-- Tambahkan ID: inputProjectDesc -->
+                                <div id="inputProjectDesc" class="modal-editor-content" contenteditable="true" data-placeholder="Add extra details..."></div>
+                            </div>
+                        </div>
+
+                        <input type="hidden" id="inputOwnerId" value="USER-001">
+
+                        <div class="mb-4 form-check form-switch">
+                            <input class="form-check-input" type="checkbox" id="inputProjectPinned" checked>
+                            <label class="form-check-label" for="inputProjectPinned">Pin this project</label>
+                        </div>
+
+                        <!-- Footer Buttons -->
+                        <div class="d-flex gap-3 pt-3 border-top">
+                            <!-- Ubah type jadi button dan tambah onclick -->
+                            <button type="button" class="btn btn-dlg-blue rounded-pill px-4" onclick="saveProject()">Save changes</button>
+                            <button type="button" class="btn btn-light rounded-pill px-4 border" data-bs-dismiss="modal">Cancel</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="modal fade" id="deleteProjectModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content rounded-4 border-0">
+                <div class="modal-header border-0 p-4 pb-0">
+                    <h5 class="fw-bold text-danger">Delete Project</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <p class="mb-2">Apakah anda ingin mendelete Project <span id="deleteProjectName" class="fw-bold"></span> ini?</p>
+                    <input type="hidden" id="deleteProjectId">
+                </div>
+                <div class="modal-footer border-0 px-4 pb-4">
+                    <button type="button" class="btn btn-light rounded-pill px-4" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-danger rounded-pill px-4" onclick="confirmDeleteProject()">Delete</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Firebase SDK Modular -->
+    <script type="module">
+        import { renderSidebar } from "./element/sidebar.js";
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+        import { getFirestore, collection, addDoc, query, where, getDoc, getDocs, serverTimestamp, onSnapshot, orderBy, doc, deleteDoc, updateDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+        import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js";
+
+        // 1. Konfigurasi Firebase (PASTIKAN SAMA DENGAN LOGIN/REGISTER)
+        const firebaseConfig = {
+            apiKey: "AIzaSyDyzzEYbJkkl-N8snrQf14qvj8De4YliV0",
+            authDomain: "pre-dialogika.firebaseapp.com",
+            projectId: "pre-dialogika",
+            storageBucket: "pre-dialogika.firebasestorage.app",
+            messagingSenderId: "343771410480",
+            appId: "1:343771410480:web:32881c9868522090237df5",
+            measurementId: "G-SXN811P3N0"
+        };
+
+        const sidebarTarget = document.getElementById('sidebarContainer');
+        renderSidebar(sidebarTarget);
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+        const storage = getStorage(app);
+        window.db = db;
+        window.collection = collection;
+        window.getDoc = getDoc;
+        window.getDocs = getDocs;
+        window.addDoc = addDoc;
+        window.serverTimestamp = serverTimestamp;
+        window.doc = doc;
+        window.deleteDoc = deleteDoc;
+        window.updateDoc = updateDoc;
+        window.setDoc = setDoc;
+        window.storage = storage;
+        window.ref = ref;
+        window.uploadBytes = uploadBytes;
+        window.getDownloadURL = getDownloadURL;
+
+        let currentUser = null;
+        let departments = [];
+        let selectedDepartment = null;
+        let projectTaskStats = {};
+        let globalProjectTasksTotal = 0;
+        let cachedProjects = [];
+        let presenceIntervalId = null;
+
+        // --- 2. PROTEKSI HALAMAN (Cek Login) ---
+        onAuthStateChanged(auth, async (user) => {
+            if (user) {
+                currentUser = user;
+                const localData = JSON.parse(localStorage.getItem('userData'));
+                
+                document.getElementById('user-name-display').innerText = localData?.name || user.email;
+                document.getElementById('user-photo-display').src = localData?.photo || "https://i.pravatar.cc/300";
+                document.getElementById('user-role-display').innerText = localData?.position || "Staff";
+                
+                const welcomeMsg = document.getElementById('welcomeMessage');
+                if (welcomeMsg) {
+                    const hour = new Date().getHours();
+                    let greeting = "Hello";
+                    if (hour >= 5 && hour < 12) greeting = "Good Morning";
+                    else if (hour >= 12 && hour < 17) greeting = "Good Afternoon";
+                    else if (hour >= 17 && hour < 21) greeting = "Good Evening";
+                    else greeting = "Good Night";
+                    const fullName = localData?.name || user.displayName || user.email || "";
+                    const firstName = fullName ? fullName.split(' ')[0] : "";
+                    welcomeMsg.innerText = firstName ? `${greeting}, ${firstName}!` : greeting;
+                }
+
+                await loadDepartments();
+                listenToProjects();
+                listenToTasks();
+                startPresenceTracking();
+                listenToOnlineUsers();
+            } else {
+                // Jika tidak login, lempar ke halaman login
+                window.location.href = "index.html";
+            }
+        });
+
+        async function loadDepartments() {
+            const container = document.getElementById('departmentOptions');
+            if (container) {
+                container.innerHTML = '<span class="text-muted small">Loading departments...</span>';
+            }
+            try {
+                const snap = await getDocs(collection(db, "departments"));
+                const items = [];
+                snap.forEach(docSnap => {
+                    const d = docSnap.data();
+                    items.push({
+                        id: docSnap.id,
+                        name: d.name || "Untitled",
+                        color: d.color || "#e5e7eb"
+                    });
+                });
+                departments = items;
+                if (!selectedDepartment && departments.length > 0) {
+                    selectedDepartment = departments[0];
+                }
+                renderDepartmentOptions();
+            } catch (e) {
+                console.error("Failed to load departments", e);
+                if (container) {
+                    container.innerHTML = '<span class="text-danger small">Failed to load departments.</span>';
+                }
+            }
+        }
+
+        function renderDepartmentOptions() {
+            const container = document.getElementById('departmentOptions');
+            if (!container) return;
+            container.innerHTML = '';
+            if (!departments || departments.length === 0) {
+                container.innerHTML = '<span class="text-muted small">No departments available.</span>';
+                selectedDepartment = null;
+                return;
+            }
+            departments.forEach(dept => {
+                const btn = document.createElement('button');
+                btn.type = 'button';
+                btn.className = 'btn btn-sm btn-light border rounded-pill d-flex align-items-center gap-2';
+                btn.dataset.deptId = dept.id;
+                btn.innerHTML = `
+                    <span class="d-inline-block rounded-circle" style="width:10px;height:10px;background:${dept.color};"></span>
+                    <span>${dept.name}</span>
+                `;
+                btn.addEventListener('click', () => {
+                    selectedDepartment = dept;
+                    updateDepartmentSelectionUI();
+                });
+                container.appendChild(btn);
+            });
+            updateDepartmentSelectionUI();
+        }
+
+        function updateDepartmentSelectionUI() {
+            const container = document.getElementById('departmentOptions');
+            if (!container) return;
+            const buttons = container.querySelectorAll('button[data-dept-id]');
+            buttons.forEach(btn => {
+                const id = btn.getAttribute('data-dept-id');
+                if (selectedDepartment && id === selectedDepartment.id) {
+                    btn.classList.add('btn-primary');
+                    btn.classList.remove('btn-light');
+                    btn.classList.add('text-white');
+                } else {
+                    btn.classList.remove('btn-primary');
+                    btn.classList.add('btn-light');
+                    btn.classList.remove('text-white');
+                }
+            });
+        }
+
+        // --- 3. AMBIL DATA PROJECT (Real-time) ---
+        let listenToProjectsRetryCount = 0;
+        function listenToProjects() {
+            try {
+                const pinnedContainer = document.getElementById('pinnedProjectsContainer');
+                const otherContainer = document.getElementById('otherProjectsContainer');
+
+                // Query: Ambil semua project, urutkan berdasarkan waktu buat terbaru
+                const q = query(collection(db, "projects"), orderBy("created_at", "desc"));
+
+                // onSnapshot membuat data terupdate otomatis jika ada perubahan di database
+                onSnapshot(q, (snapshot) => {
+                    listenToProjectsRetryCount = 0; // Reset retry count on success
+                    let projects = [];
+                    snapshot.forEach((doc) => {
+                        projects.push({ id: doc.id, ...doc.data() });
+                    });
+                    renderProjects(projects);
+                }, (error) => {
+                    console.error("Failed to listen to projects:", error);
+                    // Retry with exponential backoff if connection was aborted or unavailable
+                    if (error.code === 'unavailable' || error.message.includes('abort') || error.code === 'cancelled') {
+                        listenToProjectsRetryCount++;
+                        const delay = Math.min(1000 * Math.pow(2, listenToProjectsRetryCount), 30000); // Max 30s delay
+                        console.log(`Retrying projects listener in ${delay}ms (attempt ${listenToProjectsRetryCount})...`);
+                        setTimeout(listenToProjects, delay);
+                    }
+                });
+            } catch (e) {
+                console.error("Failed to listen to projects", e);
+            }
+        }
+
+        // --- 3B. AMBIL STATISTIK TASK PER PROJECT (Real-time) ---
+        let listenToTasksRetryCount = 0;
+        let unsubscribeTasks = null;
+        function listenToTasks() {
+            try {
+                if (unsubscribeTasks) {
+                    unsubscribeTasks();
+                }
+                const q = query(collection(db, "tasks"));
+                unsubscribeTasks = onSnapshot(q, { includeMetadataChanges: false }, (snapshot) => {
+                    listenToTasksRetryCount = 0; // Reset retry count on success
+                    const stats = {};
+                    snapshot.forEach((docSnap) => {
+                        const data = docSnap.data() || {};
+                        const pid = data.project_id || data.projectId || "";
+                        if (!pid) return;
+                        if (!stats[pid]) {
+                            stats[pid] = { total: 0, complete: 0 };
+                        }
+                        stats[pid].total += 1;
+                        let statusRaw = "";
+                        if (typeof data.status === "string") {
+                            statusRaw = data.status;
+                        } else if (data.status && typeof data.status === "object") {
+                            statusRaw = data.status.name || data.status.label || "";
+                        }
+                        const normalized = String(statusRaw || "").trim().toLowerCase();
+                        const isDone = normalized === "complete" || normalized === "done";
+                        if (isDone) {
+                            stats[pid].complete += 1;
+                        }
+                    });
+
+                    let totalAll = 0;
+                    Object.keys(stats).forEach(pid => {
+                        const s = stats[pid] || {};
+                        totalAll += s.total || 0;
+                    });
+                    
+                    globalProjectTasksTotal = totalAll;
+                    const projectCountEl = document.getElementById('projectTasksTotalCount');
+                    if (projectCountEl) {
+                        projectCountEl.innerText = String(totalAll);
+                    }
+                    projectTaskStats = stats;
+                    renderProjects(cachedProjects);
+
+                    // Trigger sidebar refresh if available
+                    if (window.refreshSidebarCounts) {
+                        window.refreshSidebarCounts(snapshot);
+                    }
+                }, (error) => {
+                    console.error("Firestore Tasks Listener Error:", error);
+                    
+                    // Handle quota exceeded or other fatal errors
+                    if (error.code === 'resource-exhausted') {
+                        console.error("Firestore quota exceeded. Stopping listener.");
+                        return;
+                    }
+
+                    // Retry with exponential backoff if connection was aborted or unavailable
+                    const isRetryable = error.code === 'unavailable' || 
+                                      error.code === 'cancelled' || 
+                                      error.code === 'deadline-exceeded' ||
+                                      error.message.toLowerCase().includes('abort') ||
+                                      error.message.toLowerCase().includes('failed to get document');
+
+                    if (isRetryable) {
+                        listenToTasksRetryCount++;
+                        const delay = Math.min(1000 * Math.pow(2, listenToTasksRetryCount), 30000); 
+                        console.log(`Attempting to reconnect tasks listener in ${delay}ms (attempt ${listenToTasksRetryCount})...`);
+                        setTimeout(() => {
+                            if (auth.currentUser) {
+                                listenToTasks();
+                            }
+                        }, delay);
+                    }
+                });
+            } catch (e) {
+                console.error("Exception in listenToTasks", e);
+            }
+        }
+
+        function startPresenceTracking() {
+            try {
+                updateOwnPresence();
+                if (presenceIntervalId) {
+                    clearInterval(presenceIntervalId);
+                }
+                presenceIntervalId = setInterval(updateOwnPresence, 60000);
+                document.addEventListener("visibilitychange", () => {
+                    if (document.visibilityState === "visible") {
+                        updateOwnPresence();
+                    }
+                });
+            } catch (e) {
+                console.error("Failed to start presence tracking", e);
+            }
+        }
+
+        async function updateOwnPresence() {
+            if (!currentUser) return;
+            try {
+                let localData = null;
+                try {
+                    localData = JSON.parse(localStorage.getItem('userData') || 'null');
+                } catch (e) {}
+                const uid = currentUser.uid;
+                const name = (localData && localData.name) || currentUser.displayName || currentUser.email || "User";
+                const photo = (localData && localData.photo) || currentUser.photoURL || "";
+                const ref = doc(db, "user_presence", uid);
+                await setDoc(ref, {
+                    user_id: uid,
+                    name: name,
+                    photo: photo,
+                    last_active_at: serverTimestamp()
+                }, { merge: true });
+            } catch (e) {
+                console.error("Failed to update presence", e);
+            }
+        }
+
+        let listenToOnlineUsersRetryCount = 0;
+        function listenToOnlineUsers() {
+            const container = document.getElementById('onlineUsersContainer');
+            const badge = document.getElementById('onlineActiveBadge');
+            if (!container || !badge) return;
+            try {
+                const colRef = collection(db, "user_presence");
+                onSnapshot(colRef, (snapshot) => {
+                    listenToOnlineUsersRetryCount = 0; // Reset retry count on success
+                    const now = new Date();
+                    const startOfDay = new Date();
+                    startOfDay.setHours(0, 0, 0, 0);
+                    const oneHourMs = 60 * 60 * 1000;
+                    const users = [];
+                    snapshot.forEach((docSnap) => {
+                        const data = docSnap.data() || {};
+                        const ts = data.last_active_at;
+                        let lastActive = null;
+                        if (ts && typeof ts.toDate === "function") {
+                            lastActive = ts.toDate();
+                        }
+                        if (!lastActive) return;
+                        if (lastActive < startOfDay) return;
+                        const diff = now.getTime() - lastActive.getTime();
+                        const isActive = diff <= oneHourMs;
+                        users.push({
+                            uid: docSnap.id,
+                            name: data.name || "",
+                            photo: data.photo || "",
+                            lastActive,
+                            isActive
+                        });
+                    });
+                    users.sort((a, b) => b.lastActive.getTime() - a.lastActive.getTime());
+                    const currentUid = currentUser ? currentUser.uid : null;
+                    let me = null;
+                    const others = [];
+                    users.forEach(u => {
+                        if (currentUid && u.uid === currentUid) {
+                            me = u;
+                        } else {
+                            others.push(u);
+                        }
+                    });
+                    const ordered = [];
+                    if (me) ordered.push(me);
+                    ordered.push(...others);
+                    const activeCount = users.filter(u => u.isActive).length;
+                    badge.innerText = activeCount + " Active";
+                    container.innerHTML = "";
+                    ordered.forEach(u => {
+                        const ringStyle = u.isActive ? "background:#0B2B6A;" : "background:transparent;";
+                        const src = u.photo && u.photo.trim()
+                            ? u.photo
+                            : ("https://i.pravatar.cc/150?u=" + encodeURIComponent(u.uid || u.name || ""));
+                        const statusDot = u.isActive ? '<div class="online-status-dot"></div>' : '';
+                        const title = u.name || "";
+                        const html = `
+                            <div class="avatar-wrapper" title="${title}">
+                                <div class="avatar-ring" style="${ringStyle}"></div>
+                                <div class="avatar-mask">
+                                    <img src="${src}" alt="${title}" class="avatar-img">
+                                </div>
+                                ${statusDot}
+                            </div>
+                        `;
+                        container.insertAdjacentHTML('beforeend', html);
+                    });
+                }, (error) => {
+                    console.error("Failed to listen to online users:", error);
+                    // Retry with exponential backoff if connection was aborted or unavailable
+                    if (error.code === 'unavailable' || error.message.includes('abort') || error.code === 'cancelled') {
+                        listenToOnlineUsersRetryCount++;
+                        const delay = Math.min(1000 * Math.pow(2, listenToOnlineUsersRetryCount), 30000); // Max 30s delay
+                        console.log(`Retrying online users listener in ${delay}ms (attempt ${listenToOnlineUsersRetryCount})...`);
+                        setTimeout(listenToOnlineUsers, delay);
+                    }
+                });
+            } catch (e) {
+                console.error("Failed to listen to online users", e);
+            }
+        }
+
+        // --- 4. RENDER PROJECT KE HTML ---
+        function renderProjects(projects) {
+            const pinnedContainer = document.getElementById('pinnedProjectsContainer');
+            const otherContainer = document.getElementById('otherProjectsContainer');
+            
+            cachedProjects = Array.isArray(projects) ? projects : [];
+
+            pinnedContainer.innerHTML = '';
+            otherContainer.innerHTML = '';
+
+            // Tombol "New Project" (Selalu ada di awal)
+            const newProjectBtn = `
+                <div class="col-md-6 col-lg-3">
+                    <div class="btn-new-project-placeholder" data-bs-toggle="modal" data-bs-target="#newProjectModal">
+                        <i class="bi bi-plus-circle-dotted new-proj-icon"></i>
+                        <span class="fw-bold">Create New Project</span>
+                        <small class="text-muted">Start something new</small>
+                    </div>
+                </div>
+            `;
+
+            const pinnedList = projects.filter(p => (p.is_pinned === true) || (p.pinned === true));
+            const unpinnedList = projects.filter(p => !(p.is_pinned === true || p.pinned === true));
+
+            // Render Pinned
+            pinnedList.forEach((p, index) => {
+                const isFirst = index === 0;
+                const colClass = isFirst ? 'col-lg-6 col-12' : 'col-md-6 col-lg-3';
+                const cardClass = isFirst ? 'project-card priority' : 'project-card';
+                const stat = projectTaskStats[p.id] || { total: 0, complete: 0 };
+                const totalTasks = stat.total || 0;
+                const completedTasks = stat.complete || 0;
+                const progressPercent = totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0;
+                let progressBarClass = "bg-secondary";
+                if (totalTasks > 0) {
+                    if (progressPercent < 50) progressBarClass = "bg-danger";
+                    else if (progressPercent < 80) progressBarClass = "bg-warning";
+                    else progressBarClass = "bg-success";
+                }
+                const rawDescPinned = typeof p.description === "string" ? p.description : "";
+                const plainDescPinned = rawDescPinned.replace(/<[^>]+>/g, " ").trim();
+                const maxDescPinnedLength = 140;
+                let shortDescPinned = plainDescPinned;
+                if (plainDescPinned.length > maxDescPinnedLength) {
+                    const cutIndex = plainDescPinned.lastIndexOf(" ", maxDescPinnedLength - 3);
+                    const endIndex = cutIndex > 0 ? cutIndex : maxDescPinnedLength - 3;
+                    shortDescPinned = plainDescPinned.substring(0, endIndex) + "...";
+                }
+                const html = `
+                    <div class="${colClass}">
+                        <a href="project/project.html?id=${p.id}" class="text-decoration-none">
+                            <div class="${cardClass}">
+                                <div class="d-flex justify-content-between align-items-start mb-3">
+                                    <span class="badge ${isFirst ? 'bg-white bg-opacity-25 text-white' : 'bg-light text-dark border'}">${p.department || 'General'}</span>
+                                    <div class="d-flex align-items-center gap-2 project-card-actions">
+                                        <i class="bi bi-pin-angle-fill ${isFirst ? 'text-white' : 'text-primary'} project-pin-icon" data-project-id="${p.id}" data-project-pinned="true"></i>
+                                        <i class="bi bi-trash3 ${isFirst ? 'text-white' : 'text-danger'} project-trash-icon" data-project-id="${p.id}" data-project-name="${p.name || ''}"></i>
+                                    </div>
+                                </div>
+                                <h5 class="fw-bold ${isFirst ? 'text-white' : 'text-dark'}">${p.name}</h5>
+                                <p class="${isFirst ? 'text-white-50' : 'text-muted'} small mb-0" style="min-height:2.6em;max-height:2.6em;overflow:hidden;">${shortDescPinned}</p>
+                                <div class="mt-4">
+                                    <div class="d-flex justify-content-between align-items-center mb-1">
+                                        <span class="small ${isFirst ? 'text-white-50' : 'text-muted'}">Progress</span>
+                                        <span class="small ${isFirst ? 'text-white-50' : 'text-muted'}">${progressPercent}%</span>
+                                    </div>
+                                    <div class="progress" style="height: 6px; background: rgba(0,0,0,0.1);">
+                                        <div class="progress-bar ${progressBarClass} progress-bar-striped progress-bar-animated" style="width: ${progressPercent}%"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+                `;
+                pinnedContainer.insertAdjacentHTML('beforeend', html);
+            });
+
+            // Masukkan Tombol Tambah setelah daftar Pinned
+            pinnedContainer.insertAdjacentHTML('beforeend', newProjectBtn);
+
+            // Render Others (Hidden)
+            unpinnedList.forEach(p => {
+                const departmentName = p.department || "General";
+                const departmentColor = p.department_color || "#e5e7eb";
+                const stat = projectTaskStats[p.id] || { total: 0, complete: 0 };
+                const totalTasks = stat.total || 0;
+                const completedTasks = stat.complete || 0;
+                const isAllDone = totalTasks > 0 && completedTasks === totalTasks;
+                const progressText = `${completedTasks}/${totalTasks} Done`;
+                const rawDesc = typeof p.description === "string" ? p.description : "";
+                const plainDesc = rawDesc.replace(/<[^>]+>/g, " ").trim();
+                const maxDescLength = 120;
+                let shortDesc = plainDesc;
+                if (plainDesc.length > maxDescLength) {
+                    shortDesc = plainDesc.substring(0, maxDescLength - 3) + "...";
+                }
+                const iconClass = isAllDone ? "bi bi-check-circle-fill text-success" : "bi bi-check-circle";
+                const html = `
+                    <div class="col-md-6 col-lg-3">
+                        <a href="project/project.html?id=${p.id}" class="text-decoration-none">
+                            <div class="project-card">
+                                <div class="d-flex justify-content-between align-items-start mb-2">
+                                    <span class="badge border pill px-3 d-inline-flex align-items-center justify-content-center text-center"
+                                          style="min-width:80px;max-width:80px;background:${departmentColor};border-color:${departmentColor};color:#fff;">
+                                        ${departmentName}
+                                    </span>
+                                    <div class="d-flex align-items-center gap-2 project-card-actions project-card-actions-unpinned">
+                                        <i class="bi bi-pin-angle-fill text-primary project-pin-icon"
+                                           data-project-id="${p.id}" data-project-pinned="false"></i>
+                                        <i class="bi bi-trash3 text-danger project-trash-icon"
+                                           data-project-id="${p.id}" data-project-name="${p.name || ''}"></i>
+                                    </div>
+                                </div>
+                                <h6 class="fw-bold text-dark mb-1">${p.name}</h6>
+                                <p class="text-muted small mb-2" style="min-height:2.6em;white-space:normal;word-break:break-word;">${shortDesc}</p>
+                                <div class="d-flex align-items-center small text-muted">
+                                    <i class="${iconClass} me-1"></i>
+                                    <span>${progressText}</span>
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+                `;
+                otherContainer.insertAdjacentHTML('beforeend', html);
+            });
+        }
+
+        function openDeleteProjectModal(projectId, projectName) {
+            const nameEl = document.getElementById('deleteProjectName');
+            const idInput = document.getElementById('deleteProjectId');
+            const modalEl = document.getElementById('deleteProjectModal');
+            if (!nameEl || !idInput || !modalEl) return;
+            nameEl.innerText = projectName || "";
+            idInput.value = projectId || "";
+            if (typeof bootstrap === "undefined") return;
+            const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
+            modal.show();
+        }
+
+        window.confirmDeleteProject = async () => {
+            const idInput = document.getElementById('deleteProjectId');
+            const modalEl = document.getElementById('deleteProjectModal');
+            if (!idInput || !modalEl) return;
+            const projectId = idInput.value;
+            if (!projectId) return;
+            try {
+                const project = cachedProjects.find(p => p.id === projectId) || null;
+                if (project) {
+                    await addDoc(collection(db, "trash"), {
+                        type: "project",
+                        project_id: projectId,
+                        entity_id: projectId,
+                        data: project,
+                        deleted_at: serverTimestamp(),
+                        deleted_by: currentUser ? currentUser.uid : ""
+                    });
+                }
+                await deleteDoc(doc(db, "projects", projectId));
+                const modal = bootstrap.Modal.getInstance(modalEl);
+                if (modal) modal.hide();
+            } catch (e) {
+                console.error("Failed to delete project", e);
+                alert("Gagal menghapus project: " + (e.message || e.toString()));
+            }
+        };
+
+        async function toggleProjectPin(projectId, shouldPin) {
+            if (!projectId) return;
+            try {
+                await updateDoc(doc(db, "projects", projectId), {
+                    is_pinned: shouldPin,
+                    pinned: shouldPin
+                });
+            } catch (e) {
+                console.error("Failed to toggle pin project", e);
+                alert("Gagal mengubah pin project: " + (e.message || e.toString()));
+            }
+        }
+
+        document.addEventListener('click', (e) => {
+            const trashIcon = e.target.closest('.project-trash-icon');
+            if (trashIcon) {
+                const projectId = trashIcon.getAttribute('data-project-id') || "";
+                const projectName = trashIcon.getAttribute('data-project-name') || "";
+                if (projectId) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    openDeleteProjectModal(projectId, projectName);
+                }
+                return;
+            }
+            const pinIcon = e.target.closest('.project-pin-icon');
+            if (pinIcon) {
+                const projectId = pinIcon.getAttribute('data-project-id') || "";
+                if (!projectId) return;
+                const pinnedAttr = pinIcon.getAttribute('data-project-pinned');
+                const currentlyPinned = pinnedAttr === "true";
+                e.preventDefault();
+                e.stopPropagation();
+                toggleProjectPin(projectId, !currentlyPinned);
+            }
+        });
+
+        // --- 5. INPUT PROJECT BARU KE FIRESTORE ---
+        window.saveProject = async () => {
+            const name = document.getElementById('inputProjectName').value;
+            const desc = document.getElementById('inputProjectDesc').innerText;
+            const pinnedInput = document.getElementById('inputProjectPinned');
+            const isPinned = pinnedInput ? pinnedInput.checked : false;
+            const saveBtn = document.querySelector('#createProjectForm .btn-dlg-blue');
+            const dept = selectedDepartment;
+            const departmentName = dept ? (dept.name || "General") : "General";
+            const departmentColor = dept ? (dept.color || "") : "";
+
+            if (!name) return alert("Please enter project name!");
+
+            saveBtn.disabled = true;
+            saveBtn.innerText = "Saving...";
+
+            try {
+                await addDoc(collection(db, "projects"), {
+                    name: name,
+                    description: desc,
+                    owner_id: currentUser.uid,
+                    is_pinned: isPinned,
+                    pinned: isPinned,
+                    status: "active",
+                    department: departmentName,
+                    department_color: departmentColor,
+                    members: [currentUser.uid],
+                    created_at: serverTimestamp()
+                });
+
+                // Reset & Close Modal
+                document.getElementById('inputProjectName').value = "";
+                document.getElementById('inputProjectDesc').innerText = "";
+                const modal = bootstrap.Modal.getInstance(document.getElementById('newProjectModal'));
+                modal.hide();
+
+            } catch (error) {
+                console.error("Error adding project: ", error);
+                alert("Failed to save project.");
+            } finally {
+                saveBtn.disabled = false;
+                saveBtn.innerText = "Save changes";
+            }
+        };
+
+        // --- 6. LOGOUT ---
+        window.logout = async () => {
+            await signOut(auth);
+            localStorage.removeItem('userData');
+            window.location.href = "index.html";
+        };
+
+        // UI Helper: Sidebar Toggle
+        window.toggleSidebar = () => {
+            document.getElementById('sidebarNav').classList.toggle('show');
+        };
+
+    </script>
+</body>
+</html>
