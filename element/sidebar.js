@@ -213,14 +213,14 @@ export function renderSidebar(target) {
 
             <!-- PENDING WIDGET (Pinned di Bawah, di luar scroll wrapper) -->
             <div class="pending-widget" style="background-color: #1c83e368; color:#fff;margin-bottom: -17px;">
-                <div class="fire-icon-wrapper shadow-purple"><i class="bi bi-fire fire-icon"></i></div>
+                <div class="fire-icon-wrapper shadow-purple" style="border: 0.4px solid rgba(114, 4, 207, 1);"><i class="bi bi-fire fire-icon"></i></div>
                 <h6 class="fw-bold" style="color:#0B2B6A; margin-bottom: 5px;">Pending Reports</h6>
                 <p class="small text-muted mb-3">You have <span id="reportPendingApprovalCount">0</span> reports waiting.</p>
                 <button class="btn-review btn-dlg-blue shadow-none" style="margin-bottom:14px;">Review Now</button>
                 
                 <!-- COPYRIGHT (Muncul hanya saat scroll mentok bawah) -->
                 <div class="sidebarCopyright fw-semibold" style="font-size: 12px;">
-                    &copy; 2025 PT Dialogika Persona Indonesia
+                    &copy; Copyright 2025<br/> PT Dialogika Persona Indonesia
                 </div>
             </div>
 
@@ -4768,6 +4768,16 @@ export function renderSidebar(target) {
             padding: 15px 12px;
             border-bottom: 1px solid var(--border-color);
         }
+        .nav-item .nav-link.active {
+            background: linear-gradient(to bottom, #0f61a8 5%, #0b2b6a 100%);
+            border-radius: 10px;
+            box-shadow: 0px 5px 16px -6px rgba(114, 4, 207, 1);
+            -webkit-box-shadow: 0px 5px 16px -6px rgba(114, 4, 207, 1);
+            color: white;
+        }
+        .nav-item .nav-link {
+            color: #0B2B6A;
+        }
         .table tbody tr { cursor: pointer; transition: background 0.2s; }
         .table tbody tr:hover { background-color: #f8fafc !important; }
         .table tbody td { padding: 12px; vertical-align: middle; font-size: 13px; border-bottom: 1px solid #f1f5f9; }
@@ -4801,7 +4811,7 @@ export function renderSidebar(target) {
                 <button id="reportTopArchiveButton" type="button" class="btn btn-white border bg-white btn-sm px-3"><i class="fas fa-box-archive text-secondary"></i></button>
                 <button id="reportTopDeleteButton" type="button" class="btn btn-white border bg-white btn-sm px-3"><i class="fas fa-trash-can text-muted"></i></button>
             </div>
-            <ul class="nav nav-tabs border-bottom-0 me-2">
+            <ul class="nav nav-pills border-bottom-0 me-2">
                 <li class="nav-item">
                     <a class="nav-link active fw-bold px-3" id="reportTabSide" href="javascript:void(0)">Side Quest</a>
                 </li>
