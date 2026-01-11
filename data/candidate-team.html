@@ -1,0 +1,1254 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Candidate Team</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link href="../assets/css/style.css" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Plus Jakarta Sans', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+        }
+        .page-title {
+            color: #0B2B6A;
+            font-weight: 800;
+            font-size: 1.8rem;
+            letter-spacing: -0.02em;
+        }
+        .filter-panel {
+            background: white;
+            border-radius: 20px;
+            padding: 1.25rem;
+            box-shadow: 0 10px 30px rgba(11, 43, 106, 0.04);
+            margin-bottom: 2.5rem;
+            border: 1px solid rgba(11, 43, 106, 0.05);
+        }
+        .candidate-profile-wrapper {
+            font-family: 'Plus Jakarta Sans', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+        }
+        .candidate-card {
+            background: white;
+            border-radius: 16px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
+            height: 100%;
+            border: none;
+        }
+        .candidate-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1);
+        }
+        .talent-card {
+            background: white;
+            border-radius: 32px;
+            border: 1px solid #e5e7eb;
+            transition: all 0.3s ease;
+            height: 100%;
+            overflow: hidden;
+        }
+        .talent-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 25px -5px rgba(15,23,42,0.15);
+        }
+        .list-view-container {
+            display: none;
+        }
+        .table {
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
+            vertical-align: middle;
+        }
+        .list-img {
+            width: 50px;
+            height: 50px;
+            border-radius: 8px;
+            object-fit: cover;
+        }
+        .status-badge {
+            font-size: 0.7rem;
+            letter-spacing: 0.08em;
+        }
+        .status-badge-screening {
+            background-color: #e0f2fe;
+            color: #0369a1;
+        }
+        .status-badge-radar {
+            background-color: #fef9c3;
+            color: #854d0e;
+        }
+        .status-badge-accepted {
+            background-color: #dcfce7;
+            color: #166534;
+        }
+        .status-badge-rejected {
+            background-color: #fee2e2;
+            color: #b91c1c;
+        }
+        .status-badge-default {
+            background-color: #f1f5f9;
+            color: #475569;
+        }
+        .text-ellipsis-2 {
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+        .assign-display {
+            border-radius: 999px;
+            border: 1px solid #cbd5e1;
+            padding: 6px 12px;
+            font-size: 0.8rem;
+            color: #64748b;
+            background: #ffffff;
+            cursor: pointer;
+            min-height: 32px;
+            display: flex;
+            align-items: center;
+        }
+        .assign-display.has-value {
+            color: #0f172a;
+        }
+        .assign-dropdown {
+            position: relative;
+        }
+        .assign-panel {
+            position: absolute;
+            left: 0;
+            right: 0;
+            margin-top: 6px;
+            z-index: 30;
+            display: none;
+        }
+        .assign-dropdown.open .assign-panel {
+            display: block;
+        }
+        .team-assign-users {
+            max-height: 220px;
+            overflow-y: auto;
+        }
+        .assign-user-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 6px 4px;
+            border-radius: 999px;
+            cursor: pointer;
+        }
+        .assign-user-item:hover {
+            background: rgba(148, 163, 184, 0.25);
+        }
+        .assign-user-item.active {
+            background: rgba(37, 99, 235, 0.3);
+        }
+        .assign-user-left {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .assign-user-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 999px;
+            object-fit: cover;
+        }
+        .assign-user-initials {
+            width: 32px;
+            height: 32px;
+            border-radius: 999px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #111827;
+            color: #e5e7eb;
+            font-weight: 700;
+            font-size: 0.8rem;
+        }
+        .assign-user-name {
+            font-size: 0.85rem;
+            font-weight: 500;
+            color: #0f172a;
+        }
+        .assign-user-checkbox input[type="checkbox"] {
+            width: 16px;
+            height: 16px;
+            accent-color: #0f172a;
+        }
+        .modal-gradient {
+            background: linear-gradient(135deg, #1c84e3 0%, #0B2B6A 100%);
+        }
+    </style>
+</head>
+<body class="p-8">
+
+    <div id="topbarContainer"></div>
+
+    <div class="dashboard-container">
+        <div id="sidebarContainer"></div>
+
+        <main class="main-content">
+            <div class="container-fluid">
+                <div class="container">
+
+                    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-5 gap-3">
+                        <div>
+                            <h1 class="page-title">Candidate Team</h1>
+                            <p class="text-muted small mb-0">Daftar calon anggota tim yang melamar di Dialogika.</p>
+                        </div>
+                        <div class="d-flex align-items-center gap-3">
+                            <div class="btn-group" role="group" aria-label="View toggle" style="background-color: #fff; border-radius: 10px;">
+                                <button type="button" class="btn view-btn active" id="btnGrid"><i class="fas fa-th-large"></i></button>
+                                <button type="button" class="btn view-btn" id="btnList"><i class="fas fa-list"></i></button>
+                            </div>
+                            <button type="button" class="btn btn-dlg-blue rounded-4 fw-semibold px-4 py-2" data-bs-toggle="modal" data-bs-target="#addTeamModal">
+                                + Candidate
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="filter-panel">
+                        <div class="row g-3 justify-content-between align-items-center">
+                            <div class="col-md-6">
+                                <div class="input-group border-0 bg-light rounded-4 px-2">
+                                    <span class="input-group-text bg-transparent border-0"><i class="fas fa-search text-muted"></i></span>
+                                    <input type="text" id="teamSearchInput" class="form-control bg-transparent border-0 py-2 shadow-none" placeholder="Cari kandidat team...">
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <select id="teamSortSelect" class="form-select border-0 bg-light rounded-4 w-100 shadow-none py-2 px-3 fw-bold" style="font-size: 13px;">
+                                    <option value="none">Urutkan</option>
+                                    <option value="name_asc">Nama A-Z</option>
+                                    <option value="name_desc">Nama Z-A</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div id="gridView" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 md:gap-8"></div>
+
+                    <div id="listView" class="mt-4">
+                        <div id="teamTableBody" class="space-y-4"></div>
+                    </div>
+
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <div class="modal fade" id="addTeamModal" tabindex="-1" aria-labelledby="addTeamModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-xl modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title fw-bold" id="addTeamModalLabel">Tambah Candidate Team</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body" style="background-color: #f1f7fd;">
+                    <form id="addTeamForm">
+                        <div class="container-fluid">
+                            <div class="mb-4">
+                                <p class="text-muted mb-0">Lengkapi formulir di bawah ini untuk menambahkan kandidat team baru.</p>
+                            </div>
+
+                            <div class="card mb-4 border-0 shadow-sm">
+                                <div class="card-body">
+                                    <h6 class="fw-semibold mb-3 border-bottom pb-2">Data Kandidat</h6>
+                                    <div class="row g-3">
+                                        <div class="col-md-6">
+                                            <label class="form-label small">Nama Lengkap</label>
+                                            <input type="text" class="form-control" id="teamFullName" placeholder="Nama lengkap kandidat">
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label class="form-label small">Photo</label>
+                                            <input type="file" class="form-control" id="teamPhoto">
+                                        </div>
+                                        <div class="col-12">
+                                            <label class="form-label small">Deskripsi Singkat</label>
+                                            <textarea rows="3" class="form-control" id="teamDescription" placeholder="Ceritakan secara singkat pengalaman dan latar belakang..."></textarea>
+                                        </div>
+                                        <div class="col-12">
+                                            <label class="form-label small">Position</label>
+                                            <select class="form-select" id="teamPosition">
+                                                <option value="">Pilih posisi</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-12">
+                                            <label class="form-label small">Alamat Lengkap</label>
+                                            <textarea rows="2" class="form-control" id="teamAddress" placeholder="Masukkan alamat domisili..."></textarea>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label class="form-label small">Nomor Whatsapp</label>
+                                            <input type="tel" class="form-control" id="teamWhatsapp" placeholder="0812...">
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label class="form-label small">Email</label>
+                                            <input type="email" class="form-control" id="teamEmail" placeholder="nama@email.com">
+                                        </div>
+                                        <div class="col-md-3">
+                                            <label class="form-label small">Link Instagram</label>
+                                            <input type="text" class="form-control" id="teamInstagram" placeholder="@username">
+                                        </div>
+                                        <div class="col-md-3">
+                                            <label class="form-label small">Link LinkedIn</label>
+                                            <input type="text" class="form-control" id="teamLinkedin" placeholder="linkedin.com/in/...">
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label class="form-label small">Resume / CV</label>
+                                            <input type="file" class="form-control" id="teamResume">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-dlg-blue">Simpan</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="viewTeamModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-xl modal-dialog-centered">
+            <div class="modal-content border-0 bg-transparent">
+                <div class="modal-body p-0 position-relative">
+                    <button type="button" class="position-absolute top-3 end-3 z-10 border-0 bg-transparent text-gray-400 hover:text-gray-600" data-bs-dismiss="modal" aria-label="Close">
+                        <i class="fa-solid fa-xmark fs-3"></i>
+                    </button>
+                    <div id="viewTeamContent"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        const btnGrid = document.getElementById('btnGrid');
+        const btnList = document.getElementById('btnList');
+        const gridView = document.getElementById('gridView');
+        const listView = document.getElementById('listView');
+        const teamSearchInput = document.getElementById('teamSearchInput');
+        const teamSortSelect = document.getElementById('teamSortSelect');
+
+        function applyTeamFilters() {
+            const term = (teamSearchInput && teamSearchInput.value ? teamSearchInput.value : "").toLowerCase();
+            const sortValue = teamSortSelect ? (teamSortSelect.value || "none") : "none";
+
+            const cards = Array.from(document.querySelectorAll('.team-item'));
+            const rows = Array.from(document.querySelectorAll('.team-row'));
+
+            cards.forEach(card => {
+                const text = card.innerText.toLowerCase();
+                card.style.display = text.includes(term) ? "" : "none";
+            });
+
+            rows.forEach(row => {
+                const text = row.innerText.toLowerCase();
+                row.style.display = text.includes(term) ? "" : "none";
+            });
+
+            if (sortValue === "none") return;
+
+            const compare = (a, b) => {
+                const nameA = (a.dataset.name || "").toLowerCase();
+                const nameB = (b.dataset.name || "").toLowerCase();
+                if (sortValue === "name_asc") {
+                    return nameA.localeCompare(nameB, "id");
+                } else if (sortValue === "name_desc") {
+                    return nameB.localeCompare(nameA, "id");
+                }
+                return 0;
+            };
+
+            const gridContainer = document.getElementById('gridView');
+            const listBody = document.getElementById('teamTableBody');
+
+            const visibleCards = cards.filter(card => card.style.display !== "none");
+            visibleCards.sort(compare).forEach(card => gridContainer.appendChild(card));
+
+            const visibleRows = rows.filter(row => row.style.display !== "none");
+            visibleRows.sort(compare).forEach(row => listBody.appendChild(row));
+        }
+
+        if (gridView && listView) {
+            gridView.style.display = 'grid';
+            listView.style.display = 'none';
+        }
+
+        if (btnGrid && btnList && gridView && listView) {
+            btnGrid.addEventListener('click', () => {
+                btnGrid.classList.add('active');
+                btnList.classList.remove('active');
+                gridView.style.display = 'grid';
+                listView.style.display = 'none';
+            });
+
+            btnList.addEventListener('click', () => {
+                btnList.classList.add('active');
+                btnGrid.classList.remove('active');
+                gridView.style.display = 'none';
+                listView.style.display = 'block';
+            });
+        }
+
+        if (teamSearchInput) {
+            teamSearchInput.addEventListener('input', applyTeamFilters);
+        }
+
+        if (teamSortSelect) {
+            teamSortSelect.addEventListener('change', applyTeamFilters);
+        }
+    </script>
+
+    <script type="module">
+        import { renderTopBar } from "../element/topbar.js";
+        import { renderSidebar } from "../element/sidebar.js";
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+        import {
+            getFirestore,
+            doc,
+            collection,
+            getDoc,
+            getDocs,
+            addDoc,
+            updateDoc,
+            arrayUnion
+        } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+        import {
+            getStorage,
+            ref as storageRef,
+            uploadBytes,
+            getDownloadURL
+        } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js";
+
+        const firebaseConfig = { 
+            apiKey: "AIzaSyDyzzEYbJkkl-N8snrQf14qvj8De4YliV0",
+            authDomain: "pre-dialogika.firebaseapp.com", 
+            projectId: "pre-dialogika", 
+            storageBucket: "pre-dialogika.firebasestorage.app", 
+            messagingSenderId: "343771410480", 
+            appId: "1:343771410480:web:32881c9868522090237df5", 
+            measurementId: "G-SXN811P3N0" 
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+        const storage = getStorage(app);
+
+        const topbarTarget = document.getElementById('topbarContainer');
+        renderTopBar(topbarTarget);
+
+        const sidebarTarget = document.getElementById('sidebarContainer');
+        renderSidebar(sidebarTarget);
+
+        window.toggleSidebar = () => {
+            const sidebar = document.getElementById('sidebarNav');
+            if (sidebar) sidebar.classList.toggle('show');
+        };
+
+        const teamPhotoInput = document.getElementById("teamPhoto");
+        const teamResumeInput = document.getElementById("teamResume");
+        const teamPositionSelect = document.getElementById("teamPosition");
+
+        function escapeHtml(str) {
+            return (str || "").toString()
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#039;");
+        }
+
+        async function loadTeamPositions() {
+            if (!teamPositionSelect) return;
+            try {
+                teamPositionSelect.innerHTML = '<option value="">Pilih posisi</option>';
+                const snap = await getDocs(collection(db, "positions"));
+                if (snap.empty) return;
+                const options = [];
+                snap.forEach(docSnap => {
+                    const data = docSnap.data() || {};
+                    const name = (data.name || "").toString().trim();
+                    if (!name) return;
+                    options.push({ id: docSnap.id, name });
+                });
+                options
+                    .sort((a, b) => a.name.localeCompare(b.name, "id"))
+                    .forEach(item => {
+                        const opt = document.createElement("option");
+                        opt.value = item.id;
+                        opt.textContent = item.name;
+                        teamPositionSelect.appendChild(opt);
+                    });
+            } catch (e) {
+                console.error("Failed to load team positions", e);
+            }
+        }
+
+        function formatCreatedDate(raw) {
+            try {
+                if (!raw) return "";
+                let dateObj = null;
+                if (typeof raw.toDate === "function") {
+                    dateObj = raw.toDate();
+                } else if (raw instanceof Date) {
+                    dateObj = raw;
+                } else if (typeof raw === "string" || typeof raw === "number") {
+                    const tmp = new Date(raw);
+                    if (!isNaN(tmp.getTime())) dateObj = tmp;
+                }
+                if (!dateObj) return "";
+                return dateObj.toLocaleDateString("id-ID", {
+                    day: "2-digit",
+                    month: "short",
+                    year: "numeric"
+                });
+            } catch (e) {
+                return "";
+            }
+        }
+
+        function buildStatusBadge(status) {
+            const value = (status || "").toString().toLowerCase();
+            let cls = "status-badge status-badge-default";
+            if (value === "screening") cls = "status-badge status-badge-screening";
+            else if (value === "radar") cls = "status-badge status-badge-radar";
+            else if (value === "accepted" || value === "accept") cls = "status-badge status-badge-accepted";
+            else if (value === "rejected" || value === "reject") cls = "status-badge status-badge-rejected";
+            const label = value ? value.toUpperCase() : "-";
+            return '<span class="badge rounded-pill ' + cls + '">' + escapeHtml(label) + '</span>';
+        }
+
+        async function uploadFileToStorage(file, folder) {
+            if (!file) return null;
+            const safeFolder = folder || "uploads";
+            const path = safeFolder + "/" + Date.now() + "-" + file.name;
+            const fileRef = storageRef(storage, path);
+            await uploadBytes(fileRef, file);
+            const url = await getDownloadURL(fileRef);
+            return url;
+        }
+
+        async function loadTeamDetail(talentId) {
+            const container = document.getElementById("viewTeamContent");
+            if (!container || !talentId) return;
+            const ref = doc(db, "talents", talentId);
+            const snap = await getDoc(ref);
+            if (!snap.exists()) {
+                container.innerHTML = "";
+                return;
+            }
+            const data = snap.data() || {};
+            const basic = data.basic_info || {};
+            const contact = data.contact_info || {};
+            const education = data.education || {};
+            const profiling = data.profiling || {};
+
+            const name = escapeHtml(basic.full_name || data.full_name || "Tanpa Nama");
+            const campus = escapeHtml(education.campus || education.university || "");
+            const address = escapeHtml(contact.address || "");
+            const instagram = escapeHtml(contact.instagram || "");
+            const linkedin = escapeHtml(contact.linkedin || "");
+            const whatsapp = escapeHtml(contact.whatsapp || contact.phone || "");
+            const email = escapeHtml(contact.email || basic.email || "");
+            const shortDesc = escapeHtml(profiling.short_description || "");
+            const avatarUrl = basic.avatar_url || "https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?auto=format&fit=crop&q=80&w=800";
+
+            container.innerHTML =
+                '<div class="candidate-profile-wrapper py-4 px-2 md:px-4 flex justify-center items-center">' +
+                    '<div class="w-full max-w-4xl">' +
+                        '<div class="relative w-full glass-card rounded-2xl shadow-2xl overflow-hidden">' +
+                            '<div class="flex flex-col md:flex-row">' +
+                                '<div class="md:w-1/3 modal-gradient p-8 text-white">' +
+                                    '<div class="text-center">' +
+                                        '<div class="w-32 h-32 bg-white rounded-full mx-auto mb-4 p-1 shadow-xl">' +
+                                            '<img src="' + avatarUrl + '" alt="' + name + '" class="rounded-full w-full h-full object-cover">' +
+                                        '</div>' +
+                                        '<h2 class="text-2xl font-bold uppercase tracking-wide">' + name + '</h2>' +
+                                        (campus ? '<p class="text-indigo-100 font-light mt-1">' + campus + '</p>' : '') +
+                                    '</div>' +
+                                    '<div class="mt-10 space-y-4 text-sm">' +
+                                        (whatsapp
+                                            ? '<a href="tel:' + whatsapp + '" class="d-flex align-items-center gap-2 text-white-50 mb-1"><i class="fa-solid fa-phone w-5"></i><span>' + whatsapp + '</span></a>'
+                                            : '') +
+                                        (email
+                                            ? '<a href="mailto:' + email + '" class="d-flex align-items-center gap-2 text-white-50 mb-1"><i class="fa-solid fa-envelope w-5"></i><span>' + email + '</span></a>'
+                                            : '') +
+                                        (instagram
+                                            ? '<a href="' + instagram + '" target="_blank" class="d-flex align-items-center gap-2 text-white-50 mb-1"><i class="fa-brands fa-instagram w-5"></i><span>' + instagram + '</span></a>'
+                                            : '') +
+                                        (linkedin
+                                            ? '<a href="' + linkedin + '" target="_blank" class="d-flex align-items-center gap-2 text-white-50 mb-1"><i class="fa-brands fa-linkedin w-5"></i><span>LinkedIn Profile</span></a>'
+                                            : '') +
+                                    '</div>' +
+                                    '<div class="mt-8 text-sm">' +
+                                        (address ? '<h3 class="fw-semibold mb-2">Alamat</h3><p class="text-indigo-100 text-ellipsis-2">' + address + '</p>' : '') +
+                                    '</div>' +
+                                '</div>' +
+                                '<div class="md:w-2/3 p-8 md:p-10 bg-white/90">' +
+                                    '<h3 class="h5 fw-bold mb-3">Profil Singkat</h3>' +
+                                    '<p class="text-muted">' + (shortDesc || "-") + '</p>' +
+                                '</div>' +
+                            '</div>' +
+                        '</div>' +
+                    '</div>' +
+                '</div>';
+        }
+
+        const teamAssignUsersMap = {};
+
+        async function ensureTeamUsersLoaded() {
+            if (Object.keys(teamAssignUsersMap).length > 0) {
+                return teamAssignUsersMap;
+            }
+            if (window.questUsersById && Object.keys(window.questUsersById).length > 0) {
+                Object.assign(teamAssignUsersMap, window.questUsersById);
+                return teamAssignUsersMap;
+            }
+            try {
+                const snap = await getDocs(collection(db, "users"));
+                snap.forEach(docSnap => {
+                    const data = docSnap.data() || {};
+                    const id = docSnap.id;
+                    const name = data.displayName || data.name || data.email || "User";
+                    const photo = data.photo || data.photoURL || data.avatar_url || data.avatar || null;
+                    teamAssignUsersMap[id] = { name, photo };
+                });
+            } catch (e) {}
+            return teamAssignUsersMap;
+        }
+
+        function buildTeamAssignLabelFromIds(userIds) {
+            const ids = Array.isArray(userIds) ? userIds : [];
+            const valid = ids.filter(uid => teamAssignUsersMap[uid]);
+            if (!valid.length) return "";
+            const names = valid.map(uid => (teamAssignUsersMap[uid]?.name || "User"));
+            const shown = names.slice(0, 2);
+            const extra = names.length - shown.length;
+            return extra > 0 ? (shown.join(", ") + " +" + extra) : shown.join(", ");
+        }
+
+        function getTeamSelectedIds(fieldEl) {
+            if (!fieldEl) return [];
+            const items = fieldEl.querySelectorAll(".team-assign-users .assign-user-item");
+            const selected = [];
+            items.forEach(item => {
+                if (item.classList.contains("active")) {
+                    const uid = item.dataset.userId;
+                    if (uid) selected.push(uid);
+                }
+            });
+            return selected;
+        }
+
+        function refreshTeamInterviewerDisplay(fieldEl, selectedIds) {
+            if (!fieldEl) return;
+            const display = fieldEl.querySelector(".team-interviewer-display");
+            const hiddenInput = fieldEl.querySelector(".team-interviewer-input");
+            if (!display || !hiddenInput) return;
+            const ids = Array.isArray(selectedIds) ? selectedIds : [];
+            hiddenInput.value = ids.join(",");
+            if (!ids.length) {
+                display.textContent = "Pilih interviewer...";
+                display.classList.remove("has-value");
+                return;
+            }
+            const label = buildTeamAssignLabelFromIds(ids);
+            if (label) {
+                display.textContent = label;
+                display.classList.add("has-value");
+            } else {
+                display.textContent = "Pilih interviewer...";
+                display.classList.remove("has-value");
+            }
+        }
+
+        async function saveTeamInterviewers(talentId, interviewerIds) {
+            if (!talentId) return;
+            const ids = Array.isArray(interviewerIds) ? interviewerIds.filter(Boolean) : [];
+            const ref = doc(db, "talents", talentId);
+            try {
+                await updateDoc(ref, {
+                    interviewers: ids
+                });
+            } catch (e) {
+                console.error("Failed to save team interviewers", e);
+            }
+        }
+
+        function buildTeamAssignItem(fieldEl, container, userId, userData, selectedSet) {
+            const name = userData && userData.name ? userData.name : "User";
+            const photo = userData ? userData.photo : null;
+            const item = document.createElement("div");
+            item.className = "assign-user-item";
+            item.dataset.userId = userId;
+            item.dataset.name = name;
+            if (selectedSet && selectedSet.has(userId)) {
+                item.classList.add("active");
+            }
+            const left = document.createElement("div");
+            left.className = "assign-user-left";
+            let avatarElement;
+            if (photo) {
+                avatarElement = document.createElement("img");
+                avatarElement.src = photo;
+                avatarElement.alt = name;
+                avatarElement.className = "assign-user-avatar";
+            } else {
+                avatarElement = document.createElement("div");
+                avatarElement.className = "assign-user-initials";
+                const initials = name.split(" ").map(w => w[0]).join("").substring(0, 2).toUpperCase();
+                avatarElement.textContent = initials || "U";
+            }
+            const nameSpan = document.createElement("div");
+            nameSpan.className = "assign-user-name";
+            nameSpan.textContent = name;
+            left.appendChild(avatarElement);
+            left.appendChild(nameSpan);
+            const right = document.createElement("div");
+            right.className = "assign-user-checkbox";
+            const checkbox = document.createElement("input");
+            checkbox.type = "checkbox";
+            checkbox.checked = selectedSet && selectedSet.has(userId);
+            checkbox.addEventListener("change", () => {
+                item.classList.toggle("active", checkbox.checked);
+                const selectedIds = getTeamSelectedIds(fieldEl);
+                refreshTeamInterviewerDisplay(fieldEl, selectedIds);
+                const talentId = fieldEl.dataset.talentId || "";
+                if (talentId) {
+                    saveTeamInterviewers(talentId, selectedIds);
+                }
+            });
+            right.appendChild(checkbox);
+            item.appendChild(left);
+            item.appendChild(right);
+            item.addEventListener("click", (ev) => {
+                if (ev.target.tagName.toLowerCase() !== "input") {
+                    checkbox.checked = !checkbox.checked;
+                    const event = new Event("change");
+                    checkbox.dispatchEvent(event);
+                }
+            });
+            container.appendChild(item);
+        }
+
+        async function openTeamInterviewerDropdownForField(fieldEl) {
+            if (!fieldEl) return;
+            const panel = fieldEl.querySelector(".team-interviewer-panel");
+            const listContainer = fieldEl.querySelector(".team-assign-users");
+            const hiddenInput = fieldEl.querySelector(".team-interviewer-input");
+            if (!panel || !listContainer || !hiddenInput) return;
+            listContainer.innerHTML = "";
+            const users = await ensureTeamUsersLoaded();
+            const currentIds = (hiddenInput.value || "").split(",").map(v => v.trim()).filter(Boolean);
+            const selectedSet = new Set(currentIds);
+            const entries = Object.entries(users);
+            entries
+                .sort((a, b) => {
+                    const nameA = (a[1].name || "").toLowerCase();
+                    const nameB = (b[1].name || "").toLowerCase();
+                    return nameA.localeCompare(nameB, "id");
+                })
+                .forEach(([uid, data]) => {
+                    buildTeamAssignItem(fieldEl, listContainer, uid, data, selectedSet);
+                });
+            refreshTeamInterviewerDisplay(fieldEl, currentIds);
+        }
+
+        async function updateTeamStatus(talentId, newStatus, actorName) {
+            if (!talentId || !newStatus) return;
+            const ref = doc(db, "talents", talentId);
+            const nowIso = new Date().toISOString();
+            const logEntry = {
+                action: "team_status_change",
+                to: newStatus,
+                by: actorName || null,
+                date: nowIso
+            };
+            try {
+                await updateDoc(ref, {
+                    "recruitment_status.current": newStatus,
+                    "recruitment_status.history": arrayUnion({
+                        status: newStatus,
+                        date: nowIso
+                    }),
+                    logs: arrayUnion(logEntry)
+                });
+            } catch (e) {
+                console.error("Failed to update team status", e);
+            }
+        }
+
+        function updateTeamStatusUI(talentId, newStatus, sourceSelect) {
+            if (!talentId) return;
+            const selects = document.querySelectorAll('.team-status-select[data-talent-id="' + talentId + '"]');
+            selects.forEach(sel => {
+                if (sel !== sourceSelect) {
+                    sel.value = newStatus;
+                }
+            });
+            const card = document.querySelector('.team-item[data-talent-id="' + talentId + '"]');
+            if (card) {
+                const badge = card.querySelector(".status-badge");
+                if (badge) {
+                    const value = (newStatus || "").toString().toLowerCase();
+                    let cls = "status-badge-default";
+                    if (value === "screening") cls = "status-badge-screening";
+                    else if (value === "radar") cls = "status-badge-radar";
+                    else if (value === "accepted" || value === "accept") cls = "status-badge-accepted";
+                    else if (value === "rejected" || value === "reject") cls = "status-badge-rejected";
+                    badge.className = "badge rounded-pill status-badge " + cls;
+                    badge.textContent = value ? value.toUpperCase() : "-";
+                }
+            }
+        }
+
+        function appendTeamToTable(params) {
+            const tbody = document.getElementById("teamTableBody");
+            const gridContainer = document.getElementById("gridView");
+            if (!tbody || !gridContainer) return;
+
+            const name = escapeHtml(params.name || "Tanpa Nama");
+            const avatarUrl = params.avatarUrl || "https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?auto=format&fit=crop&q=80&w=800";
+            const resumeUrl = params.resumeUrl || "";
+            const statusText = params.statusCandidate || "";
+            const createdText = escapeHtml(params.createdText || "");
+            const instagramUrl = params.instagramUrl || "";
+            const linkedinUrl = params.linkedinUrl || "";
+            const address = escapeHtml(params.address || "");
+            const whatsapp = escapeHtml(params.whatsapp || "");
+            const email = escapeHtml(params.email || "");
+            const talentId = params.talentId || "";
+            const interviewers = Array.isArray(params.interviewers) ? params.interviewers.filter(Boolean) : [];
+
+            const card = document.createElement("div");
+            card.className = "team-item";
+            card.dataset.name = name;
+            card.dataset.talentId = talentId;
+            card.innerHTML =
+                '<div class="talent-card group bg-white rounded-[32px] overflow-hidden border border-slate-100 shadow-sm hover:shadow-2xl hover:shadow-slate-200 transition-all duration-500 flex flex-col">' +
+                    '<div class="relative aspect-square overflow-hidden bg-slate-100">' +
+                        '<img src="' + avatarUrl + '" alt="' + name + '" class="w-full h-full object-cover">' +
+                        '<div class="absolute bottom-4 left-4">' +
+                            '<span class="badge rounded-pill status-badge status-badge-default">' + (statusText ? statusText.toUpperCase() : '-') + '</span>' +
+                        '</div>' +
+                    '</div>' +
+                    '<div class="p-4 md:p-6 flex flex-col flex-grow">' +
+                        '<div class="mb-3">' +
+                            '<h3 class="text-sm md:text-base font-bold text-slate-900 leading-tight">' + name + '</h3>' +
+                            (createdText
+                                ? '<p class="text-[11px] text-slate-400 mt-1 uppercase tracking-wider"><i class="fas fa-calendar-alt me-1"></i>' + createdText + '</p>'
+                                : '') +
+                        '</div>' +
+                        '<div class="space-y-1 mb-4 text-[11px] text-slate-600">' +
+                            (address ? '<div class="d-flex align-items-start gap-2"><i class="fas fa-map-marker-alt text-slate-300 mt-1"></i><span class="text-ellipsis-2">' + address + '</span></div>' : '') +
+                        '</div>' +
+                        '<div class="mt-auto d-flex justify-content-between align-items-center gap-2">' +
+                            '<div class="d-flex align-items-center gap-2">' +
+                                (instagramUrl ? '<a href="' + instagramUrl + '" target="_blank" class="btn btn-sm btn-light rounded-3 border-0" title="Instagram"><i class="fab fa-instagram text-danger"></i></a>' : '') +
+                                (linkedinUrl ? '<a href="' + linkedinUrl + '" target="_blank" class="btn btn-sm btn-light rounded-3 border-0" title="LinkedIn"><i class="fab fa-linkedin text-primary"></i></a>' : '') +
+                            '</div>' +
+                            '<button type="button" class="btn btn-sm btn-outline-dark rounded-3 team-view-btn">View Profile</button>' +
+                        '</div>' +
+                    '</div>' +
+                '</div>';
+
+            const row = document.createElement("div");
+            row.className = "team-row bg-white border border-slate-100 rounded-2xl p-4 md:p-5 shadow-sm hover:shadow-md transition-shadow";
+            row.dataset.name = name;
+            row.dataset.talentId = talentId;
+            row.innerHTML =
+                '<div class="flex flex-col lg:flex-row gap-4 md:gap-6">' +
+                    '<div class="flex items-center gap-4 lg:w-1/4">' +
+                        '<img src="' + avatarUrl + '" alt="' + name + '" class="w-16 h-16 rounded-xl object-cover border-2 border-blue-50 shadow-sm">' +
+                        '<div>' +
+                            '<h3 class="font-bold text-slate-800 text-sm md:text-base leading-tight mb-1">' + name + '</h3>' +
+                            (createdText
+                                ? '<p class="text-xs text-slate-500 mb-1">Mendaftar: ' + createdText + '</p>'
+                                : '') +
+                            '<div class="mt-1 team-interviewer-field" data-talent-id="' + talentId + '">' +
+                                '<div class="team-interviewer-display assign-display small">Pilih interviewer...</div>' +
+                                '<div class="team-interviewer-panel assign-dropdown mt-1">' +
+                                    '<div class="assign-panel card border-0 shadow-sm">' +
+                                        '<div class="card-body p-2">' +
+                                            '<div class="assign-search mb-2 d-flex align-items-center gap-2">' +
+                                                '<span class="assign-search-icon text-muted"><i class="fas fa-search"></i></span>' +
+                                                '<input type="text" class="form-control form-control-sm assign-search-input team-interviewer-search" placeholder="Search...">' +
+                                            '</div>' +
+                                            '<div class="assign-list">' +
+                                                '<div class="assign-list-header text-uppercase text-[10px] text-slate-400 fw-bold mb-1">People</div>' +
+                                                '<div class="team-assign-users"></div>' +
+                                            '</div>' +
+                                        '</div>' +
+                                    '</div>' +
+                                '</div>' +
+                                '<input type="hidden" class="team-interviewer-input" value="' + interviewers.join(",") + '">' +
+                            '</div>' +
+                        '</div>' +
+                    '</div>' +
+                    '<div class="flex-1 grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-4 items-center border-y lg:border-y-0 lg:border-x border-slate-50 py-3 lg:py-0 px-0 lg:px-4">' +
+                        '<div>' +
+                            '<span class="text-[10px] uppercase tracking-wider font-bold text-slate-400 block mb-1">Status</span>' +
+                            '<select class="form-select form-select-sm team-status-select" data-talent-id="' + talentId + '">' +
+                                '<option value="screening"' + (statusText.toLowerCase() === "screening" ? ' selected' : '') + '>Screening</option>' +
+                                '<option value="interview"' + (statusText.toLowerCase() === "interview" ? ' selected' : '') + '>Interview</option>' +
+                                '<option value="microteaching"' + (statusText.toLowerCase() === "microteaching" ? ' selected' : '') + '>Microteaching</option>' +
+                                '<option value="decision"' + (statusText.toLowerCase() === "decision" ? ' selected' : '') + '>Decision</option>' +
+                                '<option value="rejected"' + (statusText.toLowerCase() === "rejected" || statusText.toLowerCase() === "reject" ? ' selected' : '') + '>Reject</option>' +
+                                '<option value="accepted"' + (statusText.toLowerCase() === "accepted" || statusText.toLowerCase() === "accept" ? ' selected' : '') + '>Accept</option>' +
+                            '</select>' +
+                        '</div>' +
+                        '<div class="col-span-2">' +
+                            '<span class="text-[10px] uppercase tracking-wider font-bold text-slate-400 block mb-1">Alamat</span>' +
+                            '<p class="text-sm text-slate-600 truncate">' + (address || '-') + '</p>' +
+                        '</div>' +
+                    '</div>' +
+                    '<div class="lg:w-1/4 flex flex-col justify-center gap-3 mt-3 lg:mt-0">' +
+                        '<div class="d-flex gap-2">' +
+                            (whatsapp
+                                ? '<a href="https://wa.me/' + whatsapp.replace(/[^0-9]/g, "") + '" target="_blank" class="flex-1 d-flex align-items-center justify-content-center gap-2 bg-emerald-50 text-emerald-700 text-sm fw-semibold py-2 px-3 rounded-lg text-decoration-none">' +
+                                    '<i class="fa-brands fa-whatsapp fs-5"></i><span>WhatsApp</span>' +
+                                  '</a>'
+                                : '') +
+                            (email
+                                ? '<a href="mailto:' + email + '" class="px-3 d-flex align-items-center justify-content-center bg-slate-50 text-slate-600 rounded-lg text-decoration-none">' +
+                                    '<i class="fa-regular fa-envelope"></i>' +
+                                  '</a>'
+                                : '') +
+                        '</div>' +
+                        '<div class="d-flex align-items-center justify-content-between">' +
+                            '<div class="d-flex gap-3 text-slate-400 text-sm">' +
+                                (instagramUrl
+                                    ? '<a href="' + instagramUrl + '" target="_blank" class="text-slate-400 hover:text-pink-500 text-decoration-none"><i class="fa-brands fa-instagram"></i></a>'
+                                    : '') +
+                                (linkedinUrl
+                                    ? '<a href="' + linkedinUrl + '" target="_blank" class="text-slate-400 hover:text-blue-700 text-decoration-none"><i class="fa-brands fa-linkedin"></i></a>'
+                                    : '') +
+                                (resumeUrl
+                                    ? '<a href="' + resumeUrl + '" target="_blank" class="text-slate-400 hover:text-blue-600 text-decoration-none"><i class="fa-solid fa-file-pdf"></i> CV</a>'
+                                    : '') +
+                            '</div>' +
+                            '<button type="button" class="text-blue-600 hover:text-blue-800 text-sm fw-bold d-flex align-items-center gap-1 border-0 bg-transparent team-view-btn">' +
+                                '<span>Detail</span>' +
+                                '<i class="fa-solid fa-chevron-right" style="font-size: 10px;"></i>' +
+                            '</button>' +
+                        '</div>' +
+                    '</div>' +
+                '</div>';
+
+            gridContainer.appendChild(card);
+            tbody.appendChild(row);
+        }
+
+        async function loadTeamCandidates() {
+            const tbody = document.getElementById("teamTableBody");
+            const gridContainer = document.getElementById("gridView");
+            if (!tbody || !gridContainer) return;
+            tbody.innerHTML = "";
+            gridContainer.innerHTML = "";
+            try {
+                const snap = await getDocs(collection(db, "talents"));
+                if (snap.empty) {
+                    tbody.innerHTML =
+                        '<tr><td colspan="13" class="text-center text-muted small py-4">Belum ada data kandidat team yang dapat ditampilkan.</td></tr>';
+                    return;
+                }
+                let found = 0;
+                snap.forEach(docSnap => {
+                    const data = docSnap.data() || {};
+                    const basic = data.basic_info || {};
+                    const scouting = data.scouting_info || {};
+                    const internship = data.internship || data.internship_info || {};
+                    const contact = data.contact_info || {};
+
+                    const roleIdRaw = data.role_id || data.roleId || scouting.role_id || internship.role_id || "";
+                    const roleNameRaw = data.role_name || data.role || basic.current_role || scouting.role_name || "";
+                    const roleIdValue = (roleIdRaw || "").toString().trim().toLowerCase();
+                    const roleNameValue = (roleNameRaw || "").toString().trim().toLowerCase();
+                    const normalizedRoleId = roleIdValue.replace(/\s/g, "");
+                    const normalizedRoleName = roleNameValue.replace(/\s/g, "");
+                    const isInternshipRole = normalizedRoleId === "internship" && normalizedRoleName === "internship";
+                    const isMentorRole = normalizedRoleId === "mentor" && normalizedRoleName === "mentor";
+
+                    const name = basic.full_name || scouting.full_name || data.full_name || "Tanpa Nama";
+                    const avatarUrl = basic.avatar_url || null;
+
+                    const recruitment = data.recruitment_status || data.recruitment_system || {};
+                    const statusCandidate = recruitment.current || "";
+                    const history = Array.isArray(recruitment.history) ? recruitment.history : [];
+                    const hasRadarHistory = history.some(item => ((item && item.status) || "").toString().toLowerCase() === "radar");
+                    const isRadarCurrent = (statusCandidate || "").toString().toLowerCase() === "radar";
+
+                    if (isInternshipRole || isMentorRole || hasRadarHistory || isRadarCurrent) {
+                        return;
+                    }
+
+                    const createdRaw = data.created_at || data.createdAt || data.created || null;
+                    const createdText = formatCreatedDate(createdRaw);
+
+                    const instagramUrl = contact.instagram || internship.instagram || "";
+                    const linkedinUrl = contact.linkedin || internship.linkedin || "";
+                    const address = contact.address || internship.address || "";
+                    const whatsapp = contact.whatsapp || contact.phone || internship.whatsapp || "";
+                    const email = contact.email || basic.email || internship.email || "";
+
+                    const resumeUrl = internship.resume_url || data.resume_url || "";
+
+                    const interviewers = Array.isArray(data.interviewers)
+                        ? data.interviewers.filter(Boolean)
+                        : [];
+
+                    appendTeamToTable({
+                        name,
+                        avatarUrl,
+                        resumeUrl,
+                        statusCandidate,
+                        createdText,
+                        instagramUrl,
+                        linkedinUrl,
+                        address,
+                        whatsapp,
+                        email,
+                        talentId: docSnap.id,
+                        interviewers
+                    });
+                    found += 1;
+                });
+                if (!found) {
+                    tbody.innerHTML =
+                        '<tr><td colspan="13" class="text-center text-muted small py-4">Belum ada data kandidat team yang dapat ditampilkan.</td></tr>';
+                }
+                applyTeamFilters();
+            } catch (e) {
+                console.error("Failed to load team candidates", e);
+                tbody.innerHTML =
+                    '<tr><td colspan="13" class="text-center text-danger small py-4">Gagal memuat data kandidat team.</td></tr>';
+            }
+        }
+
+        async function saveTeamCandidate() {
+            const formEl = document.getElementById("addTeamForm");
+            const saveBtn = document.querySelector('#addTeamModal .modal-footer .btn-dlg-blue');
+            if (!formEl) return;
+
+            const fullNameInput = document.getElementById("teamFullName");
+            const descriptionInput = document.getElementById("teamDescription");
+            const addressInput = document.getElementById("teamAddress");
+            const whatsappInput = document.getElementById("teamWhatsapp");
+            const emailInput = document.getElementById("teamEmail");
+            const instagramInput = document.getElementById("teamInstagram");
+            const linkedinInput = document.getElementById("teamLinkedin");
+
+            const fullName = fullNameInput ? (fullNameInput.value || "").trim() : "";
+            const description = descriptionInput ? (descriptionInput.value || "").trim() : "";
+            const address = addressInput ? (addressInput.value || "").trim() : "";
+            const whatsapp = whatsappInput ? (whatsappInput.value || "").trim() : "";
+            const email = emailInput ? (emailInput.value || "").trim() : "";
+            const instagram = instagramInput ? (instagramInput.value || "").trim() : "";
+            const linkedin = linkedinInput ? (linkedinInput.value || "").trim() : "";
+
+            let positionId = "";
+            let positionName = "";
+            if (teamPositionSelect) {
+                positionId = teamPositionSelect.value || "";
+                if (teamPositionSelect.selectedIndex > -1) {
+                    positionName = teamPositionSelect.options[teamPositionSelect.selectedIndex].text || "";
+                }
+            }
+
+            if (!fullName) {
+                alert("Nama lengkap wajib diisi.");
+                return;
+            }
+
+            const ROLE_ID = "sub_team";
+            const ROLE_NAME = "Sub Team";
+
+            let avatarUrl = null;
+            let resumeUrl = null;
+
+            const photoFile = teamPhotoInput && teamPhotoInput.files && teamPhotoInput.files[0]
+                ? teamPhotoInput.files[0]
+                : null;
+            const resumeFile = teamResumeInput && teamResumeInput.files && teamResumeInput.files[0]
+                ? teamResumeInput.files[0]
+                : null;
+
+            const nowIso = new Date().toISOString();
+
+            const payload = {
+                basic_info: {
+                    full_name: fullName,
+                    current_role: ROLE_NAME,
+                    avatar_url: avatarUrl || null
+                },
+                contact_info: {
+                    address: address || null,
+                    whatsapp: whatsapp || null,
+                    email: email || null,
+                    instagram: instagram || null,
+                    linkedin: linkedin || null
+                },
+                profiling: {
+                    short_description: description || null
+                },
+                internship: {
+                    resume_url: resumeUrl || null,
+                    role_id: ROLE_ID,
+                    role_name: ROLE_NAME
+                },
+                position_id: positionId || null,
+                position_name: positionName || null,
+                role_id: ROLE_ID,
+                role_name: ROLE_NAME,
+                recruitment_status: {
+                    current: "screening",
+                    history: [
+                        { status: "screening", date: nowIso }
+                    ]
+                },
+                created_at: new Date()
+            };
+
+            try {
+                if (saveBtn) {
+                    saveBtn.disabled = true;
+                    saveBtn.textContent = "Menyimpan...";
+                }
+                if (photoFile) {
+                    avatarUrl = await uploadFileToStorage(photoFile, "talent-avatars");
+                    payload.basic_info.avatar_url = avatarUrl || null;
+                }
+                if (resumeFile) {
+                    resumeUrl = await uploadFileToStorage(resumeFile, "talent-resume");
+                    payload.internship.resume_url = resumeUrl || null;
+                }
+
+                await addDoc(collection(db, "talents"), payload);
+
+                formEl.reset();
+                const modalEl = document.getElementById("addTeamModal");
+                if (modalEl && window.bootstrap && window.bootstrap.Modal) {
+                    const modalInstance = window.bootstrap.Modal.getInstance(modalEl) || new window.bootstrap.Modal(modalEl);
+                    modalInstance.hide();
+                }
+                await loadTeamCandidates();
+                alert("Data candidate team berhasil disimpan.");
+            } catch (e) {
+                console.error("Gagal menyimpan candidate team", e);
+                alert("Gagal menyimpan data. Silakan coba lagi.");
+            } finally {
+                if (saveBtn) {
+                    saveBtn.disabled = false;
+                    saveBtn.textContent = "Simpan";
+                }
+            }
+        }
+
+        const saveTeamBtn = document.querySelector('#addTeamModal .modal-footer .btn-dlg-blue');
+        if (saveTeamBtn) {
+            saveTeamBtn.addEventListener('click', saveTeamCandidate);
+        }
+
+        document.addEventListener("click", async (e) => {
+            const viewBtn = e.target.closest(".team-view-btn");
+            if (viewBtn) {
+                const row = viewBtn.closest(".team-row");
+                const card = viewBtn.closest(".team-item");
+                const el = row || card;
+                const talentId = el && el.dataset ? el.dataset.talentId : null;
+                if (!talentId) return;
+                try {
+                    await loadTeamDetail(talentId);
+                    const modalEl = document.getElementById("viewTeamModal");
+                    if (modalEl && window.bootstrap && window.bootstrap.Modal) {
+                        const modalInstance = window.bootstrap.Modal.getInstance(modalEl) || new window.bootstrap.Modal(modalEl);
+                        modalInstance.show();
+                    }
+                } catch (err) {
+                    console.error(err);
+                    alert("Gagal memuat detail kandidat.");
+                }
+            }
+        });
+
+        document.addEventListener("click", async (e) => {
+            const display = e.target.closest(".team-interviewer-display");
+            if (display) {
+                e.preventDefault();
+                const fieldEl = display.closest(".team-interviewer-field");
+                if (!fieldEl) return;
+                const panel = fieldEl.querySelector(".team-interviewer-panel");
+                if (!panel) return;
+                const alreadyOpen = panel.classList.contains("open");
+                const allPanels = document.querySelectorAll(".team-interviewer-panel.open");
+                allPanels.forEach(p => {
+                    if (p !== panel) {
+                        p.classList.remove("open");
+                    }
+                });
+                if (!alreadyOpen) {
+                    await openTeamInterviewerDropdownForField(fieldEl);
+                    panel.classList.add("open");
+                    const searchInput = fieldEl.querySelector(".team-interviewer-search");
+                    if (searchInput) {
+                        searchInput.focus();
+                    }
+                } else {
+                    panel.classList.remove("open");
+                }
+                return;
+            }
+            const openPanels = document.querySelectorAll(".team-interviewer-panel.open");
+            openPanels.forEach(panel => {
+                if (!panel.contains(e.target)) {
+                    panel.classList.remove("open");
+                }
+            });
+        });
+
+        document.addEventListener("input", (e) => {
+            const search = e.target.closest(".team-interviewer-search");
+            if (!search) return;
+            const fieldEl = search.closest(".team-interviewer-field");
+            if (!fieldEl) return;
+            const term = search.value.toLowerCase();
+            const items = fieldEl.querySelectorAll(".team-assign-users .assign-user-item");
+            items.forEach(item => {
+                const text = (item.dataset.name || "").toLowerCase();
+                item.style.display = text.includes(term) ? "" : "none";
+            });
+        });
+
+        document.addEventListener("change", async (e) => {
+            const select = e.target.closest(".team-status-select");
+            if (select) {
+                const talentId = select.dataset.talentId || "";
+                const newStatus = select.value || "";
+                if (!talentId || !newStatus) return;
+                updateTeamStatusUI(talentId, newStatus, select);
+                await updateTeamStatus(talentId, newStatus, (auth.currentUser && auth.currentUser.displayName) || null);
+            }
+        });
+
+        onAuthStateChanged(auth, (user) => {
+            if (!user) {
+                window.location.href = "../index.html";
+                return;
+            }
+            loadTeamPositions();
+            loadTeamCandidates();
+        });
+    </script>
+</body>
+</html>

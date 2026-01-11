@@ -948,9 +948,25 @@
             listTbody.innerHTML = "";
             try {
                 const snap = await getDocs(collection(db, "talents"));
-                if (snap.empty) return;
+                if (snap.empty) {
+                    gridContainer.innerHTML =
+                        '<div class="col-12 py-5 text-center text-muted small">Belum ada data kandidat scouting yang dapat ditampilkan.</div>';
+                    listTbody.innerHTML =
+                        '<tr><td colspan="5" class="text-center text-muted small py-4">Belum ada data kandidat scouting yang dapat ditampilkan.</td></tr>';
+                    return;
+                }
+                let found = 0;
                 snap.forEach(docSnap => {
                     const data = docSnap.data() || {};
+                    const recruitment = data.recruitment_status || {};
+                    const history = Array.isArray(recruitment.history) ? recruitment.history : [];
+                    const hasRadarHistory = history.some(item => {
+                        const status = (item && item.status) ? item.status.toString().toLowerCase() : "";
+                        return status === "radar";
+                    });
+                    if (!hasRadarHistory) {
+                        return;
+                    }
                     const basic = data.basic_info || {};
                     const scouting = data.scouting_info || {};
                     const name = basic.full_name || scouting.full_name || "Tanpa Nama";
@@ -979,7 +995,14 @@
                         assignAvatarHtml,
                         talentId: docSnap.id
                     });
+                    found += 1;
                 });
+                if (!found) {
+                    gridContainer.innerHTML =
+                        '<div class="col-12 py-5 text-center text-muted small">Belum ada data kandidat scouting dengan status radar.</div>';
+                    listTbody.innerHTML =
+                        '<tr><td colspan="5" class="text-center text-muted small py-4">Belum ada data kandidat scouting dengan status radar.</td></tr>';
+                }
             } catch (e) {}
         }
 
