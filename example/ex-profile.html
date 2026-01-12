@@ -7,7 +7,6 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-    <script src="https://unpkg.com/lucide@latest"></script>
     <link href="../assets/css/style.css" rel="stylesheet" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -337,143 +336,6 @@
         .photo-upload-box.has-photo .photo-upload-inner {
             display: none;
         }
-
-        .sticky-menu-trigger {
-            position: fixed;
-            right: 30px;
-            top: 30%;
-            z-index: 1000;
-            cursor: pointer;
-            background: linear-gradient(to bottom, #0f61a8 5%, #0b2b6a 100%);
-            color: #ffffff;
-            width: 60px;
-            height: 60px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            box-shadow: 0px 5px 16px -6px rgba(114, 4, 207, 1);
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
-        .sticky-menu-trigger:hover {
-            transform: scale(1.05) rotate(90deg);
-        }
-
-        .menu-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(15, 23, 42, 0.6);
-            backdrop-filter: blur(8px);
-            z-index: 999;
-            opacity: 0;
-            visibility: hidden;
-            transition: all 0.4s ease;
-        }
-
-        .menu-overlay.active {
-            opacity: 1;
-            visibility: visible;
-        }
-
-        .menu-container {
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -60%) scale(0.9);
-            z-index: 1001;
-            width: 90%;
-            max-width: 800px;
-            background: rgba(255, 255, 255, 0.95);
-            padding: 32px;
-            border-radius: 24px;
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
-            opacity: 0;
-            visibility: hidden;
-            transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
-        }
-
-        .menu-container.active {
-            opacity: 1;
-            visibility: visible;
-            transform: translate(-50%, -50%) scale(1);
-        }
-
-        .menu-header {
-            text-align: center;
-            margin-bottom: 24px;
-        }
-
-        .menu-header h2 {
-            font-size: 1.4rem;
-            font-weight: 600;
-            color: #334155;
-        }
-
-        .menu-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-            gap: 16px;
-        }
-
-        .menu-item {
-            background: #ffffff;
-            padding: 24px 16px;
-            border-radius: 16px;
-            text-align: center;
-            text-decoration: none;
-            color: #1f2933;
-            transition: all 0.3s ease;
-            border: 1px solid #e2e8f0;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 12px;
-        }
-
-        .menu-item:hover {
-            background: #0B2B6A;
-            color: #ffffff;
-            transform: translateY(-4px);
-            box-shadow: 0 15px 30px rgba(11, 43, 106, 0.35);
-            border-color: #0B2B6A;
-        }
-
-        .menu-item i {
-            width: 40px;
-            height: 40px;
-            stroke-width: 1.5;
-        }
-
-        .menu-item span {
-            font-weight: 600;
-            font-size: 0.95rem;
-        }
-
-        .close-btn {
-            position: absolute;
-            top: 16px;
-            right: 16px;
-            cursor: pointer;
-            color: #64748b;
-            transition: color 0.3s;
-        }
-
-        .close-btn:hover {
-            color: #ef4444;
-        }
-
-        @media (max-width: 600px) {
-            .menu-grid {
-                grid-template-columns: repeat(2, 1fr);
-            }
-            .menu-item {
-                padding: 20px 10px;
-            }
-        }
     </style>
 </head>
 <body class="p-8">
@@ -505,7 +367,7 @@
                     </div>
 
                     <div class="filter-panel">
-                        <div class="row g-3 justify-content-between align-items-center">
+                        <div class="row g-3 justify-content-between">
                             <div class="col-md-6">
                                 <div class="input-group border-0 bg-light rounded-4 px-2">
                                     <span class="input-group-text bg-transparent border-0"><i class="fas fa-search text-muted"></i></span>
@@ -513,24 +375,8 @@
                                 </div>
                             </div>
                             <div class="col-md-3">
-                                <select id="candidateStatusFilter" class="form-select border-0 bg-light rounded-4 w-100 shadow-none py-2 px-3 fw-bold" style="font-size: 13px;">
-                                    <option value="">Semua status</option>
-                                    <option value="screening">Screening</option>
-                                    <option value="interview">Interview</option>
-                                    <option value="microteaching">Microteaching</option>
-                                    <option value="decision">Decision</option>
-                                    <option value="accepted">Accept</option>
-                                    <option value="rejected">Reject</option>
-                                </select>
-                            </div>
-                            <div class="col-md-3">
                                 <select id="candidateSortSelect" class="form-select border-0 bg-light rounded-4 w-100 shadow-none py-2 px-3 fw-bold" style="font-size: 13px;">
                                     <option value="none">Urutkan</option>
-                                    <option value="status">Status</option>
-                                    <option value="created_desc">Tanggal input (terbaru)</option>
-                                    <option value="created_asc">Tanggal input (terlama)</option>
-                                    <option value="interview_asc">Tanggal interview (terdekat)</option>
-                                    <option value="interview_desc">Tanggal interview (terjauh)</option>
                                     <option value="name_asc">Nama A-Z</option>
                                     <option value="name_desc">Nama Z-A</option>
                                 </select>
@@ -719,12 +565,10 @@
         const gridView = document.getElementById('gridView');
         const listView = document.getElementById('listView');
         const searchInput = document.getElementById('candidateSearchInput');
-        const statusFilter = document.getElementById('candidateStatusFilter');
         const sortSelect = document.getElementById('candidateSortSelect');
 
         function applyCandidateFilters() {
             const term = (searchInput?.value || "").toLowerCase();
-            const statusValue = statusFilter ? (statusFilter.value || "").toLowerCase() : "";
             const sortValue = sortSelect?.value || "none";
 
             const gridItems = Array.from(document.querySelectorAll('.candidate-item'));
@@ -732,18 +576,12 @@
 
             gridItems.forEach(item => {
                 const text = item.innerText.toLowerCase();
-                const itemStatus = (item.dataset.status || "").toLowerCase();
-                const matchesSearch = text.includes(term);
-                const matchesStatus = !statusValue || itemStatus === statusValue;
-                item.style.display = matchesSearch && matchesStatus ? "" : "none";
+                item.style.display = text.includes(term) ? "" : "none";
             });
 
             listRows.forEach(row => {
                 const text = row.innerText.toLowerCase();
-                const rowStatus = (row.dataset.status || "").toLowerCase();
-                const matchesSearch = text.includes(term);
-                const matchesStatus = !statusValue || rowStatus === statusValue;
-                row.style.display = matchesSearch && matchesStatus ? "" : "none";
+                row.style.display = text.includes(term) ? "" : "none";
             });
 
             if (sortValue === "none") return;
@@ -751,28 +589,7 @@
             const compare = (a, b) => {
                 const nameA = (a.dataset.name || "").toLowerCase();
                 const nameB = (b.dataset.name || "").toLowerCase();
-                const statusA = (a.dataset.status || "").toLowerCase();
-                const statusB = (b.dataset.status || "").toLowerCase();
-                const createdA = Number(a.dataset.created || "0");
-                const createdB = Number(b.dataset.created || "0");
-                const dueA = a.dataset.dueDate || "";
-                const dueB = b.dataset.dueDate || "";
-
-                if (sortValue === "status") {
-                    return statusA.localeCompare(statusB, "id");
-                } else if (sortValue === "created_desc") {
-                    return createdB - createdA;
-                } else if (sortValue === "created_asc") {
-                    return createdA - createdB;
-                } else if (sortValue === "interview_asc") {
-                    const valA = dueA || "9999-12-31";
-                    const valB = dueB || "9999-12-31";
-                    return valA.localeCompare(valB, "id");
-                } else if (sortValue === "interview_desc") {
-                    const valA = dueA || "0000-01-01";
-                    const valB = dueB || "0000-01-01";
-                    return valB.localeCompare(valA, "id");
-                } else if (sortValue === "name_asc") {
+                if (sortValue === "name_asc") {
                     return nameA.localeCompare(nameB, "id");
                 } else if (sortValue === "name_desc") {
                     return nameB.localeCompare(nameA, "id");
@@ -806,10 +623,6 @@
 
         if (searchInput) {
             searchInput.addEventListener('input', applyCandidateFilters);
-        }
-
-        if (statusFilter) {
-            statusFilter.addEventListener('change', applyCandidateFilters);
         }
 
         if (sortSelect) {
@@ -886,7 +699,6 @@
     <script type="module">
         import { renderTopBar } from "../element/topbar.js";
         import { renderSidebar } from "../element/sidebar.js";
-        import { renderRightbarRecruit } from "../element/rightbar-recruit.js";
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
         import {
@@ -928,7 +740,6 @@
 
         const sidebarTarget = document.getElementById('sidebarContainer');
         renderSidebar(sidebarTarget);
-        renderRightbarRecruit();
 
         window.toggleSidebar = () => {
             const sidebar = document.getElementById('sidebarNav');
@@ -1137,25 +948,9 @@
             listTbody.innerHTML = "";
             try {
                 const snap = await getDocs(collection(db, "talents"));
-                if (snap.empty) {
-                    gridContainer.innerHTML =
-                        '<div class="col-12 py-5 text-center text-muted small">Belum ada data kandidat scouting yang dapat ditampilkan.</div>';
-                    listTbody.innerHTML =
-                        '<tr><td colspan="5" class="text-center text-muted small py-4">Belum ada data kandidat scouting yang dapat ditampilkan.</td></tr>';
-                    return;
-                }
-                let found = 0;
+                if (snap.empty) return;
                 snap.forEach(docSnap => {
                     const data = docSnap.data() || {};
-                    const recruitment = data.recruitment_status || {};
-                    const history = Array.isArray(recruitment.history) ? recruitment.history : [];
-                    const hasRadarHistory = history.some(item => {
-                        const status = (item && item.status) ? item.status.toString().toLowerCase() : "";
-                        return status === "radar";
-                    });
-                    if (!hasRadarHistory) {
-                        return;
-                    }
                     const basic = data.basic_info || {};
                     const scouting = data.scouting_info || {};
                     const name = basic.full_name || scouting.full_name || "Tanpa Nama";
@@ -1184,14 +979,7 @@
                         assignAvatarHtml,
                         talentId: docSnap.id
                     });
-                    found += 1;
                 });
-                if (!found) {
-                    gridContainer.innerHTML =
-                        '<div class="col-12 py-5 text-center text-muted small">Belum ada data kandidat scouting dengan status radar.</div>';
-                    listTbody.innerHTML =
-                        '<tr><td colspan="5" class="text-center text-muted small py-4">Belum ada data kandidat scouting dengan status radar.</td></tr>';
-                }
             } catch (e) {}
         }
 

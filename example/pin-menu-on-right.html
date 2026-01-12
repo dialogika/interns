@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Elegant Grid Menu</title>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        :root {
+            --primary-color: #6366f1;
+            --bg-dark: #0f172a;
+            --glass-bg: rgba(255, 255, 255, 0.9);
+            --text-main: #1e293b;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc;
+            color: var(--text-main);
+            height: 200vh; /* Agar bisa di-scroll untuk ngetes sticky */
+        }
+
+        /* Hero Section (Hanya Background) */
+        .hero {
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
+            text-align: center;
+        }
+
+        .hero h1 {
+            font-size: 3rem;
+            color: #1e293b;
+            font-weight: 600;
+        }
+
+        /* Sticky Trigger Button */
+        .sticky-menu-trigger {
+            position: fixed;
+            right: 30px;
+            top: 15%;
+            z-index: 1000;
+            cursor: pointer;
+            background: var(--primary-color);
+            color: white;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 10px 25px rgba(99, 102, 241, 0.4);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .sticky-menu-trigger:hover {
+            transform: scale(1.1) rotate(90deg);
+        }
+
+        /* Overlay Background */
+        .menu-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(15, 23, 42, 0.6);
+            backdrop-filter: blur(8px);
+            z-index: 999;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.4s ease;
+        }
+
+        .menu-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        /* Menu Grid Container */
+        .menu-container {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -60%) scale(0.9);
+            z-index: 1001;
+            width: 90%;
+            max-width: 800px;
+            background: var(--glass-bg);
+            padding: 40px;
+            border-radius: 24px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .menu-container.active {
+            opacity: 1;
+            visibility: visible;
+            transform: translate(-50%, -50%) scale(1);
+        }
+
+        .menu-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .menu-header h2 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #334155;
+        }
+
+        /* Grid Layout */
+        .menu-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+        }
+
+        .menu-item {
+            background: white;
+            padding: 30px 20px;
+            border-radius: 16px;
+            text-align: center;
+            text-decoration: none;
+            color: var(--text-main);
+            transition: all 0.3s ease;
+            border: 1px solid #e2e8f0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .menu-item:hover {
+            background: var(--primary-color);
+            color: white;
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(99, 102, 241, 0.2);
+            border-color: var(--primary-color);
+        }
+
+        .menu-item i {
+            width: 40px;
+            height: 40px;
+            stroke-width: 1.5;
+        }
+
+        .menu-item span {
+            font-weight: 600;
+            font-size: 0.95rem;
+        }
+
+        /* Close Button */
+        .close-btn {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            cursor: pointer;
+            color: #64748b;
+            transition: color 0.3s;
+        }
+
+        .close-btn:hover {
+            color: #ef4444;
+        }
+
+        /* Responsive */
+        @media (max-width: 600px) {
+            .menu-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            .menu-item {
+                padding: 20px 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <section class="hero">
+        <div>
+            <h1>Elegant Dashboard</h1>
+            <p>Klik tombol di kanan atas untuk melihat menu</p>
+        </div>
+    </section>
+
+    <!-- Trigger Button -->
+    <div class="sticky-menu-trigger" id="menuTrigger">
+        <i data-lucide="layout-grid"></i>
+    </div>
+
+    <!-- Overlay -->
+    <div class="menu-overlay" id="menuOverlay"></div>
+
+    <!-- Menu Grid Window -->
+    <div class="menu-container" id="menuContainer">
+        <div class="close-btn" id="closeBtn">
+            <i data-lucide="x"></i>
+        </div>
+        <div class="menu-header">
+            <h2>Pilih Kategori Kandidat</h2>
+        </div>
+        <div class="menu-grid">
+            <a href="#" class="menu-item">
+                <i data-lucide="user-plus"></i>
+                <span>Internship Candidate</span>
+            </a>
+            <a href="#" class="menu-item">
+                <i data-lucide="graduation-cap"></i>
+                <span>Mentor Candidate</span>
+            </a>
+            <a href="#" class="menu-item">
+                <i data-lucide="users"></i>
+                <span>Team Candidate</span>
+            </a>
+            <a href="#" class="menu-item">
+                <i data-lucide="search"></i>
+                <span>Scouting Candidate</span>
+            </a>
+            <a href="#" class="menu-item">
+                <i data-lucide="briefcase"></i>
+                <span>Head Count Position</span>
+            </a>
+        </div>
+    </div>
+
+    <script>
+        // Inisialisasi Lucide Icons
+        lucide.createIcons();
+
+        const trigger = document.getElementById('menuTrigger');
+        const overlay = document.getElementById('menuOverlay');
+        const container = document.getElementById('menuContainer');
+        const closeBtn = document.getElementById('closeBtn');
+
+        function toggleMenu() {
+            overlay.classList.toggle('active');
+            container.classList.toggle('active');
+        }
+
+        trigger.addEventListener('click', toggleMenu);
+        closeBtn.addEventListener('click', toggleMenu);
+        overlay.addEventListener('click', toggleMenu);
+
+        // Menutup menu dengan tombol Escape
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && container.classList.contains('active')) {
+                toggleMenu();
+            }
+        });
+    </script>
+</body>
+</html>
