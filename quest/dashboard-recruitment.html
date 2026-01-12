@@ -7,6 +7,7 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
     <link href="../assets/css/style.css" rel="stylesheet" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
@@ -99,6 +100,160 @@
             border: none;
             border-radius: 18px;
         }
+
+        .stats-clickable {
+            cursor: pointer;
+        }
+
+        .stats-clickable:focus-visible {
+            outline: 3px solid rgba(13, 110, 253, 0.35);
+            outline-offset: 2px;
+        }
+
+        .stats-modal-photo {
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 1px solid rgba(0,0,0,0.08);
+        }
+
+        .sticky-menu-trigger {
+            position: fixed;
+            right: 30px;
+            top: 30%;
+            z-index: 1000;
+            cursor: pointer;
+            background: linear-gradient(to bottom, #0f61a8 5%, #0b2b6a 100%);
+            color: #ffffff;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0px 5px 16px -6px rgba(114, 4, 207, 1);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .sticky-menu-trigger:hover {
+            transform: scale(1.05) rotate(90deg);
+        }
+
+        .menu-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(15, 23, 42, 0.6);
+            backdrop-filter: blur(8px);
+            z-index: 999;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.4s ease;
+        }
+
+        .menu-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .menu-container {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -60%) scale(0.9);
+            z-index: 1001;
+            width: 90%;
+            max-width: 800px;
+            background: rgba(255, 255, 255, 0.95);
+            padding: 32px;
+            border-radius: 24px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .menu-container.active {
+            opacity: 1;
+            visibility: visible;
+            transform: translate(-50%, -50%) scale(1);
+        }
+
+        .menu-header {
+            text-align: center;
+            margin-bottom: 24px;
+        }
+
+        .menu-header h2 {
+            font-size: 1.4rem;
+            font-weight: 600;
+            color: #334155;
+        }
+
+        .menu-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 16px;
+        }
+
+        .menu-item {
+            background: #ffffff;
+            padding: 24px 16px;
+            border-radius: 16px;
+            text-align: center;
+            text-decoration: none;
+            color: #1f2933;
+            transition: all 0.3s ease;
+            border: 1px solid #e2e8f0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .menu-item:hover {
+            background: #0B2B6A;
+            color: #ffffff;
+            transform: translateY(-4px);
+            box-shadow: 0 15px 30px rgba(11, 43, 106, 0.35);
+            border-color: #0B2B6A;
+        }
+
+        .menu-item i {
+            width: 40px;
+            height: 40px;
+            stroke-width: 1.5;
+        }
+
+        .menu-item span {
+            font-weight: 600;
+            font-size: 0.95rem;
+        }
+
+        .close-btn {
+            position: absolute;
+            top: 16px;
+            right: 16px;
+            cursor: pointer;
+            color: #64748b;
+            transition: color 0.3s;
+        }
+
+        .close-btn:hover {
+            color: #ef4444;
+        }
+
+        @media (max-width: 600px) {
+            .menu-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            .menu-item {
+                padding: 20px 10px;
+            }
+        }
     </style>
 </head>
 <body class="p-8">
@@ -131,42 +286,42 @@
 
                 <section class="row g-4 mb-5">
                     <div class="col-md-2">
-                        <div class="card p-3 h-100 border-0 shadow-sm">
+                        <div class="card p-3 h-100 border-0 shadow-sm stats-clickable" id="headCountCard" tabindex="0">
                             <span class="text-muted-custom">Head Count</span>
                             <div class="stat-number mt-2">
-                                12
+                                <span id="currentHeadCount">0</span>
                                 <span id="maxHeadCount" style="font-size: 1rem; color: #b2bec3;">/ -</span>
                             </div>
                         </div>
                     </div>
                     <div class="col-md-2">
-                        <div class="card p-3 h-100 border-0 shadow-sm">
+                        <div class="card p-3 h-100 border-0 shadow-sm stats-clickable" id="applicantsCard" tabindex="0">
                             <span class="text-muted-custom">Applicants</span>
                             <div class="stat-number mt-2" id="applicantsCount">0</div>
                         </div>
                     </div>
                     <div class="col-md-2">
-                        <div class="card p-3 h-100 border-0 shadow-sm">
+                        <div class="card p-3 h-100 border-0 shadow-sm stats-clickable" id="onLeaveCard" tabindex="0">
                             <span class="text-muted-custom">On Leave</span>
                             <div class="stat-number mt-2 text-danger" id="onLeaveCount">0</div>
                         </div>
                     </div>
                     <div class="col-md-2">
-                        <div class="card p-3 h-100 border-0 shadow-sm">
+                        <div class="card p-3 h-100 border-0 shadow-sm stats-clickable" id="scoutingCard" tabindex="0">
                             <span class="text-muted-custom">Scouting</span>
                             <div class="stat-number mt-2" id="scoutingCount">0</div>
                         </div>
                     </div>
                     <div class="col-md-2">
-                        <div class="card p-3 h-100 border-0 shadow-sm">
+                        <div class="card p-3 h-100 border-0 shadow-sm stats-clickable" id="onboardingCard" tabindex="0">
                             <span class="text-muted-custom">Onboarding</span>
-                            <div class="stat-number mt-2 text-success">3</div>
+                            <div class="stat-number mt-2 text-success" id="onboardingCount">0</div>
                         </div>
                     </div>
                     <div class="col-md-2">
-                        <div class="card p-3 h-100 border-0 shadow-sm">
+                        <div class="card p-3 h-100 border-0 shadow-sm stats-clickable" id="offboardingCard" tabindex="0">
                             <span class="text-muted-custom">Offboarding</span>
-                            <div class="stat-number mt-2">1</div>
+                            <div class="stat-number mt-2" id="offboardingCount">0</div>
                         </div>
                     </div>
                 </section>
@@ -196,40 +351,15 @@
                     <div class="col-md-4">
                         <div class="card p-4 h-100 shadow-sm">
                             <h5 class="fw-bold mb-4">Upcoming Interview</h5>
-                            <div class="interview-list-item">
-                                <div class="fw-bold">Budi <span class="badge bg-primary-subtle text-primary fw-normal ms-2">Internship</span></div>
-                                <div class="text-muted-custom small">Design Specialist • 15 April 2026</div>
-                            </div>
-                            <div class="interview-list-item">
-                                <div class="fw-bold">Andi <span class="badge bg-primary-subtle text-primary fw-normal ms-2">Internship</span></div>
-                                <div class="text-muted-custom small">Content Writer • 16 April 2026</div>
-                            </div>
+                            <div id="upcomingInterviewList"></div>
                         </div>
                     </div>
 
                     <div class="col-md-4">
                         <div class="card p-4 h-100 shadow-sm">
                             <h5 class="fw-bold mb-2">Platform Jobposting</h5>
-                            <div class="text-muted-custom mb-4">Total Candidate: <span class="text-dark fw-bold">500</span></div>
-                            
-                            <div class="mb-3">
-                                <div class="d-flex justify-content-between small mb-1">
-                                    <span>LinkedIn</span><span>30</span>
-                                </div>
-                                <div class="progress"><div class="progress-bar bg-primary" style="width: 30%"></div></div>
-                            </div>
-                            <div class="mb-3">
-                                <div class="d-flex justify-content-between small mb-1">
-                                    <span>Instagram</span><span>40</span>
-                                </div>
-                                <div class="progress"><div class="progress-bar bg-info" style="width: 40%"></div></div>
-                            </div>
-                            <div class="mb-3">
-                                <div class="d-flex justify-content-between small mb-1">
-                                    <span>Facebook</span><span>20</span>
-                                </div>
-                                <div class="progress"><div class="progress-bar bg-secondary" style="width: 20%"></div></div>
-                            </div>
+                            <div class="text-muted-custom mb-4">Total Candidate: <span class="text-dark fw-bold" id="platformTotalCandidate">0</span></div>
+                            <div id="platformJobpostingList"></div>
                         </div>
                     </div>
                 </section>
@@ -239,12 +369,12 @@
                         <div class="card h-100 important-note-box border-0 d-flex flex-column">
                             <div class="mb-3">
                                 <h5 class="fw-bold mb-2 important-note-title">Important Notes</h5><hr/>
-                                <p class="important-note-text mb-0">
+                                <p class="important-note-text mb-0" id="recruitmentImportantNotesText">
                                     Perhatikan per bulan ini kita lebih fokus dengan pencarian role IT Senior dan Product Manager. Pastikan screening CV tidak lebih dari 2 hari kerja untuk menjaga candidate experience.
                                 </p>
                             </div>
                             <div class="mt-auto pt-2">
-                                <button class="btn btn-edit-notes btn-sm rounded-pill px-3 d-inline-flex align-items-center gap-2">
+                                <button class="btn btn-edit-notes btn-sm rounded-pill px-3 d-inline-flex align-items-center gap-2" id="editRecruitmentNotesBtn">
                                     <i class="fas fa-pen"></i>
                                     Edit Notes
                                 </button>
@@ -260,8 +390,70 @@
                         </div>
                     </div>
                 </section>
+
+                <section class="row g-4 mb-5" style="margin-top: 10px;">
+                    <div class="col-md-4">
+                        <div class="card p-4 h-100 shadow-sm">
+                            <h5 class="fw-bold mb-3">Internship Radar</h5>
+                            <div class="d-flex flex-wrap gap-3" id="internshipRadarList"></div>
+                            <p class="text-muted-custom mt-4 mb-0 small">Candidate internship yang terdaftar di sistem.</p>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card p-4 h-100 shadow-sm">
+                            <h5 class="fw-bold mb-3">Mentor Radar</h5>
+                            <div class="d-flex flex-wrap gap-3" id="mentorRadarList"></div>
+                            <p class="text-muted-custom mt-4 mb-0 small">Candidate mentor yang terdaftar di sistem.</p>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card p-4 h-100 shadow-sm">
+                            <h5 class="fw-bold mb-3">Team Radar</h5>
+                            <div class="d-flex flex-wrap gap-3" id="teamRadarList"></div>
+                            <p class="text-muted-custom mt-4 mb-0 small">Candidate team selain internship dan mentor.</p>
+                        </div>
+                    </div>
+                </section>
             </div>
         </main>
+    </div>
+
+    <div class="modal fade" id="statsDetailsModal" tabindex="-1" aria-labelledby="statsDetailsModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="statsDetailsModalLabel">Detail</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <div class="text-muted small" id="statsDetailsModalSubtitle"></div>
+                        <div class="text-muted small" id="statsDetailsModalCount"></div>
+                    </div>
+                    <div id="statsDetailsModalBody"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="recruitmentNotesModal" tabindex="-1" aria-labelledby="recruitmentNotesModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="recruitmentNotesModalLabel">Important Notes</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <textarea class="form-control" id="recruitmentNotesInput" rows="8" placeholder="Tulis notes..."></textarea>
+                    </div>
+                    <div class="d-flex justify-content-end gap-2">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                        <button type="button" class="btn btn-primary" id="saveRecruitmentNotesBtn">Simpan</button>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
@@ -269,6 +461,7 @@
     <script type="module">
         import { renderTopBar } from "../element/topbar.js";
         import { renderSidebar } from "../element/sidebar.js";
+        import { renderRightbarRecruit } from "../element/rightbar-recruit.js";
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
         import {
@@ -276,7 +469,11 @@
             getDocs,
             collection,
             query,
-            where
+            where,
+            doc,
+            getDoc,
+            setDoc,
+            serverTimestamp
         } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
         const firebaseConfig = { 
@@ -292,12 +489,23 @@
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getFirestore(app);
+        let currentUser = null;
+        const recruitmentNotesRef = doc(db, "recruitment_dashboard_notes", "default");
 
         const topbarTarget = document.getElementById('topbarContainer');
         renderTopBar(topbarTarget);
 
         const sidebarTarget = document.getElementById('sidebarContainer');
         renderSidebar(sidebarTarget);
+        renderRightbarRecruit();
+
+        window.app = app;
+        window.auth = auth;
+        window.db = db;
+        window.collection = collection;
+        window.getDocs = getDocs;
+        window.query = query;
+        window.where = where;
 
         window.toggleSidebar = () => {
             const sidebar = document.getElementById('sidebarNav');
@@ -310,10 +518,9 @@
                 return;
             }
 
-            fetchMaxHeadCount();
-            loadOnLeaveCount();
-            loadRecruitmentStats();
-            loadScoutingRadar(rangeStart, rangeEnd);
+            currentUser = user;
+            loadRecruitmentNotes();
+            refreshDashboard(rangeStart, rangeEnd);
         });
 
         function updateDateTime() {
@@ -374,7 +581,18 @@
             } else if (value instanceof Date) {
                 dateObj = value;
             } else if (typeof value === "string" || typeof value === "number") {
-                const tmp = new Date(value);
+                let tmp = null;
+                if (typeof value === "string") {
+                    const isoDateOnly = value.trim();
+                    const m = isoDateOnly.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+                    if (m) {
+                        tmp = new Date(Number(m[1]), Number(m[2]) - 1, Number(m[3]));
+                    } else {
+                        tmp = new Date(value);
+                    }
+                } else {
+                    tmp = new Date(value);
+                }
                 if (!isNaN(tmp.getTime())) {
                     dateObj = tmp;
                 }
@@ -383,11 +601,11 @@
             return dateObj;
         }
 
-        function getInternshipDisplayStatus(u) {
+        function getInternshipDisplayStatus(u, referenceDate = new Date()) {
             const base = (u.status || "").toLowerCase();
             const end = u.endDateObj instanceof Date && !isNaN(u.endDateObj.getTime()) ? u.endDateObj : null;
-            const today = new Date();
-            const todayMid = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+            const ref = referenceDate instanceof Date && !isNaN(referenceDate.getTime()) ? referenceDate : new Date();
+            const refMid = new Date(ref.getFullYear(), ref.getMonth(), ref.getDate());
             let label = u.status || "-";
             let type = "success";
 
@@ -410,7 +628,7 @@
             }
 
             const endMid = new Date(end.getFullYear(), end.getMonth(), end.getDate());
-            const diffDays = Math.round((endMid - todayMid) / 86400000);
+            const diffDays = Math.round((endMid - refMid) / 86400000);
             if (diffDays < 0) {
                 label = "Graduate";
                 type = "success";
@@ -424,10 +642,116 @@
             return { label, type };
         }
 
-        async function loadOnLeaveCount() {
+        function normalizeRangeDates(startDate, endDate) {
+            if (!startDate || !endDate) return { s: null, e: null };
+            const s = new Date(startDate);
+            const e = new Date(endDate);
+            if (isNaN(s.getTime()) || isNaN(e.getTime())) return { s: null, e: null };
+            s.setHours(0, 0, 0, 0);
+            e.setHours(23, 59, 59, 999);
+            return { s, e };
+        }
+
+        function isDateInRange(dateObj, s, e) {
+            if (!(dateObj instanceof Date) || isNaN(dateObj.getTime())) return false;
+            if (!(s instanceof Date) || !(e instanceof Date)) return false;
+            return dateObj >= s && dateObj <= e;
+        }
+
+        function getUserInternshipDates(data) {
+            const employment = (data && data.employment) || {};
+            const startDateRaw = data.internshipStartDate || (data.internship && data.internship.startDate) || employment.startDate || employment.start_date || null;
+            const endDateRaw = data.endDate || data.internshipEndDate || (data.internship && data.internship.endDate) || employment.endDate || employment.end_date || null;
+            return {
+                startDateObj: normalizeInternshipDate(startDateRaw),
+                endDateObj: normalizeInternshipDate(endDateRaw)
+            };
+        }
+
+        function isUserActiveInRange(startDateObj, endDateObj, s, e) {
+            if (!(s instanceof Date) || !(e instanceof Date)) return true;
+            const hasStart = startDateObj instanceof Date && !isNaN(startDateObj.getTime());
+            const hasEnd = endDateObj instanceof Date && !isNaN(endDateObj.getTime());
+            if (!hasStart && !hasEnd) return true;
+            if (hasStart && startDateObj > e) return false;
+            if (hasEnd && endDateObj < s) return false;
+            return true;
+        }
+
+        function getTalentCreatedAtDate(data) {
+            const raw = (data && (data.created_at || data.createdAt || data.created)) ?? null;
+            return normalizeInternshipDate(raw);
+        }
+
+        function normalizeCompact(value) {
+            return (value || "").toString().trim().toLowerCase().replace(/\s/g, "");
+        }
+
+        function getTalentRolePair(data) {
+            const scouting = (data && data.scouting_info) || {};
+            const internship = (data && (data.internship || data.internship_info)) || {};
+            const basic = (data && data.basic_info) || {};
+            const roleIdRaw = data.role_id || data.roleId || scouting.role_id || internship.role_id || "";
+            const roleNameRaw = data.role_name || data.role || basic.current_role || scouting.role_name || "";
+            return {
+                roleId: normalizeCompact(roleIdRaw),
+                roleName: normalizeCompact(roleNameRaw)
+            };
+        }
+
+        function getUserDisplay(data, id) {
+            const employment = (data && data.employment) || {};
+            const name = data.name || data.fullName || data.username || data.email || "";
+            const role = data.role || "-";
+            const position = data.position || employment.position || "-";
+            const photo = data.photo || `https://i.pravatar.cc/150?u=${id}`;
+            return { id, photo, name, role, position };
+        }
+
+        function getTalentDisplay(data, id) {
+            const basic = (data && data.basic_info) || {};
+            const scouting = (data && data.scouting_info) || {};
+            const internship = (data && (data.internship || data.internship_info)) || {};
+            const photo = basic.avatar_url || data.photo || "";
+            const name = basic.full_name || scouting.full_name || data.full_name || "Tanpa Nama";
+            const role = data.role_name || data.role || scouting.role_name || data.role_id || scouting.role_id || "-";
+            const position =
+                data.position ||
+                scouting.position ||
+                internship.position ||
+                data.position_name ||
+                data.positionName ||
+                (data.employment && data.employment.position) ||
+                "-";
+            return { id, photo, name, role, position };
+        }
+
+        function getAcceptedStatusDate(data) {
+            const recruitment = (data && (data.recruitment_status || data.recruitment_system)) || {};
+            const historyArray = Array.isArray(recruitment.history) ? recruitment.history : [];
+            const acceptedEntries = historyArray.filter(entry => {
+                const st = normalizeStatus(entry && entry.status);
+                return st === "accept" || st === "accepted";
+            });
+            if (!acceptedEntries.length) return null;
+            let latestDate = null;
+            acceptedEntries.forEach(entry => {
+                const d = normalizeInternshipDate(entry && entry.date);
+                if (d instanceof Date && !isNaN(d.getTime())) {
+                    if (!latestDate || d > latestDate) latestDate = d;
+                }
+            });
+            return latestDate;
+        }
+
+        async function loadOnLeaveCount(startDate, endDate) {
             try {
                 const onLeaveEl = document.getElementById("onLeaveCount");
-                if (!onLeaveEl) return;
+                const headCountEl = document.getElementById("currentHeadCount");
+                const offboardingEl = document.getElementById("offboardingCount");
+                if (!onLeaveEl && !headCountEl && !offboardingEl) return;
+
+                const { s, e } = normalizeRangeDates(startDate, endDate);
 
                 const usersRef = collection(db, "users");
                 const q = query(usersRef, where("role", "in", ["Internship", "internship"]));
@@ -436,24 +760,42 @@
                 const list = [];
                 snap.forEach(docSnap => {
                     const data = docSnap.data() || {};
-                    const employment = data.employment || {};
                     const status = data.status || data.internshipStatus || "";
-                    const endDateRaw = data.endDate || data.internshipEndDate || (data.internship && data.internship.endDate) || employment.endDate || employment.end_date || null;
-                    const endDateObj = normalizeInternshipDate(endDateRaw);
+                    const { startDateObj, endDateObj } = getUserInternshipDates(data);
 
                     list.push({
+                        id: docSnap.id,
+                        data,
                         status,
+                        startDateObj,
                         endDateObj
                     });
                 });
 
+                const filtered = s && e ? list.filter(u => isUserActiveInRange(u.startDateObj, u.endDateObj, s, e)) : list;
+                if (headCountEl) headCountEl.textContent = filtered.length.toString();
+
                 let onLeaveCount = 0;
-                list.forEach(u => {
-                    const s = getInternshipDisplayStatus(u).label;
-                    if (s === "On Leave") onLeaveCount += 1;
+                let graduateCount = 0;
+                const refDate = e || new Date();
+                filtered.forEach(u => {
+                    const label = getInternshipDisplayStatus(u, refDate).label;
+                    if (label === "On Leave") onLeaveCount += 1;
+                    if (label === "Graduate") {
+                        if (!e) {
+                            graduateCount += 1;
+                        } else if (u.endDateObj instanceof Date && !isNaN(u.endDateObj.getTime())) {
+                            if (isDateInRange(u.endDateObj, s, e)) graduateCount += 1;
+                        }
+                    }
                 });
 
-                onLeaveEl.textContent = onLeaveCount.toString();
+                if (onLeaveEl) {
+                    onLeaveEl.textContent = onLeaveCount.toString();
+                }
+                if (offboardingEl) {
+                    offboardingEl.textContent = graduateCount.toString();
+                }
             } catch (error) {
                 console.error("Failed to load on leave count:", error);
             }
@@ -464,41 +806,62 @@
             return value.toString().trim().toLowerCase();
         }
 
-        async function loadRecruitmentStats() {
+        async function fetchTalentsItems() {
+            const snap = await getDocs(collection(db, "talents"));
+            const items = [];
+            snap.forEach(docSnap => {
+                items.push({ id: docSnap.id, data: docSnap.data() || {} });
+            });
+            return items;
+        }
+
+        async function loadOnboardingCount(startDate, endDate, talentsItems) {
             try {
-                const applicantsEl = document.getElementById("applicantsCount");
+                const el = document.getElementById("onboardingCount");
+                if (!el) return;
+                const items = Array.isArray(talentsItems) ? talentsItems : await fetchTalentsItems();
+                const { s, e } = normalizeRangeDates(startDate, endDate);
+                let count = 0;
+                items.forEach(item => {
+                    const data = item.data || {};
+                    const recruitment = data.recruitment_status || data.recruitment_system || {};
+                    const current = normalizeStatus(recruitment.current || "");
+                    if (current !== "accept" && current !== "accepted") return;
+                    const latestDate = getAcceptedStatusDate(data);
+                    if (!latestDate) return;
+                    if (s && e) {
+                        if (latestDate >= s && latestDate <= e) count += 1;
+                    } else {
+                        count += 1;
+                    }
+                });
+                el.textContent = count.toString();
+            } catch (error) {
+                console.error("Failed to load onboarding count:", error);
+            }
+        }
+
+        async function loadRecruitmentStats(talentsItems) {
+            try {
                 const screeningEl = document.getElementById("stepScreeningCount");
                 const interviewEl = document.getElementById("stepInterviewCount");
                 const decisionEl = document.getElementById("stepDecisionCount");
                 const acceptedEl = document.getElementById("stepAcceptedCount");
                 const rejectedEl = document.getElementById("stepRejectedCount");
 
-                const talentsRef = collection(db, "talents");
-                const snap = await getDocs(talentsRef);
+                const items = Array.isArray(talentsItems) ? talentsItems : await fetchTalentsItems();
 
-                let totalApplicants = 0;
                 let screeningCount = 0;
                 let interviewCount = 0;
                 let decisionCount = 0;
                 let acceptedCount = 0;
                 let rejectedCount = 0;
 
-                snap.forEach(docSnap => {
-                    const data = docSnap.data() || {};
+                items.forEach(item => {
+                    const data = item.data || {};
                     const recruitment = data.recruitment_status || {};
                     const currentRaw = recruitment.current || "";
                     const current = normalizeStatus(currentRaw);
-
-                    const historyArray = Array.isArray(recruitment.history) ? recruitment.history : [];
-                    const hasNonRadarHistory = historyArray.some(entry => {
-                        const status = normalizeStatus(entry && entry.status);
-                        return status && status !== "radar";
-                    });
-
-                    const includeInApplicants = hasNonRadarHistory || (current && current !== "radar");
-                    if (includeInApplicants) {
-                        totalApplicants += 1;
-                    }
 
                     if (current === "screening") screeningCount += 1;
                     else if (current === "interview") interviewCount += 1;
@@ -507,7 +870,6 @@
                     else if (current === "rejected" || current === "reject") rejectedCount += 1;
                 });
 
-                if (applicantsEl) applicantsEl.textContent = totalApplicants.toString();
                 if (screeningEl) screeningEl.textContent = screeningCount.toString();
                 if (interviewEl) interviewEl.textContent = interviewCount.toString();
                 if (decisionEl) decisionEl.textContent = decisionCount.toString();
@@ -518,43 +880,97 @@
             }
         }
 
-        async function loadScoutingRadar(startDate, endDate) {
+        async function loadApplicantsCount(startDate, endDate, talentsItems) {
+            try {
+                const el = document.getElementById("applicantsCount");
+                if (!el) return;
+                const { s, e } = normalizeRangeDates(startDate, endDate);
+                const items = Array.isArray(talentsItems) ? talentsItems : await fetchTalentsItems();
+                const allowed = new Set(["internship", "mentor", "subteam", "employee", "superteam"]);
+                let count = 0;
+                items.forEach(item => {
+                    const data = item.data || {};
+                    const createdAt = getTalentCreatedAtDate(data);
+                    if (s && e && !isDateInRange(createdAt, s, e)) return;
+                    const { roleId, roleName } = getTalentRolePair(data);
+                    if (!allowed.has(roleId) && !allowed.has(roleName)) return;
+                    count += 1;
+                });
+                el.textContent = count.toString();
+            } catch (error) {
+                console.error("Failed to load applicants count:", error);
+            }
+        }
+
+        function normalizeRolePair(roleIdRaw, roleNameRaw) {
+            const idVal = (roleIdRaw || "").toString().trim().toLowerCase();
+            const nameVal = (roleNameRaw || "").toString().trim().toLowerCase();
+            return {
+                normalizedRoleId: idVal.replace(/\s/g, ""),
+                normalizedRoleName: nameVal.replace(/\s/g, "")
+            };
+        }
+
+        function renderRadarAvatars(container, items) {
+            if (!container) return;
+            container.innerHTML = "";
+            if (!items.length) return;
+
+            const maxVisible = 5;
+            const visible = items.slice(0, maxVisible);
+            const remaining = items.length - visible.length;
+
+            visible.forEach(item => {
+                const img = document.createElement('img');
+                img.src = item.avatarUrl || ("https://i.pravatar.cc/150?u=" + item.id);
+                img.alt = item.name;
+                img.className = "candidate-photo";
+                img.setAttribute("data-bs-toggle", "tooltip");
+                img.setAttribute("data-bs-placement", "top");
+                img.setAttribute("title", item.name);
+                container.appendChild(img);
+            });
+
+            if (remaining > 0) {
+                const moreDiv = document.createElement('div');
+                moreDiv.className = "candidate-photo bg-light d-flex align-items-center justify-content-center text-muted small fw-bold";
+                moreDiv.textContent = "+" + remaining;
+                container.appendChild(moreDiv);
+            }
+
+            if (typeof bootstrap !== "undefined" && bootstrap.Tooltip) {
+                const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+                tooltipTriggerList.forEach(el => {
+                    bootstrap.Tooltip.getOrCreateInstance(el);
+                });
+            }
+        }
+
+        async function loadScoutingRadar(startDate, endDate, talentsItems) {
             try {
                 const container = document.getElementById('scoutingRadarList');
                 const scoutingCountEl = document.getElementById('scoutingCount');
                 if (container) container.innerHTML = "";
 
-                const talentsRef = collection(db, "talents");
-                const q = query(talentsRef, where("recruitment_status.current", "==", "radar"));
-                const snap = await getDocs(q);
-
                 if (!container && !scoutingCountEl) return;
 
-                const talents = [];
-                snap.forEach(docSnap => {
-                    talents.push({ id: docSnap.id, data: docSnap.data() || {} });
+                const talents = Array.isArray(talentsItems) ? talentsItems : await fetchTalentsItems();
+                const radarTalents = talents.filter(item => {
+                    const data = item.data || {};
+                    const recruitment = data.recruitment_status || data.recruitment_system || {};
+                    return normalizeStatus(recruitment.current || "") === "radar";
                 });
 
-                let filteredTalents = talents;
+                let filteredTalents = radarTalents;
                 if (startDate && endDate) {
                     const s = new Date(startDate);
                     const e = new Date(endDate);
                     s.setHours(0, 0, 0, 0);
                     e.setHours(23, 59, 59, 999);
-                    filteredTalents = talents.filter(item => {
+                    filteredTalents = radarTalents.filter(item => {
                         const data = item.data || {};
-                        const raw = data.created_at || data.createdAt || data.created || null;
-                        if (!raw) return false;
-                        let d = null;
-                        if (raw && typeof raw.toDate === "function") {
-                            d = raw.toDate();
-                        } else if (raw instanceof Date) {
-                            d = raw;
-                        } else {
-                            const tmp = new Date(raw);
-                            if (!isNaN(tmp.getTime())) d = tmp;
-                        }
-                        if (!d) return false;
+                        const d = getTalentCreatedAtDate(data);
+                        if (!(d instanceof Date) || isNaN(d.getTime())) return false;
                         return d >= s && d <= e;
                     });
                 }
@@ -565,42 +981,122 @@
 
                 if (!container || !filteredTalents.length) return;
 
-                const maxVisible = 5;
-                const visible = filteredTalents.slice(0, maxVisible);
-                const remaining = filteredTalents.length - visible.length;
-
-                visible.forEach(item => {
+                const mapped = filteredTalents.map(item => {
                     const basic = item.data.basic_info || {};
                     const scouting = item.data.scouting_info || {};
-                    const recruitment = item.data.recruitment_status || {};
                     const name = basic.full_name || scouting.full_name || item.data.full_name || "Tanpa Nama";
                     const avatarUrl = basic.avatar_url || item.data.photo || "";
-
-                    const img = document.createElement('img');
-                    img.src = avatarUrl || ("https://i.pravatar.cc/150?u=" + item.id);
-                    img.alt = name;
-                    img.className = "candidate-photo";
-                    img.setAttribute("data-bs-toggle", "tooltip");
-                    img.setAttribute("data-bs-placement", "top");
-                    img.setAttribute("title", name);
-                    container.appendChild(img);
+                    return {
+                        id: item.id,
+                        name,
+                        avatarUrl
+                    };
                 });
 
-                if (remaining > 0) {
-                    const moreDiv = document.createElement('div');
-                    moreDiv.className = "candidate-photo bg-light d-flex align-items-center justify-content-center text-muted small fw-bold";
-                    moreDiv.textContent = "+" + remaining;
-                    container.appendChild(moreDiv);
-                }
-
-                if (typeof bootstrap !== "undefined" && bootstrap.Tooltip) {
-                    const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
-                    tooltipTriggerList.forEach(el => {
-                        bootstrap.Tooltip.getOrCreateInstance(el);
-                    });
-                }
+                renderRadarAvatars(container, mapped);
             } catch (error) {
                 console.error("Failed to load scouting radar talents:", error);
+            }
+        }
+
+        async function loadInternshipRadar(talentsItems) {
+            try {
+                const container = document.getElementById("internshipRadarList");
+                if (!container) return;
+                container.innerHTML = "";
+                const talents = Array.isArray(talentsItems) ? talentsItems : await fetchTalentsItems();
+
+                const items = [];
+                talents.forEach(item => {
+                    const data = item.data || {};
+                    const basic = data.basic_info || {};
+                    const scouting = data.scouting_info || {};
+                    const internship = data.internship || data.internship_info || {};
+
+                    const roleIdRaw = data.role_id || data.roleId || scouting.role_id || internship.role_id || "";
+                    const roleNameRaw = data.role_name || data.role || basic.current_role || scouting.role_name || "";
+                    const { normalizedRoleId, normalizedRoleName } = normalizeRolePair(roleIdRaw, roleNameRaw);
+                    const isInternshipRole = normalizedRoleId === "internship" && normalizedRoleName === "internship";
+                    if (!isInternshipRole) return;
+
+                    const name = basic.full_name || scouting.full_name || data.full_name || "Tanpa Nama";
+                    const avatarUrl = basic.avatar_url || data.photo || "";
+                    items.push({ id: item.id, name, avatarUrl });
+                });
+
+                renderRadarAvatars(container, items);
+            } catch (error) {
+                console.error("Failed to load internship radar talents:", error);
+            }
+        }
+
+        async function loadMentorRadar(talentsItems) {
+            try {
+                const container = document.getElementById("mentorRadarList");
+                if (!container) return;
+                container.innerHTML = "";
+                const talents = Array.isArray(talentsItems) ? talentsItems : await fetchTalentsItems();
+
+                const items = [];
+                talents.forEach(item => {
+                    const data = item.data || {};
+                    const basic = data.basic_info || {};
+                    const scouting = data.scouting_info || {};
+                    const internship = data.internship || data.internship_info || {};
+
+                    const roleIdRaw = data.role_id || data.roleId || scouting.role_id || internship.role_id || "";
+                    const roleNameRaw = data.role_name || data.role || basic.current_role || scouting.role_name || "";
+                    const { normalizedRoleId, normalizedRoleName } = normalizeRolePair(roleIdRaw, roleNameRaw);
+                    const isMentorRole = normalizedRoleId === "mentor" || normalizedRoleName === "mentor";
+                    if (!isMentorRole) return;
+
+                    const name = basic.full_name || scouting.full_name || data.full_name || "Tanpa Nama";
+                    const avatarUrl = basic.avatar_url || data.photo || "";
+                    items.push({ id: item.id, name, avatarUrl });
+                });
+
+                renderRadarAvatars(container, items);
+            } catch (error) {
+                console.error("Failed to load mentor radar talents:", error);
+            }
+        }
+
+        async function loadTeamRadar(talentsItems) {
+            try {
+                const container = document.getElementById("teamRadarList");
+                if (!container) return;
+                container.innerHTML = "";
+                const talents = Array.isArray(talentsItems) ? talentsItems : await fetchTalentsItems();
+
+                const items = [];
+                talents.forEach(item => {
+                    const data = item.data || {};
+                    const basic = data.basic_info || {};
+                    const scouting = data.scouting_info || {};
+                    const internship = data.internship || data.internship_info || {};
+
+                    const roleIdRaw = data.role_id || data.roleId || scouting.role_id || internship.role_id || "";
+                    const roleNameRaw = data.role_name || data.role || basic.current_role || scouting.role_name || "";
+                    const { normalizedRoleId, normalizedRoleName } = normalizeRolePair(roleIdRaw, roleNameRaw);
+                    const isInternshipRole = normalizedRoleId === "internship" && normalizedRoleName === "internship";
+                    const isMentorRole = normalizedRoleId === "mentor" && normalizedRoleName === "mentor";
+
+                    const recruitment = data.recruitment_status || data.recruitment_system || {};
+                    const currentStatus = normalizeStatus(recruitment.current || "");
+                    const historyArray = Array.isArray(recruitment.history) ? recruitment.history : [];
+                    const hasRadarHistory = historyArray.some(entry => normalizeStatus(entry && entry.status) === "radar");
+                    const isRadar = currentStatus === "radar" || hasRadarHistory;
+
+                    if (isInternshipRole || isMentorRole || isRadar) return;
+
+                    const name = basic.full_name || scouting.full_name || data.full_name || "Tanpa Nama";
+                    const avatarUrl = basic.avatar_url || data.photo || "";
+                    items.push({ id: item.id, name, avatarUrl });
+                });
+
+                renderRadarAvatars(container, items);
+            } catch (error) {
+                console.error("Failed to load team radar talents:", error);
             }
         }
 
@@ -617,6 +1113,517 @@
             return date.toLocaleDateString('id-ID', options);
         }
 
+        function setModalLoading(title, subtitle) {
+            const modalEl = document.getElementById("statsDetailsModal");
+            const titleEl = document.getElementById("statsDetailsModalLabel");
+            const subtitleEl = document.getElementById("statsDetailsModalSubtitle");
+            const countEl = document.getElementById("statsDetailsModalCount");
+            const bodyEl = document.getElementById("statsDetailsModalBody");
+            if (!modalEl || !titleEl || !subtitleEl || !countEl || !bodyEl) return null;
+            titleEl.textContent = title || "Detail";
+            subtitleEl.textContent = subtitle || "";
+            countEl.textContent = "";
+            bodyEl.innerHTML = `
+                <div class="d-flex align-items-center gap-2 text-muted">
+                    <div class="spinner-border spinner-border-sm" role="status"></div>
+                    <div>Loading...</div>
+                </div>
+            `;
+            const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
+            modal.show();
+            return { bodyEl, countEl };
+        }
+
+        function renderModalTable(ctx, columns, rows) {
+            const { bodyEl, countEl } = ctx;
+            countEl.textContent = `${rows.length} data`;
+            if (!rows.length) {
+                bodyEl.innerHTML = `<div class="text-muted">Tidak ada data pada rentang tanggal ini.</div>`;
+                return;
+            }
+            const thead = columns.map(c => `<th>${c.label}</th>`).join("");
+            const tbody = rows
+                .map(r => {
+                    const tds = columns
+                        .map(c => {
+                            if (c.key === "photo") {
+                                const src = r.photo || `https://i.pravatar.cc/150?u=${r.id || r.name || "x"}`;
+                                return `<td><img class="stats-modal-photo" src="${src}" alt=""></td>`;
+                            }
+                            const v = (r[c.key] ?? "-").toString();
+                            return `<td>${v}</td>`;
+                        })
+                        .join("");
+                    return `<tr>${tds}</tr>`;
+                })
+                .join("");
+            bodyEl.innerHTML = `
+                <div class="table-responsive">
+                    <table class="table align-middle">
+                        <thead><tr>${thead}</tr></thead>
+                        <tbody>${tbody}</tbody>
+                    </table>
+                </div>
+            `;
+        }
+
+        async function openHeadCountModal() {
+            const { s, e } = normalizeRangeDates(rangeStart, rangeEnd);
+            const subtitle = s && e ? `${formatDate(s)} - ${formatDate(e)}` : "";
+            const ctx = setModalLoading("Head Count (Internship)", subtitle);
+            if (!ctx) return;
+            try {
+                const usersRef = collection(db, "users");
+                const q = query(usersRef, where("role", "in", ["Internship", "internship"]));
+                const snap = await getDocs(q);
+                const rows = [];
+                snap.forEach(docSnap => {
+                    const data = docSnap.data() || {};
+                    const { startDateObj, endDateObj } = getUserInternshipDates(data);
+                    if (s && e && !isUserActiveInRange(startDateObj, endDateObj, s, e)) return;
+                    rows.push(getUserDisplay(data, docSnap.id));
+                });
+                renderModalTable(ctx, [
+                    { key: "photo", label: "Photo" },
+                    { key: "name", label: "Nama" },
+                    { key: "role", label: "Role" },
+                    { key: "position", label: "Posisi" }
+                ], rows);
+            } catch (error) {
+                ctx.bodyEl.innerHTML = `<div class="text-danger">Gagal memuat data.</div>`;
+                console.error(error);
+            }
+        }
+
+        async function openApplicantsModal() {
+            const { s, e } = normalizeRangeDates(rangeStart, rangeEnd);
+            const subtitle = s && e ? `${formatDate(s)} - ${formatDate(e)}` : "";
+            const ctx = setModalLoading("Applicants (Talents)", subtitle);
+            if (!ctx) return;
+            try {
+                const talentsRef = collection(db, "talents");
+                const snap = await getDocs(talentsRef);
+                const allowed = new Set(["internship", "mentor", "subteam", "employee", "superteam"]);
+                const rows = [];
+                snap.forEach(docSnap => {
+                    const data = docSnap.data() || {};
+                    const createdAt = getTalentCreatedAtDate(data);
+                    if (s && e && !isDateInRange(createdAt, s, e)) return;
+                    const { roleId, roleName } = getTalentRolePair(data);
+                    if (!allowed.has(roleId) && !allowed.has(roleName)) return;
+                    rows.push(getTalentDisplay(data, docSnap.id));
+                });
+                renderModalTable(ctx, [
+                    { key: "photo", label: "Photo" },
+                    { key: "name", label: "Nama" },
+                    { key: "role", label: "Role" },
+                    { key: "position", label: "Posisi" }
+                ], rows);
+            } catch (error) {
+                ctx.bodyEl.innerHTML = `<div class="text-danger">Gagal memuat data.</div>`;
+                console.error(error);
+            }
+        }
+
+        async function openOnLeaveModal() {
+            const { s, e } = normalizeRangeDates(rangeStart, rangeEnd);
+            const subtitle = s && e ? `${formatDate(s)} - ${formatDate(e)}` : "";
+            const ctx = setModalLoading("On Leave (Internship)", subtitle);
+            if (!ctx) return;
+            try {
+                const usersRef = collection(db, "users");
+                const q = query(usersRef, where("role", "in", ["Internship", "internship"]));
+                const snap = await getDocs(q);
+                const rows = [];
+                const refDate = e || new Date();
+                snap.forEach(docSnap => {
+                    const data = docSnap.data() || {};
+                    const { startDateObj, endDateObj } = getUserInternshipDates(data);
+                    if (s && e && !isUserActiveInRange(startDateObj, endDateObj, s, e)) return;
+                    const u = { status: data.status || data.internshipStatus || "", startDateObj, endDateObj };
+                    const label = getInternshipDisplayStatus(u, refDate).label;
+                    if (label !== "On Leave") return;
+                    rows.push(getUserDisplay(data, docSnap.id));
+                });
+                renderModalTable(ctx, [
+                    { key: "photo", label: "Photo" },
+                    { key: "name", label: "Nama" },
+                    { key: "role", label: "Role" },
+                    { key: "position", label: "Posisi" }
+                ], rows);
+            } catch (error) {
+                ctx.bodyEl.innerHTML = `<div class="text-danger">Gagal memuat data.</div>`;
+                console.error(error);
+            }
+        }
+
+        async function openScoutingModal() {
+            const { s, e } = normalizeRangeDates(rangeStart, rangeEnd);
+            const subtitle = s && e ? `${formatDate(s)} - ${formatDate(e)}` : "";
+            const ctx = setModalLoading("Scouting (Radar)", subtitle);
+            if (!ctx) return;
+            try {
+                const talentsRef = collection(db, "talents");
+                const q = query(talentsRef, where("recruitment_status.current", "==", "radar"));
+                const snap = await getDocs(q);
+                const rows = [];
+                snap.forEach(docSnap => {
+                    const data = docSnap.data() || {};
+                    const createdAt = getTalentCreatedAtDate(data);
+                    if (s && e && !isDateInRange(createdAt, s, e)) return;
+                    const d = getTalentDisplay(data, docSnap.id);
+                    rows.push({ id: d.id, photo: d.photo, name: d.name });
+                });
+                renderModalTable(ctx, [
+                    { key: "photo", label: "Photo" },
+                    { key: "name", label: "Nama" }
+                ], rows);
+            } catch (error) {
+                ctx.bodyEl.innerHTML = `<div class="text-danger">Gagal memuat data.</div>`;
+                console.error(error);
+            }
+        }
+
+        async function openOnboardingModal() {
+            const { s, e } = normalizeRangeDates(rangeStart, rangeEnd);
+            const subtitle = s && e ? `${formatDate(s)} - ${formatDate(e)}` : "";
+            const ctx = setModalLoading("Onboarding (Accepted Talents)", subtitle);
+            if (!ctx) return;
+            try {
+                const talentsRef = collection(db, "talents");
+                const snap = await getDocs(talentsRef);
+                const rows = [];
+                snap.forEach(docSnap => {
+                    const data = docSnap.data() || {};
+                    const recruitment = data.recruitment_status || data.recruitment_system || {};
+                    const current = normalizeStatus(recruitment.current || "");
+                    if (current !== "accept" && current !== "accepted") return;
+                    const acceptedDate = getAcceptedStatusDate(data);
+                    if (!acceptedDate) return;
+                    if (s && e && !isDateInRange(acceptedDate, s, e)) return;
+                    rows.push(getTalentDisplay(data, docSnap.id));
+                });
+                renderModalTable(ctx, [
+                    { key: "photo", label: "Photo" },
+                    { key: "name", label: "Nama" },
+                    { key: "role", label: "Role" },
+                    { key: "position", label: "Posisi" }
+                ], rows);
+            } catch (error) {
+                ctx.bodyEl.innerHTML = `<div class="text-danger">Gagal memuat data.</div>`;
+                console.error(error);
+            }
+        }
+
+        async function openOffboardingModal() {
+            const { s, e } = normalizeRangeDates(rangeStart, rangeEnd);
+            const subtitle = s && e ? `${formatDate(s)} - ${formatDate(e)}` : "";
+            const ctx = setModalLoading("Offboarding (Graduate Internship)", subtitle);
+            if (!ctx) return;
+            try {
+                const usersRef = collection(db, "users");
+                const q = query(usersRef, where("role", "in", ["Internship", "internship"]));
+                const snap = await getDocs(q);
+                const rows = [];
+                const refDate = e || new Date();
+                snap.forEach(docSnap => {
+                    const data = docSnap.data() || {};
+                    const statusRaw = normalizeStatus(data.status || data.internshipStatus || "");
+                    const { startDateObj, endDateObj } = getUserInternshipDates(data);
+                    if (s && e && !isUserActiveInRange(startDateObj, endDateObj, s, e)) return;
+                    const u = { status: data.status || data.internshipStatus || "", startDateObj, endDateObj };
+                    const label = getInternshipDisplayStatus(u, refDate).label;
+                    const isGraduate = statusRaw === "graduate" || statusRaw === "graduated" || label === "Graduate";
+                    if (!isGraduate) return;
+                    if (s && e) {
+                        if (!(endDateObj instanceof Date) || isNaN(endDateObj.getTime())) return;
+                        if (!isDateInRange(endDateObj, s, e)) return;
+                    }
+                    rows.push(getUserDisplay(data, docSnap.id));
+                });
+                renderModalTable(ctx, [
+                    { key: "photo", label: "Photo" },
+                    { key: "name", label: "Nama" },
+                    { key: "role", label: "Role" },
+                    { key: "position", label: "Posisi" }
+                ], rows);
+            } catch (error) {
+                ctx.bodyEl.innerHTML = `<div class="text-danger">Gagal memuat data.</div>`;
+                console.error(error);
+            }
+        }
+
+        function getTalentPlatformValue(data) {
+            const internship = (data && (data.internship || data.internship_info)) || {};
+            const scouting = (data && data.scouting_info) || {};
+            const raw =
+                internship.platform ||
+                data.platform ||
+                scouting.platform ||
+                scouting.source ||
+                "";
+            return (raw || "").toString().trim();
+        }
+
+        function getFirstName(value) {
+            const full = (value || "").toString().trim();
+            if (!full) return "Tanpa Nama";
+            const parts = full.split(/\s+/).filter(Boolean);
+            return parts[0] || full;
+        }
+
+        function formatLongDate(dateObj) {
+            if (!(dateObj instanceof Date) || isNaN(dateObj.getTime())) return "-";
+            return dateObj.toLocaleDateString("id-ID", { day: "numeric", month: "long", year: "numeric" });
+        }
+
+        function getRoleLabelFromTalent(data) {
+            const { roleId, roleName } = getTalentRolePair(data || {});
+            const v = roleId || roleName || "";
+            if (v === "internship") return "Internship";
+            if (v === "mentor") return "Mentor";
+            if (v === "subteam") return "Sub Team";
+            if (v === "superteam") return "Super Team";
+            if (v === "employee") return "Employee";
+            return (data && (data.role_name || data.role)) || "-";
+        }
+
+        function getRoleBadgeHtml(roleLabel) {
+            const label = (roleLabel || "-").toString();
+            const key = normalizeCompact(label);
+            let cls = "bg-secondary-subtle text-secondary";
+            if (key === "internship") cls = "bg-primary-subtle text-primary";
+            else if (key === "mentor") cls = "bg-warning-subtle text-warning";
+            else if (key === "employee") cls = "bg-success-subtle text-success";
+            else if (key === "subteam" || key === "superteam") cls = "bg-info-subtle text-info";
+            return `<span class="badge ${cls} fw-normal ms-2">${label}</span>`;
+        }
+
+        function getInterviewScheduleDate(data) {
+            const recruitment = (data && (data.recruitment_status || data.recruitment_system)) || {};
+            const raw =
+                recruitment.due_date ||
+                recruitment.dueDate ||
+                recruitment.interview_date ||
+                recruitment.interviewDate ||
+                data.interview_date ||
+                data.interviewDate ||
+                "";
+            const fromField = normalizeInternshipDate(raw);
+            if (fromField instanceof Date && !isNaN(fromField.getTime())) return fromField;
+            const historyArray = Array.isArray(recruitment.history) ? recruitment.history : [];
+            const interviewEntries = historyArray.filter(entry => normalizeStatus(entry && entry.status) === "interview");
+            if (!interviewEntries.length) return null;
+            let latest = null;
+            interviewEntries.forEach(entry => {
+                const d = normalizeInternshipDate(entry && entry.date);
+                if (d instanceof Date && !isNaN(d.getTime())) {
+                    if (!latest || d > latest) latest = d;
+                }
+            });
+            return latest;
+        }
+
+        function renderUpcomingInterviewList(container, rows) {
+            if (!container) return;
+            if (!rows.length) {
+                container.innerHTML = `<div class="text-muted-custom small">Belum ada upcoming interview.</div>`;
+                return;
+            }
+            container.innerHTML = rows
+                .map(r => {
+                    const photo = r.photo || `https://i.pravatar.cc/150?u=${r.id || r.name || "x"}`;
+                    return `
+                        <div class="interview-list-item">
+                            <div class="d-flex align-items-center gap-3">
+                                <img class="stats-modal-photo" src="${photo}" alt="">
+                                <div>
+                                    <div class="fw-bold">${r.firstName}${getRoleBadgeHtml(r.roleLabel)}</div>
+                                    <div class="text-muted-custom small">${r.position} • ${formatLongDate(r.dateObj)}</div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                })
+                .join("");
+        }
+
+        async function loadUpcomingInterviews(startDate, endDate, talentsItems) {
+            try {
+                const container = document.getElementById("upcomingInterviewList");
+                if (!container) return;
+                container.innerHTML = "";
+                const items = Array.isArray(talentsItems) ? talentsItems : await fetchTalentsItems();
+                const { e } = normalizeRangeDates(startDate, endDate);
+                const min = e instanceof Date ? new Date(e.getFullYear(), e.getMonth(), e.getDate()) : new Date();
+                const list = [];
+                items.forEach(item => {
+                    const data = item.data || {};
+                    const recruitment = data.recruitment_status || data.recruitment_system || {};
+                    if (normalizeStatus(recruitment.current || "") !== "interview") return;
+                    const interviewDate = getInterviewScheduleDate(data);
+                    if (!(interviewDate instanceof Date) || isNaN(interviewDate.getTime())) return;
+                    if (interviewDate < min) return;
+                    const d = getTalentDisplay(data, item.id);
+                    list.push({
+                        id: item.id,
+                        photo: d.photo,
+                        firstName: getFirstName(d.name),
+                        roleLabel: getRoleLabelFromTalent(data),
+                        position: d.position || "-",
+                        dateObj: interviewDate
+                    });
+                });
+                list.sort((a, b) => a.dateObj - b.dateObj);
+                renderUpcomingInterviewList(container, list.slice(0, 6));
+            } catch (error) {
+                console.error("Failed to load upcoming interviews:", error);
+            }
+        }
+
+        function getPlatformColorClass(platformLabel) {
+            const key = normalizeCompact(platformLabel);
+            if (key.includes("linkedin")) return "bg-primary";
+            if (key.includes("instagram")) return "bg-info";
+            if (key.includes("msib")) return "bg-secondary";
+            if (key.includes("website")) return "bg-success";
+            if (key.includes("other")) return "bg-dark";
+            return "bg-primary";
+        }
+
+        async function loadPlatformJobposting(startDate, endDate, talentsItems) {
+            try {
+                const listEl = document.getElementById("platformJobpostingList");
+                const totalEl = document.getElementById("platformTotalCandidate");
+                if (!listEl || !totalEl) return;
+                const items = Array.isArray(talentsItems) ? talentsItems : await fetchTalentsItems();
+                const { s, e } = normalizeRangeDates(startDate, endDate);
+                const platforms = ["Website Dialogika", "Website MSIB", "LinkedIn", "Instagram", "Other"];
+                const counts = {};
+                platforms.forEach(p => (counts[p] = 0));
+                items.forEach(item => {
+                    const data = item.data || {};
+                    const createdAt = getTalentCreatedAtDate(data);
+                    if (s && e && !isDateInRange(createdAt, s, e)) return;
+                    const raw = getTalentPlatformValue(data);
+                    if (!raw) return;
+                    const match = platforms.find(p => normalizeCompact(p) === normalizeCompact(raw));
+                    if (match) counts[match] += 1;
+                    else counts["Other"] += 1;
+                });
+                const total = platforms.reduce((acc, p) => acc + (counts[p] || 0), 0);
+                totalEl.textContent = total.toString();
+                listEl.innerHTML = platforms
+                    .map(p => {
+                        const count = counts[p] || 0;
+                        const pct = total > 0 ? Math.round((count / total) * 1000) / 10 : 0;
+                        const color = getPlatformColorClass(p);
+                        return `
+                            <div class="mb-3">
+                                <div class="d-flex justify-content-between small mb-1">
+                                    <span>${p}</span><span>${count}</span>
+                                </div>
+                                <div class="progress"><div class="progress-bar ${color}" style="width: ${pct}%"></div></div>
+                            </div>
+                        `;
+                    })
+                    .join("");
+            } catch (error) {
+                console.error("Failed to load platform jobposting:", error);
+            }
+        }
+
+        async function loadRecruitmentNotes() {
+            try {
+                const textEl = document.getElementById("recruitmentImportantNotesText");
+                if (!textEl) return;
+                const snap = await getDoc(recruitmentNotesRef);
+                if (!snap.exists()) return;
+                const data = snap.data() || {};
+                const content = (data.content || "").toString().trim();
+                if (content) textEl.textContent = content;
+            } catch (error) {
+                console.error("Failed to load recruitment notes:", error);
+            }
+        }
+
+        function openRecruitmentNotesModal() {
+            const modalEl = document.getElementById("recruitmentNotesModal");
+            const inputEl = document.getElementById("recruitmentNotesInput");
+            const textEl = document.getElementById("recruitmentImportantNotesText");
+            if (!modalEl || !inputEl) return;
+            inputEl.value = textEl ? (textEl.textContent || "").trim() : "";
+            const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
+            modal.show();
+        }
+
+        async function saveRecruitmentNotes() {
+            const btn = document.getElementById("saveRecruitmentNotesBtn");
+            const inputEl = document.getElementById("recruitmentNotesInput");
+            const textEl = document.getElementById("recruitmentImportantNotesText");
+            const modalEl = document.getElementById("recruitmentNotesModal");
+            if (!inputEl || !textEl || !modalEl) return;
+            const content = (inputEl.value || "").toString().trim();
+            try {
+                if (btn) btn.disabled = true;
+                await setDoc(recruitmentNotesRef, {
+                    content: content || "",
+                    updated_at: serverTimestamp(),
+                    updated_by: currentUser ? (currentUser.email || currentUser.uid || null) : null
+                }, { merge: true });
+                textEl.textContent = content || "";
+                const modal = bootstrap.Modal.getInstance(modalEl);
+                if (modal) modal.hide();
+            } catch (error) {
+                console.error("Failed to save recruitment notes:", error);
+            } finally {
+                if (btn) btn.disabled = false;
+            }
+        }
+
+        function attachRecruitmentNotesHandlers() {
+            const editBtn = document.getElementById("editRecruitmentNotesBtn");
+            const saveBtn = document.getElementById("saveRecruitmentNotesBtn");
+            if (editBtn) editBtn.addEventListener("click", openRecruitmentNotesModal);
+            if (saveBtn) saveBtn.addEventListener("click", saveRecruitmentNotes);
+        }
+
+        function attachCardOpen(cardId, fn) {
+            const el = document.getElementById(cardId);
+            if (!el) return;
+            el.addEventListener("click", fn);
+            el.addEventListener("keydown", e => {
+                if (e.key === "Enter" || e.key === " ") {
+                    e.preventDefault();
+                    fn();
+                }
+            });
+        }
+
+        function attachCardModals() {
+            attachCardOpen("headCountCard", openHeadCountModal);
+            attachCardOpen("applicantsCard", openApplicantsModal);
+            attachCardOpen("onLeaveCard", openOnLeaveModal);
+            attachCardOpen("scoutingCard", openScoutingModal);
+            attachCardOpen("onboardingCard", openOnboardingModal);
+            attachCardOpen("offboardingCard", openOffboardingModal);
+        }
+
+        async function refreshDashboard(startDate, endDate) {
+            fetchMaxHeadCount();
+            await loadOnLeaveCount(startDate, endDate);
+            const talentsItems = await fetchTalentsItems();
+            await loadApplicantsCount(startDate, endDate, talentsItems);
+            loadRecruitmentStats(talentsItems);
+            loadScoutingRadar(startDate, endDate, talentsItems);
+            loadOnboardingCount(startDate, endDate, talentsItems);
+            loadUpcomingInterviews(startDate, endDate, talentsItems);
+            loadPlatformJobposting(startDate, endDate, talentsItems);
+            loadInternshipRadar(talentsItems);
+            loadMentorRadar(talentsItems);
+            loadTeamRadar(talentsItems);
+        }
+
         flatpickr("#calendarPicker", {
             mode: "range",
             dateFormat: "Y-m-d",
@@ -631,7 +1638,7 @@
                         const endDate = formatDate(rangeEnd);
                         calendarTextEl.textContent = `${startDate} - ${endDate}`;
                     }
-                    loadScoutingRadar(rangeStart, rangeEnd);
+                    refreshDashboard(rangeStart, rangeEnd);
                 }
             }
         });
@@ -640,6 +1647,8 @@
             calendarTextEl.textContent = `${formatDate(startOfMonth)} - ${formatDate(today)}`;
         }
 
+        attachCardModals();
+        attachRecruitmentNotesHandlers();
         updateDateTime();
     </script>
 </body>

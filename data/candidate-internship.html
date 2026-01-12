@@ -6,8 +6,10 @@
     <title>Candidate Internship</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
     <link href="../assets/css/style.css" rel="stylesheet" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -216,6 +218,198 @@
             background: rgba(255, 255, 255, 0.95);
             backdrop-filter: blur(10px);
         }
+
+        .assign-user-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 6px 4px;
+            border-radius: 999px;
+            cursor: pointer;
+        }
+
+        .assign-user-item:hover {
+            background: rgba(148, 163, 184, 0.25);
+        }
+
+        .assign-user-item.active {
+            background: rgba(37, 99, 235, 0.3);
+        }
+
+        .assign-user-left {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .assign-user-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 999px;
+            object-fit: cover;
+        }
+
+        .assign-user-initials {
+            width: 32px;
+            height: 32px;
+            border-radius: 999px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #111827;
+            color: #e5e7eb;
+            font-weight: 700;
+            font-size: 0.8rem;
+        }
+
+        .assign-user-name {
+            font-size: 0.85rem;
+            font-weight: 500;
+            color: #0f172a;
+        }
+
+        .assign-user-checkbox input[type="checkbox"] {
+            width: 16px;
+            height: 16px;
+            accent-color: #0f172a;
+        }
+
+        .sticky-menu-trigger {
+            position: fixed;
+            right: 30px;
+            top: 30%;
+            z-index: 1000;
+            cursor: pointer;
+            background: linear-gradient(to bottom, #0f61a8 5%, #0b2b6a 100%);
+            color: #ffffff;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0px 5px 16px -6px rgba(114, 4, 207, 1);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .sticky-menu-trigger:hover {
+            transform: scale(1.05) rotate(90deg);
+        }
+
+        .menu-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(15, 23, 42, 0.6);
+            backdrop-filter: blur(8px);
+            z-index: 999;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.4s ease;
+        }
+
+        .menu-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .menu-container {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -60%) scale(0.9);
+            z-index: 1001;
+            width: 90%;
+            max-width: 800px;
+            background: rgba(255, 255, 255, 0.95);
+            padding: 32px;
+            border-radius: 24px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .menu-container.active {
+            opacity: 1;
+            visibility: visible;
+            transform: translate(-50%, -50%) scale(1);
+        }
+
+        .menu-header {
+            text-align: center;
+            margin-bottom: 24px;
+        }
+
+        .menu-header h2 {
+            font-size: 1.4rem;
+            font-weight: 600;
+            color: #334155;
+        }
+
+        .menu-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 16px;
+        }
+
+        .menu-item {
+            background: #ffffff;
+            padding: 24px 16px;
+            border-radius: 16px;
+            text-align: center;
+            text-decoration: none;
+            color: #1f2933;
+            transition: all 0.3s ease;
+            border: 1px solid #e2e8f0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .menu-item:hover {
+            background: #0B2B6A;
+            color: #ffffff;
+            transform: translateY(-4px);
+            box-shadow: 0 15px 30px rgba(11, 43, 106, 0.35);
+            border-color: #0B2B6A;
+        }
+
+        .menu-item i {
+            width: 40px;
+            height: 40px;
+            stroke-width: 1.5;
+        }
+
+        .menu-item span {
+            font-weight: 600;
+            font-size: 0.95rem;
+        }
+
+        .close-btn {
+            position: absolute;
+            top: 16px;
+            right: 16px;
+            cursor: pointer;
+            color: #64748b;
+            transition: color 0.3s;
+        }
+
+        .close-btn:hover {
+            color: #ef4444;
+        }
+
+        @media (max-width: 600px) {
+            .menu-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            .menu-item {
+                padding: 20px 10px;
+            }
+        }
     </style>
 </head>
 <body class="p-8">
@@ -266,11 +460,11 @@
 
                     <div id="gridView" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 md:gap-8"></div>
 
-                    <div id="listView" class="list-view-container mt-4">
-                        <div class="table-responsive">
-                            <table class="table align-middle shadow-sm border-0">
-                                <thead class="bg-slate-50/50 border-b border-slate-100">
-                                    <tr class="text-[11px] font-bold uppercase tracking-[0.18em] text-slate-400">
+                    <div id="listView" class="list-view-container mt-4" >
+                        <div class="table-responsive" >
+                            <table class="table align-middle shadow-sm border-0" >
+                                <thead class="bg-slate-50/50 border-b border-slate-100" >
+                                    <tr class="text-[11px] font-bold uppercase tracking-[0.18em] text-slate-400" >
                                         <th class="ps-4 px-3 py-3">Candidate</th>
                                         <th class="px-3 py-3">Information</th>
                                         <th class="px-3 py-3">Platform</th>
@@ -279,7 +473,7 @@
                                         <th class="px-3 py-3">Actions</th>
                                     </tr>
                                 </thead>
-                                <tbody class="text-[13px] text-slate-700"></tbody>
+                                <tbody class="text-[13px] text-slate-700" ></tbody>
                             </table>
                         </div>
                     </div>
@@ -524,7 +718,7 @@
 
         if (window.bootstrap && typeof window.bootstrap.Tooltip === 'function') {
             window.refreshTooltips = function () {
-                const triggers = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+                const triggers = [].slice.call(document.querySelectorAll('[data-bs-toggle=\"tooltip\"]'));
                 triggers.forEach(el => {
                     if (!el._tooltipInstance) {
                         el._tooltipInstance = new bootstrap.Tooltip(el);
@@ -534,9 +728,12 @@
         }
     </script>
 
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+
     <script type="module">
         import { renderTopBar } from "../element/topbar.js";
         import { renderSidebar } from "../element/sidebar.js";
+        import { renderRightbarRecruit } from "../element/rightbar-recruit.js";
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
         import {
@@ -549,7 +746,8 @@
             updateDoc,
             deleteDoc,
             setDoc,
-            serverTimestamp
+            serverTimestamp,
+            arrayUnion
         } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
         import {
             getStorage,
@@ -578,6 +776,7 @@
 
         const sidebarTarget = document.getElementById('sidebarContainer');
         renderSidebar(sidebarTarget);
+        renderRightbarRecruit();
 
         window.app = app;
         window.auth = auth;
@@ -605,6 +804,7 @@
         const candidatePhotoInput = document.getElementById("candidatePhoto");
         const candidatePortfolioInput = document.getElementById("candidatePortfolio");
         const candidateResumeInput = document.getElementById("candidateResume");
+        const internshipAssignUsersMap = {};
 
         let currentEditingTalentId = null;
         let currentAvatarUrl = null;
@@ -666,6 +866,252 @@
                 });
             } catch (e) {
                 return "";
+            }
+        }
+
+        function formatDueDateForInput(raw) {
+            if (!raw) return "";
+            let dateObj = null;
+            if (typeof raw.toDate === "function") {
+                dateObj = raw.toDate();
+            } else if (raw instanceof Date) {
+                dateObj = raw;
+            } else if (typeof raw === "string" || typeof raw === "number") {
+                const tmp = new Date(raw);
+                if (!isNaN(tmp.getTime())) dateObj = tmp;
+            }
+            if (!dateObj) return "";
+            const year = dateObj.getFullYear();
+            const month = String(dateObj.getMonth() + 1).padStart(2, "0");
+            const day = String(dateObj.getDate()).padStart(2, "0");
+            return year + "-" + month + "-" + day;
+        }
+
+        async function ensureInternshipUsersLoaded() {
+            if (Object.keys(internshipAssignUsersMap).length > 0) {
+                return internshipAssignUsersMap;
+            }
+            if (window.questUsersById && Object.keys(window.questUsersById).length > 0) {
+                Object.assign(internshipAssignUsersMap, window.questUsersById);
+                return internshipAssignUsersMap;
+            }
+            try {
+                const snap = await getDocs(collection(db, "users"));
+                snap.forEach(docSnap => {
+                    const data = docSnap.data() || {};
+                    const id = docSnap.id;
+                    const name = data.displayName || data.name || data.email || "User";
+                    const photo = data.photo || data.photoURL || data.avatar_url || data.avatar || null;
+                    internshipAssignUsersMap[id] = { name, photo };
+                });
+            } catch (e) {}
+            return internshipAssignUsersMap;
+        }
+
+        function buildInternshipAssignLabelFromIds(userIds) {
+            const ids = Array.isArray(userIds) ? userIds : [];
+            const valid = ids.filter(uid => internshipAssignUsersMap[uid]);
+            if (!valid.length) return "";
+            const names = valid.map(uid => (internshipAssignUsersMap[uid]?.name || "User"));
+            const shown = names.slice(0, 2);
+            const extra = names.length - shown.length;
+            return extra > 0 ? shown.join(", ") + " +" + extra : shown.join(", ");
+        }
+
+        function getInternshipSelectedIds(fieldEl) {
+            if (!fieldEl) return [];
+            const items = fieldEl.querySelectorAll(".internship-assign-users .assign-user-item");
+            const selected = [];
+            items.forEach(item => {
+                if (item.classList.contains("active")) {
+                    const uid = item.dataset.userId;
+                    if (uid) selected.push(uid);
+                }
+            });
+            return selected;
+        }
+
+        function refreshInternshipInterviewerDisplay(fieldEl, selectedIds) {
+            if (!fieldEl) return;
+            const display = fieldEl.querySelector(".internship-interviewer-display");
+            const hiddenInput = fieldEl.querySelector(".internship-interviewer-input");
+            if (!display || !hiddenInput) return;
+            const ids = Array.isArray(selectedIds) ? selectedIds : [];
+            hiddenInput.value = ids.join(",");
+            if (!ids.length) {
+                display.innerHTML = '<span class="internship-interviewer-placeholder text-muted">Pilih interviewer...</span><i class="bi bi-chevron-down ms-2 small"></i>';
+                display.classList.remove("has-value");
+                return;
+            }
+            display.classList.add("has-value");
+            const avatars = ids
+                .filter(uid => internshipAssignUsersMap[uid])
+                .map(uid => {
+                    const user = internshipAssignUsersMap[uid] || {};
+                    const name = user.name || "User";
+                    const photo = user.photo || "";
+                    if (photo) {
+                        return '<div class="assign-avatar-circle"><img src="' + photo + '" alt="' + name + '"></div>';
+                    }
+                    const initials = name.split(" ").map(w => w[0]).join("").substring(0, 2).toUpperCase() || "U";
+                    return '<div class="assign-avatar-circle assign-avatar-initials">' + initials + '</div>';
+                })
+                .join("");
+            display.innerHTML =
+                '<div class="assign-avatar-stack">' +
+                    avatars +
+                '</div>' +
+                '<i class="bi bi-chevron-down ms-2 small"></i>';
+        }
+
+        function normalizeStatus(value) {
+            if (!value) return "";
+            return value.toString().trim().toLowerCase();
+        }
+
+        function getStatusLabel(status) {
+            const val = normalizeStatus(status);
+            if (val === "interview") return "Interview";
+            if (val === "decision") return "Decision";
+            if (val === "accepted" || val === "accept") return "Accept";
+            if (val === "rejected" || val === "reject") return "Reject";
+            return "Screening";
+        }
+
+        function getStatusBadgeClasses(status) {
+            const val = normalizeStatus(status);
+            if (val === "interview") return "bg-warning text-dark";
+            if (val === "decision") return "bg-info text-dark";
+            if (val === "accepted" || val === "accept") return "bg-success text-white";
+            if (val === "rejected" || val === "reject") return "bg-danger text-white";
+            return "bg-secondary text-white";
+        }
+
+        async function saveInternshipInterviewers(talentId, interviewerIds) {
+            if (!talentId) return;
+            const ids = Array.isArray(interviewerIds) ? interviewerIds.filter(Boolean) : [];
+            const ref = doc(db, "talents", talentId);
+            try {
+                await updateDoc(ref, {
+                    interviewers: ids
+                });
+            } catch (e) {
+                console.error("Failed to save internship interviewers", e);
+            }
+        }
+
+        function buildInternshipAssignItem(fieldEl, container, userId, userData, selectedSet) {
+            const name = userData && userData.name ? userData.name : "User";
+            const photo = userData ? userData.photo : null;
+            const item = document.createElement("div");
+            item.className = "assign-user-item";
+            item.dataset.userId = userId;
+            item.dataset.name = name;
+            if (selectedSet && selectedSet.has(userId)) {
+                item.classList.add("active");
+            }
+            const left = document.createElement("div");
+            left.className = "assign-user-left";
+            let avatarElement;
+            if (photo) {
+                avatarElement = document.createElement("img");
+                avatarElement.src = photo;
+                avatarElement.alt = name;
+                avatarElement.className = "assign-user-avatar";
+            } else {
+                avatarElement = document.createElement("div");
+                avatarElement.className = "assign-user-initials";
+                const initials = name.split(" ").map(w => w[0]).join("").substring(0, 2).toUpperCase();
+                avatarElement.textContent = initials || "U";
+            }
+            const nameSpan = document.createElement("div");
+            nameSpan.className = "assign-user-name";
+            nameSpan.textContent = name;
+            left.appendChild(avatarElement);
+            left.appendChild(nameSpan);
+            const right = document.createElement("div");
+            right.className = "assign-user-checkbox";
+            const checkbox = document.createElement("input");
+            checkbox.type = "checkbox";
+            checkbox.checked = selectedSet && selectedSet.has(userId);
+            checkbox.addEventListener("change", () => {
+                item.classList.toggle("active", checkbox.checked);
+                const selectedIds = getInternshipSelectedIds(fieldEl);
+                refreshInternshipInterviewerDisplay(fieldEl, selectedIds);
+                const talentId = fieldEl.dataset.talentId || "";
+                if (talentId) {
+                    saveInternshipInterviewers(talentId, selectedIds);
+                }
+            });
+            right.appendChild(checkbox);
+            item.appendChild(left);
+            item.appendChild(right);
+            item.addEventListener("click", (ev) => {
+                if (ev.target.tagName.toLowerCase() !== "input") {
+                    checkbox.checked = !checkbox.checked;
+                    const event = new Event("change");
+                    checkbox.dispatchEvent(event);
+                }
+            });
+            container.appendChild(item);
+        }
+
+        async function openInternshipInterviewerDropdownForField(fieldEl) {
+            if (!fieldEl) return;
+            const panel = fieldEl.querySelector(".internship-interviewer-panel");
+            const listContainer = fieldEl.querySelector(".internship-assign-users");
+            const hiddenInput = fieldEl.querySelector(".internship-interviewer-input");
+            if (!panel || !listContainer || !hiddenInput) return;
+            listContainer.innerHTML = "";
+            const users = await ensureInternshipUsersLoaded();
+            const currentIds = (hiddenInput.value || "").split(",").map(v => v.trim()).filter(Boolean);
+            const selectedSet = new Set(currentIds);
+            const entries = Object.entries(users);
+            entries
+                .sort((a, b) => {
+                    const nameA = (a[1].name || "").toLowerCase();
+                    const nameB = (b[1].name || "").toLowerCase();
+                    return nameA.localeCompare(nameB, "id");
+                })
+                .forEach(([uid, data]) => {
+                    buildInternshipAssignItem(fieldEl, listContainer, uid, data, selectedSet);
+                });
+            refreshInternshipInterviewerDisplay(fieldEl, currentIds);
+        }
+
+        async function updateInternshipStatus(talentId, newStatus, actorName) {
+            if (!talentId || !newStatus) return;
+            const ref = doc(db, "talents", talentId);
+            const nowIso = new Date().toISOString();
+            const logEntry = {
+                action: "internship_status_change",
+                to: newStatus,
+                by: actorName || null,
+                date: nowIso
+            };
+            try {
+                await updateDoc(ref, {
+                    "recruitment_status.current": newStatus,
+                    "recruitment_status.history": arrayUnion({
+                        status: newStatus,
+                        date: nowIso
+                    }),
+                    logs: arrayUnion(logEntry)
+                });
+            } catch (e) {
+                console.error("Failed to update internship status", e);
+            }
+        }
+
+        async function updateInternshipDueDate(talentId, dueDate) {
+            if (!talentId) return;
+            const ref = doc(db, "talents", talentId);
+            try {
+                await updateDoc(ref, {
+                    "recruitment_status.due_date": dueDate || null
+                });
+            } catch (e) {
+                console.error("Failed to update internship due date", e);
             }
         }
 
@@ -748,84 +1194,92 @@
             const other = escapeHtml(internship.other || profiling.other || "");
             const shortDesc = escapeHtml(profiling.short_description || "");
             const avatarUrl = basic.avatar_url || "https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?auto=format&fit=crop&q=80&w=800";
+            const portfolioUrl = internship.portfolio_url || data.portfolio_url || "";
+            const resumeUrl = internship.resume_url || data.resume_url || "";
+            const createdRaw = data.created_at || data.createdAt || data.created || null;
+            const createdText = formatCreatedDate(createdRaw);
 
             container.innerHTML =
-                '<div class="candidate-profile-wrapper py-4 px-2 md:px-4 flex justify-center items-center">' +
-                    '<div class="w-full max-w-4xl">' +
-                        '<div class="relative w-full glass-card rounded-2xl shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-300">' +
-                            '<div class="flex flex-col md:flex-row">' +
-                                '<div class="md:w-1/3 modal-gradient p-8 text-white">' +
-                                    '<div class="text-center">' +
-                                        '<div class="w-32 h-32 bg-white rounded-full mx-auto mb-4 p-1 shadow-xl">' +
-                                            '<img src="' + avatarUrl + '" alt="' + name + '" class="rounded-full w-full h-full object-cover">' +
+                '<div class="candidate-profile-wrapper py-6 px-4 md:px-6 flex justify-center" >' +
+                    '<div class="w-full max-w-5xl" >' +
+                        '<div class="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden" >' +
+                            '<div class="p-6 md:p-8" >' +
+                                '<div class="flex flex-col md:flex-row md:items-start md:justify-between gap-4 md:gap-6 mb-6">' +
+                                    '<div class="flex gap-4">' +
+                                        '<img src="' + avatarUrl + '" alt="' + name + '" class="w-16 h-16 md:w-18 md:h-18 rounded-2xl object-cover ring-2 ring-slate-50">' +
+                                        '<div>' +
+                                            '<h3 class="text-lg md:text-xl font-bold text-slate-800 leading-tight break-words">' + name + '</h3>' +
+                                            (positionName
+                                                ? '<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-medium bg-amber-50 text-amber-700 border border-amber-100 mt-1">' + positionName + '</span>'
+                                                : '') +
+                                            '<p class="text-[11px] text-slate-400 flex items-center gap-1 mt-2">' +
+                                                '<svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>' +
+                                                '<span>' + (createdText ? 'Applied: ' + createdText : 'Applied: -') + '</span>' +
+                                            '</p>' +
                                         '</div>' +
-                                        '<h2 class="text-2xl font-bold uppercase tracking-wide">' + name + '</h2>' +
-                                        (positionName ? '<p class="text-indigo-100 font-light mt-1">' + positionName + '</p>' : '') +
-                                        '<span class="inline-flex justify-center items-center mt-3 px-3 py-1 rounded-full text-xs font-semibold bg-white/20 border border-white/30 text-white text-center">' + (campus || "-") + '</span>' +
-                                    '</div>' +
-                                    '<div class="mt-10 space-y-4 text-sm">' +
-                                        '<h3 class="font-semibold border-b border-indigo-400 pb-2 uppercase tracking-wider text-xs">Contact</h3>' +
-                                        (whatsapp
-                                            ? '<a href="tel:' + whatsapp + '" class="flex items-center space-x-3 hover:text-indigo-200 transition"><i class="fa-solid fa-phone w-5"></i><span>' + whatsapp + '</span></a>'
-                                            : '') +
-                                        (email
-                                            ? '<a href="mailto:' + email + '" class="flex items-center space-x-3 hover:text-indigo-200 transition"><i class="fa-solid fa-envelope w-5"></i><span>' + email + '</span></a>'
-                                            : '') +
-                                        (instagram
-                                            ? '<a href="' + instagram + '" target="_blank" class="flex items-center space-x-3 hover:text-indigo-200 transition"><i class="fa-brands fa-instagram w-5"></i><span>' + instagram + '</span></a>'
-                                            : '') +
-                                        (linkedin
-                                            ? '<a href="' + linkedin + '" target="_blank" class="flex items-center space-x-3 hover:text-indigo-200 transition"><i class="fa-brands fa-linkedin w-5"></i><span>LinkedIn Profile</span></a>'
-                                            : '') +
-                                    '</div>' +
-                                    '<div class="mt-8 text-sm">' +
-                                        '<h3 class="font-semibold border-b border-indigo-400 pb-2 uppercase tracking-wider text-xs mb-3">Alamat</h3>' +
-                                        (address
-                                            ? '<p class="text-indigo-100 leading-relaxed italic text-xs">' + address + '</p>'
-                                            : '') +
                                     '</div>' +
                                 '</div>' +
-                                '<div class="md:w-2/3 p-8 md:p-10 max-h-[85vh] overflow-y-auto bg-white/90">' +
-                                    '<section class="mb-8">' +
-                                        '<h3 class="text-xl font-bold text-gray-800 mb-3 flex items-center">' +
-                                            '<i class="fa-solid fa-user-graduate mr-2" style="color: #0B2B6A;"></i> Professional Profile' +
-                                        '</h3>' +
-                                        '<p class="text-gray-600 leading-relaxed">' +
-                                            (shortDesc || hope || "-") +
+                                '<div class="grid grid-cols-1 md:grid-cols-4 gap-4 md:gap-6 py-4 border-t border-b border-slate-50 mb-6">' +
+                                    '<div>' +
+                                        '<p class="text-[10px] uppercase font-bold text-slate-400 mb-1">Pendidikan</p>' +
+                                        '<p class="text-sm text-slate-600 font-medium leading-relaxed">' + (campus || "-") + '</p>' +
+                                        (address
+                                            ? '<p class="text-[11px] text-slate-400 mt-1">' + address + '</p>'
+                                            : '') +
+                                    '</div>' +
+                                    '<div>' +
+                                        '<p class="text-[10px] uppercase font-bold text-slate-400 mb-1">Platform & Mode</p>' +
+                                        '<p class="text-sm text-slate-600 font-medium">' +
+                                            (platform || "-") +
+                                            (mode
+                                                ? '<span class="ml-2 text-[10px] px-1.5 py-0.5 bg-slate-100 rounded uppercase">' + mode + '</span>'
+                                                : '') +
                                         '</p>' +
-                                    '</section>' +
-                                    '<section class="mb-8">' +
-                                        '<h3 class="text-xl font-bold text-gray-800 mb-4 flex items-center">' +
-                                            '<i class="fa-solid fa-briefcase mr-2" style="color: #0B2B6A;"></i> Experience' +
-                                        '</h3>' +
-                                        (experience
-                                            ? '<div class="space-y-4"><div class="border-l-2 border-blue-500 pl-4 py-1">' +
-                                                '<h4 class="font-semibold text-gray-800">Pengalaman</h4>' +
-                                                '<p class="text-sm text-gray-500">' + experience + '</p>' +
-                                              '</div></div>'
-                                            : '<p class="text-gray-500 text-sm">Belum ada pengalaman yang tercatat.</p>') +
-                                    '</section>' +
-                                    '<section class="mb-8 bg-yellow-50 p-5 rounded-xl border-l-4 border-yellow-500">' +
-                                        '<h3 class="text-lg font-bold text-indigo-900 mb-2">Harapan Selama Magang</h3>' +
-                                        '<p class="text-indigo-800 text-sm leading-relaxed">' +
-                                            (hope || "-") +
+                                    '</div>' +
+                                    '<div>' +
+                                        '<p class="text-[10px] uppercase font-bold text-slate-400 mb-1">Kontak</p>' +
+                                        '<div class="flex gap-2 mt-1">' +
+                                            (instagram
+                                                ? '<a href="' + instagram + '" target="_blank" class="w-7 h-7 bg-slate-100 rounded-full flex items-center justify-center text-[11px] text-slate-500 hover:bg-indigo-50 hover:text-indigo-600 transition">IG</a>'
+                                                : '') +
+                                            (linkedin
+                                                ? '<a href="' + linkedin + '" target="_blank" class="w-7 h-7 bg-slate-100 rounded-full flex items-center justify-center text-[11px] text-slate-500 hover:bg-indigo-50 hover:text-indigo-600 transition">IN</a>'
+                                                : '') +
+                                            (whatsapp
+                                                ? '<a href="https://wa.me/' + whatsapp.replace(/[^0-9]/g, "") + '" target="_blank" class="w-7 h-7 bg-slate-100 rounded-full flex items-center justify-center text-[11px] text-slate-500 hover:bg-emerald-50 hover:text-emerald-600 transition">WA</a>'
+                                                : '') +
+                                        '</div>' +
+                                    '</div>' +
+                                    '<div>' +
+                                        '<p class="text-[10px] uppercase font-bold text-slate-400 mb-1">Dokumen</p>' +
+                                        '<div class="flex flex-col gap-1 mt-1 text-xs font-bold">' +
+                                            (resumeUrl
+                                                ? '<a href="' + resumeUrl + '" target="_blank" class="text-indigo-600 underline decoration-indigo-200 underline-offset-4">Resume</a>'
+                                                : '<span class="text-slate-300 italic">No Resume</span>') +
+                                            (portfolioUrl
+                                                ? '<a href="' + portfolioUrl + '" target="_blank" class="text-indigo-600 underline decoration-indigo-200 underline-offset-4">Portfolio</a>'
+                                                : '<span class="text-slate-300 italic">No Portfolio</span>') +
+                                        '</div>' +
+                                    '</div>' +
+                                '</div>' +
+                                '<div class="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">' +
+                                    '<div>' +
+                                        '<h4 class="text-xs font-bold text-slate-800 mb-2 flex items-center gap-2">' +
+                                            '<span class="w-1.5 h-1.5 bg-indigo-500 rounded-full"></span>' +
+                                            '<span>Harapan Kandidat</span>' +
+                                        '</h4>' +
+                                        '<p class="text-sm text-slate-500 leading-relaxed italic">' +
+                                            (hope || shortDesc || "-") +
                                         '</p>' +
-                                    '</section>' +
-                                    '<section class="mb-4">' +
-                                        '<h3 class="text-lg font-bold text-gray-800 mb-2 underline decoration-indigo-300">Komitmen & Loyalitas</h3>' +
-                                        '<p class="text-gray-600 text-sm italic">' +
-                                            (reason || "-") +
+                                    '</div>' +
+                                    '<div>' +
+                                        '<h4 class="text-xs font-bold text-slate-800 mb-2 flex items-center gap-2">' +
+                                            '<span class="w-1.5 h-1.5 bg-emerald-500 rounded-full"></span>' +
+                                            '<span>Pengalaman Terakhir</span>' +
+                                        '</h4>' +
+                                        '<p class="text-sm text-slate-500 leading-relaxed italic">' +
+                                            (experience || "-") +
                                         '</p>' +
-                                    '</section>' +
-                                    '<section class="mb-4">' +
-                                        '<h3 class="text-sm md:text-base font-bold text-slate-800 mb-3 border-b pb-2">Jika Diterima di Perusahaan Lain</h3>' +
-                                        '<p class="text-slate-600 text-sm leading-relaxed italic">' +
-                                            (other || "-") +
-                                        '</p>' +
-                                    '</section>' +
-                                    '<div class="mt-8 pt-6 border-t border-gray-100 text-[10px] text-gray-400 flex flex-wrap justify-between gap-2 uppercase tracking-widest">' +
-                                        '<span class="inline-flex justify-center items-center px-3 py-1 rounded-full bg-slate-100 text-slate-600 border border-slate-200 text-center">Platform: ' + (platform || "-") + '</span>' +
-                                        '<span class="inline-flex justify-center items-center px-3 py-1 rounded-full bg-indigo-50 text-indigo-700 border border-indigo-100 text-center">' + (mode || "") + ' ' + name + '</span>' +
                                     '</div>' +
                                 '</div>' +
                             '</div>' +
@@ -857,6 +1311,10 @@
             const otherHtml = buildEssayCell(params.otherText || "");
             const chooseHtml = buildEssayCell(params.chooseText || "");
             const talentId = params.talentId || "";
+            const interviewerIds = Array.isArray(params.interviewerIds) ? params.interviewerIds : [];
+            const rawStatus = params.status || "";
+            const currentStatus = normalizeStatus(rawStatus) || "screening";
+            const dueDateInputValue = params.dueDateInputValue || "";
 
             const whatsappRaw = (params.whatsapp || "").toString();
             const whatsappNumber = whatsappRaw.replace(/[^0-9]/g, "");
@@ -972,68 +1430,161 @@
                         : '') +
                 '</div>';
 
+            const statusLabel = getStatusLabel(currentStatus);
+            const statusBadgeClasses = getStatusBadgeClasses(currentStatus);
+            const statusOptions = [
+                { value: "screening", label: "Screening" },
+                { value: "interview", label: "Interview" },
+                { value: "decision", label: "Decision" },
+                { value: "accept", label: "Accept" },
+                { value: "reject", label: "Reject" }
+            ];
+
+            let statusOptionsHtml = "";
+            statusOptions.forEach(opt => {
+                const selected = currentStatus === opt.value ? ' selected' : '';
+                statusOptionsHtml += '<option value="' + opt.value + '"' + selected + '>' + opt.label + '</option>';
+            });
+
             const listHtml =
-                '<tr class="candidate-row candidate-row-main" data-name="' + name + '" data-talent-id="' + talentId + '">' +
-                    '<td class="ps-4">' +
-                        '<div class="d-flex align-items-center gap-3">' +
-                            '<div class="position-relative">' +
-                                '<img src="' + avatarUrl + '" class="list-img rounded-3 shadow-sm">' +
-                            '</div>' +
-                            '<div>' +
-                                '<div class="fw-bold text-dark mb-1 candidate-name">' + name + '</div>' +
-                                '<div class="d-flex flex-column">' +
-                                    (position ? '<span class="badge rounded-pill text-bg-primary-subtle bg-yellow-400/50 text-primary-emphasis mb-1 text-start">' + position + '</span>' : '') +
-                                    '<small class="text-muted"><i class="fas fa-calendar-alt me-1"></i>' + (createdText || '-') + '</small>' +
+                '<tr style="background-color: #f1f7fd;" class="candidate-row candidate-row-main" data-name="' + name + '" data-talent-id="' + talentId + '">' +
+                    '<td style="background-color: #f1f7fd" colspan="6" class="border-0 px-0 py-2">' +
+                        '<div class="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden hover:shadow-md transition-shadow" >' +
+                            '<div class="p-6">' +
+                                '<div class="d-flex flex-column flex-md-row align-items-md-start justify-content-md-between mb-4 gap-3">' +
+                                    '<div class="d-flex gap-3 align-items-start">' +
+                                        '<img src="' + avatarUrl + '" alt="' + name + '" class="list-img rounded-4 shadow-sm" style="width:64px;height:64px;object-fit:cover;border-radius:1rem;">' +
+                                        '<div>' +
+                                            '<h3 class="mb-1 fw-bold text-slate-800" style="font-size:1rem;line-height:1.25;">' + name + '</h3>' +
+                                            (position
+                                                ? '<span class="d-inline-flex align-items-center px-2 py-1 rounded-pill text-uppercase fw-semibold bg-amber-50 text-amber-700 border border-amber-100 mb-1" style="font-size:11px;letter-spacing:0.08em;">' + position + '</span>'
+                                                : '') +
+                                            '<p class="text-muted d-flex align-items-center gap-1 mb-0" style="font-size:11px;">' +
+                                                '<i class="fas fa-calendar-alt me-1"></i>' +
+                                                '<span>' + (createdText || '-') + '</span>' +
+                                            '</p>' +
+                                        '</div>' +
+                                    '</div>' +
+                                    '<div class="d-flex align-items-center gap-2 mt-2 mt-md-0">' +
+                                        '<span class="px-3 py-1 rounded-3 text-uppercase fw-bold ' + statusBadgeClasses + '" style="font-size:11px;letter-spacing:0.08em;">' + statusLabel + '</span>' +
+                                        '<div class="d-flex gap-1 ms-2">' +
+                                            '<button class="btn btn-sm btn-light rounded-3 internship-view-btn" type="button" title="View">' +
+                                                '<i class="fas fa-eye"></i>' +
+                                            '</button>' +
+                                            '<button class="btn btn-sm btn-outline-secondary rounded-3 internship-edit-btn" type="button" title="Edit">' +
+                                                '<i class="fas fa-pen"></i>' +
+                                            '</button>' +
+                                            '<button class="btn btn-sm btn-outline-danger rounded-3 internship-delete-btn" type="button" title="Delete">' +
+                                                '<i class="fas fa-trash"></i>' +
+                                            '</button>' +
+                                        '</div>' +
+                                    '</div>' +
+                                '</div>' +
+                                '<div class="row g-3 py-3 border-top border-bottom border-slate-100 mb-3">' +
+                                    '<div class="col-12 col-md-3">' +
+                                        '<p class="text-uppercase fw-bold text-slate-400 mb-1" style="font-size:10px;">Pendidikan</p>' +
+                                        '<p class="mb-0 text-slate-600 fw-medium" style="font-size:13px;line-height:1.4;">' + (campus || "-") + '</p>' +
+                                        (address
+                                            ? '<p class="mb-0 text-slate-400 mt-1" style="font-size:11px;">' + address + '</p>'
+                                            : '') +
+                                    '</div>' +
+                                    '<div class="col-12 col-md-3">' +
+                                        '<p class="text-uppercase fw-bold text-slate-400 mb-1" style="font-size:10px;">Platform & Mode</p>' +
+                                        '<p class="mb-0 text-slate-600 fw-medium" style="font-size:13px;">' +
+                                            (platformLabel || "-") +
+                                        '</p>' +
+                                        (modeValue
+                                            ? 
+                                              '<span class="mt-1 px-2 py-1 rounded-pill bg-slate-100 text-slate-700 border border-slate-200 d-inline-block" style="font-size:10px;letter-spacing:0.08em;text-transform:uppercase;">' + modeValue + '</span>'
+                                            : '') +
+                                    '</div>' +
+                                    '<div class="col-12 col-md-3">' +
+                                        '<p class="text-uppercase fw-bold text-slate-400 mb-1" style="font-size:10px;">Kontak</p>' +
+                                        '<div class="d-flex gap-2 mt-1">' +
+                                            (instagramUrl
+                                                ? '<a href="' + instagramUrl + '" target="_blank" class="d-flex align-items-center justify-content-center rounded-circle text-white" style="width:28px;height:28px;background:#E1306C;"><i class="fa-brands fa-instagram text-xs"></i></a>'
+                                                : '') +
+                                            (linkedinUrl
+                                                ? '<a href="' + linkedinUrl + '" target="_blank" class="d-flex align-items-center justify-content-center rounded-circle text-white" style="width:28px;height:28px;background:#0A66C2;"><i class="fa-brands fa-linkedin text-xs"></i></a>'
+                                                : '') +
+                                            (whatsapp
+                                                ? '<a href="' + (whatsappHref || "#") + '" target="_blank" class="d-flex align-items-center justify-content-center rounded-circle text-white" style="width:28px;height:28px;background:#22c55e;"><i class="fa-brands fa-whatsapp text-xs"></i></a>'
+                                                : '') +
+                                            (email
+                                                ? '<a href="mailto:' + email + '" target="_blank" class="d-flex align-items-center justify-content-center rounded-circle text-white" style="width:28px;height:28px;background:#4b5563;"><i class="fa-solid fa-envelope text-xs"></i></a>'
+                                                : '') +
+                                        '</div>' +
+                                    '</div>' +
+                                    '<div class="col-12 col-md-3">' +
+                                        '<p class="text-uppercase fw-bold text-slate-400 mb-1" style="font-size:10px;">Dokumen</p>' +
+                                        '<div class="d-flex flex-column gap-1 mt-1" style="font-size:12px;font-weight:600;">' +
+                                            (resumeUrl
+                                                ? '<a href="' + resumeUrl + '" target="_blank" class="text-primary text-decoration-underline">Resume</a>'
+                                                : '<span class="text-muted fst-italic">No Resume</span>') +
+                                            (portfolioUrl
+                                                ? '<a href="' + portfolioUrl + '" target="_blank" class="text-primary text-decoration-underline">Portfolio</a>'
+                                                : '<span class="text-muted fst-italic">No Portfolio</span>') +
+                                        '</div>' +
+                                    '</div>' +
+                                '</div>' +
+                                '<div class="row g-4 mb-2">' +
+                                    '<div class="col-12 col-md-6">' +
+                                        '<h4 class="text-uppercase fw-bold text-slate-800 mb-2 d-flex align-items-center gap-2" style="font-size:11px;">' +
+                                            '<span class="rounded-circle" style="width:6px;height:6px;background-color:#6366f1;"></span>' +
+                                            '<span>Harapan Kandidat</span>' +
+                                        '</h4>' +
+                                        '<p class="mb-0 text-slate-500 fst-italic" style="font-size:13px;line-height:1.5;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;" data-bs-toggle="tooltip" data-bs-title="' + (params.hopeText || params.chooseText || "-") + '">' +
+                                            (params.hopeText || params.chooseText || "-") +
+                                        '</p>' +
+                                    '</div>' +
+                                    '<div class="col-12 col-md-6">' +
+                                        '<h4 class="text-uppercase fw-bold text-slate-800 mb-2 d-flex align-items-center gap-2" style="font-size:11px;">' +
+                                            '<span class="rounded-circle" style="width:6px;height:6px;background-color:#10b981;"></span>' +
+                                            '<span>Pengalaman Terakhir</span>' +
+                                        '</h4>' +
+                                        '<p class="mb-0 text-slate-500 fst-italic" style="font-size:13px;line-height:1.5;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;" data-bs-toggle="tooltip" data-bs-title="' + (params.experienceText || "-") + '">' +
+                                            (params.experienceText || "-") +
+                                        '</p>' +
+                                    '</div>' +
                                 '</div>' +
                             '</div>' +
-                        '</div>' +
-                    '</td>' +
-                    '<td>' +
-                        '<div class="d-flex flex-column small text-muted">' +
-                            (campus ? '<div><i class="fas fa-graduation-cap me-1"></i>' + campus + '</div>' : '') +
-                            (address ? '<div class="address-clamp d-flex align-items-start gap-1"><i class="fas fa-map-marker-alt flex-shrink-0"></i><span>' + address + '</span></div>' : '') +
-                        '</div>' +
-                    '</td>' +
-                    '<td>' +
-                        '<div class="d-flex flex-column small">' +
-                            '<span class="fw-semibold text-dark">' + (platformLabel || '-') + '</span>' +
-                            (modeValue
-                                ? '<span class="mt-1 inline-flex justify-center items-center w-fit px-2 py-1 rounded-full bg-slate-100 text-slate-700 border border-slate-200 uppercase text-center" style="font-size: 0.65rem; letter-spacing: 0.08em; line-height: 1;">' + modeValue + '</span>'
-                                : '') +
-                        '</div>' +
-                    '</td>' +
-                    '<td>' +
-                        socialHtml +
-                    '</td>' +
-                    '<td class="text-center">' + docsHtml + '</td>' +
-                    '<td>' +
-                        '<div class="d-flex gap-2">' +
-                            '<button class="btn btn-sm btn-light rounded-3 internship-view-btn" type="button" title="View">' +
-                                '<i class="fas fa-eye"></i>' +
-                            '</button>' +
-                            '<button class="btn btn-sm btn-outline-secondary rounded-3 internship-edit-btn" type="button" title="Edit">' +
-                                '<i class="fas fa-pen"></i>' +
-                            '</button>' +
-                            '<button class="btn btn-sm btn-outline-danger rounded-3 internship-delete-btn" type="button" title="Delete">' +
-                                '<i class="fas fa-trash"></i>' +
-                            '</button>' +
-                        '</div>' +
-                    '</td>' +
-                '</tr>' +
-                '<tr class="candidate-row-detail bg-slate-50/30">' +
-                    '<td colspan="6" class="px-4 py-3">' +
-                        '<div class="d-flex gap-4 small text-muted">' +
-                            '<div class="flex-grow-1">' +
-                                '<div class="text-uppercase fw-bold text-secondary mb-1" style="font-size: 0.7rem;">Harapan Kandidat</div>' +
-                                '<div>' + (hopeHtml || '-') + '</div>' +
-                            '</div>' +
-                            '<div class="flex-grow-1">' +
-                                '<div class="text-uppercase fw-bold text-secondary mb-1" style="font-size: 0.7rem;">Pengalaman</div>' +
-                                '<div>' + (experienceHtml || '-') + '</div>' +
-                            '</div>' +
-                            '<div class="flex-grow-1">' +
-                                '<div class="text-uppercase fw-bold text-secondary mb-1" style="font-size: 0.7rem;">Kondisi</div>' +
-                                '<div>' + (condition || "-") + '</div>' +
+                            '<div class="px-4 py-3 bg-slate-50 d-flex flex-column flex-md-row align-items-md-center justify-content-md-between gap-3">' +
+                                '<div class="d-flex align-items-center gap-3">' +
+                                    '<div class="internship-interviewer-field position-relative d-flex align-items-center gap-3" data-talent-id="' + talentId + '">' +
+                                        '<div class="d-flex -space-x-2">' +
+                                            '<div class="internship-interviewer-display d-flex align-items-center justify-content-center rounded-pill bg-light px-3 py-1" role="button" style="min-width:80px;">' +
+                                                '<span class="internship-interviewer-placeholder text-muted" style="font-size:12px;">Pilih interviewer...</span>' +
+                                                '<i class="bi bi-chevron-down ms-2 small"></i>' +
+                                            '</div>' +
+                                        '</div>' +
+                                        '<div class="internship-interviewer-panel shadow-sm border rounded-3 bg-white mt-1 p-2" style="display:none; min-width:260px; max-height:260px; overflow:auto; z-index:20;">' +
+                                            '<div class="mb-2">' +
+                                                '<input type="text" class="form-control form-control-sm internship-interviewer-search" placeholder="Cari nama...">' +
+                                            '</div>' +
+                                            '<div class="internship-assign-users"></div>' +
+                                        '</div>' +
+                                        '<input type="hidden" class="internship-interviewer-input" value="' + interviewerIds.join(",") + '">' +
+                                        '<div class="text-xs">' +
+                                            
+                                        '</div>' +
+                                    '</div>' +
+                                '</div>' +
+                                '<div class="d-flex flex-column flex-md-row align-items-md-center gap-3">' +
+                                    '<div class="internship-due-date-field" data-talent-id="' + talentId + '">' +
+                                        
+                                        '<div class="input-group input-group-sm" style="max-width:220px;">' +
+                                            '<span class="input-group-text bg-light border-end-0"><i class="bi bi-calendar-event"></i></span>' +
+                                            '<input type="text" class="form-control form-control-sm internship-due-date-input border-start-0" placeholder="Pilih tanggal" data-talent-id="' + talentId + '" value="' + dueDateInputValue + '">' +
+                                            '<button type="button" class="btn btn-outline-secondary btn-sm internship-due-date-clear d-flex align-items-center justify-content-center" style="width:28px;height:28px;padding:0;"><i class="fa-solid fa-xmark text-xs"></i></button>' +
+                                        '</div>' +
+                                    '</div>' +
+                                    '<div class="internship-status-field" data-talent-id="' + talentId + '">' +
+                                        
+                                        '<select class="form-select form-select-sm internship-status-select" style="min-width:140px;">' +
+                                            statusOptionsHtml +
+                                        '</select>' +
+                                    '</div>' +
+                                '</div>' +
                             '</div>' +
                         '</div>' +
                     '</td>' +
@@ -1041,6 +1592,37 @@
 
             gridContainer.insertAdjacentHTML('beforeend', gridHtml);
             listTbody.insertAdjacentHTML('beforeend', listHtml);
+
+            const rowEl = listTbody.querySelector('tr.candidate-row-main:last-child');
+            if (rowEl) {
+                const fieldEl = rowEl.querySelector('.internship-interviewer-field');
+                if (fieldEl) {
+                    ensureInternshipUsersLoaded()
+                        .then(() => {
+                            const hiddenInput = fieldEl.querySelector(".internship-interviewer-input");
+                            const currentIds = hiddenInput && hiddenInput.value
+                                ? hiddenInput.value.split(",").map(v => v.trim()).filter(Boolean)
+                                : [];
+                            refreshInternshipInterviewerDisplay(fieldEl, currentIds);
+                        })
+                        .catch(() => {});
+                }
+
+                const dueInput = rowEl.querySelector('.internship-due-date-input');
+                if (dueInput && window.flatpickr) {
+                    flatpickr(dueInput, {
+                        dateFormat: "Y-m-d",
+                        defaultDate: dueDateInputValue || null,
+                        allowInput: true,
+                        onChange: (selectedDates, dateStr, instance) => {
+                            const inputEl = instance && instance.input ? instance.input : dueInput;
+                            const tId = inputEl.getAttribute("data-talent-id") || talentId;
+                            updateInternshipDueDate(tId, dateStr || null);
+                        }
+                    });
+                }
+            }
+
             if (window.refreshTooltips) {
                 window.refreshTooltips();
             }
@@ -1104,6 +1686,12 @@
                     const otherText = internship.other || profiling.other || "";
                     const chooseText = internship.choose || profiling.choose || "";
 
+                    const recruitment = data.recruitment_status || data.recruitment_system || {};
+                    const currentStatus = normalizeStatus(recruitment.current || "");
+                    const dueDateRaw = recruitment.due_date || null;
+                    const dueDateInputValue = formatDueDateForInput(dueDateRaw);
+                    const interviewerIds = Array.isArray(data.interviewers) ? data.interviewers : [];
+
                     appendCandidateToUI({
                         name,
                         positionName,
@@ -1125,7 +1713,10 @@
                         hopeText,
                         otherText,
                         chooseText,
-                        talentId: docSnap.id
+                        talentId: docSnap.id,
+                        status: currentStatus,
+                        dueDateInputValue,
+                        interviewerIds
                     });
                     found += 1;
                 });
@@ -1323,6 +1914,57 @@
             const viewBtn = e.target.closest(".internship-view-btn");
             const copyWaBtn = e.target.closest(".copy-whatsapp-btn");
             const copyEmailBtn = e.target.closest(".copy-email-btn");
+            const interviewerDisplay = e.target.closest(".internship-interviewer-display");
+            const interviewerPanel = e.target.closest(".internship-interviewer-panel");
+            const clearDueBtn = e.target.closest(".internship-due-date-clear");
+            if (interviewerDisplay) {
+                const fieldEl = interviewerDisplay.closest(".internship-interviewer-field");
+                if (fieldEl) {
+                    const panel = fieldEl.querySelector(".internship-interviewer-panel");
+                    const isVisible = panel && panel.style.display === "block";
+                    document.querySelectorAll(".internship-interviewer-panel").forEach(p => {
+                        p.style.display = "none";
+                    });
+                    if (!isVisible && panel) {
+                        panel.style.display = "block";
+                        openInternshipInterviewerDropdownForField(fieldEl);
+                        const searchInput = panel.querySelector(".internship-interviewer-search");
+                        if (searchInput) {
+                            searchInput.value = "";
+                            searchInput.addEventListener("input", () => {
+                                const term = searchInput.value.toLowerCase();
+                                const items = panel.querySelectorAll(".assign-user-item");
+                                items.forEach(item => {
+                                    const name = (item.dataset.name || "").toLowerCase();
+                                    item.style.display = name.includes(term) ? "" : "none";
+                                });
+                            }, { once: true });
+                        }
+                    }
+                }
+            } else {
+                if (!interviewerPanel) {
+                    document.querySelectorAll(".internship-interviewer-panel").forEach(p => {
+                        p.style.display = "none";
+                    });
+                }
+            }
+
+            if (clearDueBtn) {
+                const field = clearDueBtn.closest(".internship-due-date-field");
+                const inputEl = field ? field.querySelector(".internship-due-date-input") : null;
+                if (inputEl) {
+                    const tId = inputEl.getAttribute("data-talent-id") || "";
+                    inputEl.value = "";
+                    if (inputEl._flatpickr) {
+                        inputEl._flatpickr.clear();
+                    }
+                    if (tId) {
+                        updateInternshipDueDate(tId, null);
+                    }
+                }
+            }
+
             if (editBtn) {
                 const row = editBtn.closest("tr");
                 const card = editBtn.closest(".candidate-item") || editBtn.closest(".col-12.col-md-6.col-lg-4");
@@ -1450,6 +2092,35 @@
                 const value = copyEmailBtn.getAttribute("data-copy-value") || "";
                 await copyToClipboard(value);
                 alert("Email disalin ke clipboard.");
+            }
+        });
+
+        document.addEventListener("change", (e) => {
+            const statusSelect = e.target.closest(".internship-status-select");
+            if (!statusSelect) return;
+            let talentId = "";
+            const field = statusSelect.closest(".internship-status-field");
+            if (field && field.dataset && field.dataset.talentId) {
+                talentId = field.dataset.talentId;
+            } else {
+                const mainRow = statusSelect.closest("tr.candidate-row-main");
+                if (mainRow && mainRow.dataset && mainRow.dataset.talentId) {
+                    talentId = mainRow.dataset.talentId;
+                } else {
+                    const container = statusSelect.closest("[data-talent-id]");
+                    if (container && container.dataset && container.dataset.talentId) {
+                        talentId = container.dataset.talentId;
+                    }
+                }
+            }
+            const newVal = statusSelect.value || "";
+            const normalized = normalizeStatus(newVal || "");
+            let actorName = "";
+            if (window.auth && window.auth.currentUser) {
+                actorName = window.auth.currentUser.displayName || window.auth.currentUser.email || "";
+            }
+            if (talentId && normalized) {
+                updateInternshipStatus(talentId, normalized, actorName);
             }
         });
 
