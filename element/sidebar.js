@@ -157,6 +157,24 @@ export function renderSidebar(target) {
             .sidebar-submenu-link:hover {
                 color: #2563eb;
             }
+
+            #logoutModal {
+                z-index: 5001 !important;
+                pointer-events: auto !important;
+            }
+
+            #logoutModal * {
+                pointer-events: auto !important;
+            }
+
+            .modal {
+                z-index: 5000 !important;
+            }
+
+            .modal-backdrop {
+                z-index: 4999 !important;
+            }
+
         </style>
         <!-- 2. SIDEBAR (Light, Smart Filters, Pending Widget) -->
         <aside class="sidebar" id="sidebarNav">
@@ -207,9 +225,36 @@ export function renderSidebar(target) {
 
                 <div class="nav-category mt-4">System</div>
                 <a href="javascript:void(0)" class="sidebar-link" onclick="alert('Under Development')"><i class="bi bi-gear"></i>System Settings</a>
-                <a href="javascript:void(0)" class="sidebar-link text-danger" id="logoutBtn"><i class="bi bi-box-arrow-right"></i> Logout</a>
+                <a href="#" class="sidebar-link text-danger" id="logoutBtn">
+                <i class="bi bi-box-arrow-right"></i> Logout</a>
 
             </div> <!-- End Scroll Wrapper -->
+
+            <!-- Logout Confirmation Modal -->
+<div class="modal fade" id="logoutModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title text-danger">
+                    <i class="bi bi-exclamation-triangle"></i> Konfirmasi Logout
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                Apakah Anda yakin ingin logout?
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    Batal
+                </button>
+                <button type="button" class="btn btn-danger" id="confirmLogout">
+                    Ya, Logout
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
 
             <!-- PENDING WIDGET (Pinned di Bawah, di luar scroll wrapper) -->
             <div class="pending-widget" style="background-color: #1c83e368; color:#fff;margin-bottom: -17px;">
@@ -248,6 +293,36 @@ export function renderSidebar(target) {
             </div>
         </div>
         `;
+
+        // PANGGIL LANGSUNG SETELAH target.innerHTML
+initLogoutModal();
+
+function initLogoutModal() {
+    const logoutBtn = document.getElementById('logoutBtn');
+    const confirmLogout = document.getElementById('confirmLogout');
+    const modalEl = document.getElementById('logoutModal');
+
+    console.log(logoutBtn, confirmLogout, modalEl);
+
+    if (!logoutBtn || !confirmLogout || !modalEl) {
+        console.error('Logout modal element not found');
+        return;
+    }
+
+    const logoutModal = new bootstrap.Modal(modalEl);
+
+    logoutBtn.addEventListener('click', function (e) {
+        e.preventDefault();
+        logoutModal.show();
+    });
+
+    confirmLogout.addEventListener('click', function () {
+        localStorage.removeItem('userData');
+        sessionStorage.clear();
+        window.location.href = '/index.html';
+    });
+}
+
 
     var cachedTasks = null;
     var cachedTasksTime = 0;

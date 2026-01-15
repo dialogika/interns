@@ -1,0 +1,754 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manajemen Izin</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link href="../assets/css/style.css" rel="stylesheet" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #fcfdfe; }
+        .glass-header { background: rgba(255, 255, 255, 0.7); backdrop-filter: blur(10px); }
+        .card-elite { background: #ffffff; border: 1px solid #f1f5f9; box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.02), 0 8px 10px -6px rgba(0, 0, 0, 0.02); }
+        .input-focus { transition: all 0.2s; border: 1.5px solid #e2e8f0; }
+        .input-focus:focus { border-color: #4f46e5; outline: none; box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.1); }
+    </style>
+</head>
+<body class="text-slate-800 pb-20">
+
+    <div id="topbarContainer"></div>
+    
+    <div class="dashboard-container">
+        
+        <div id="sidebarContainer"></div>
+
+        <main class="main-content">
+
+            <!-- Top Navigation / Header -->
+            <nav class="sticky top-0 z-50 glass-header border-b border-slate-100 px-8 py-5 mb-10">
+                <div class="max-w-7xl mx-auto flex justify-between items-center">
+                    <div>
+                        <h1 class="text-2xl font-bold tracking-tight text-slate-900">Manajemen Data Izin</h1>
+                        <p class="text-xs text-slate-500 font-medium">Panel Kontrol Konfigurasi & Persetujuan Intern</p>
+                    </div>
+                </div>
+            </nav>
+
+            <main class="max-w-7xl mx-auto px-8 space-y-8">
+        
+        <!-- SECTION 1: KONFIGURASI FORM (UPGRADED) -->
+        <section class="card-elite rounded-[2rem] p-8">
+            <div class="flex justify-between items-start mb-8">
+                <div>
+                    <h2 class="text-xl font-bold text-slate-900 flex items-center gap-2">
+                        <i data-lucide="settings-2" class="w-5 h-5 text-indigo-600"></i>
+                        Konfigurasi Form Izin
+                    </h2>
+                    <p class="text-sm text-slate-500 mt-1">Atur pilihan kategori, jenis izin, dan kuota untuk user secara dinamis.</p>
+                </div>
+                <button id="saveConfigBtn" class="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-2.5 rounded-xl text-sm font-bold transition shadow-lg shadow-indigo-200">
+                    Simpan Konfigurasi
+                </button>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-10">
+                <!-- Kategori Urusan Manager -->
+                <div class="space-y-4">
+                    <label class="text-sm font-bold text-slate-700 flex justify-between items-center">
+                        Kategori Urusan
+                        <span class="text-[10px] text-indigo-500 bg-indigo-50 px-2 py-0.5 rounded-md uppercase tracking-wider">Dropdown Options</span>
+                    </label>
+                    <div class="space-y-2 border border-slate-100 p-3 rounded-2xl bg-slate-50/50">
+                        <div id="configCategoriesList" class="space-y-2"></div>
+                        <button id="addCategoryBtn" class="w-full py-3 border-2 border-dashed border-slate-200 rounded-xl text-slate-400 text-xs font-bold hover:bg-white hover:border-indigo-300 hover:text-indigo-600 transition flex items-center justify-center gap-2">
+                            <i data-lucide="plus-circle" class="w-4 h-4"></i> Tambah Kategori Baru
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Jenis Izin Manager -->
+                <div class="space-y-4">
+                    <label class="text-sm font-bold text-slate-700 flex justify-between items-center">
+                        Jenis Izin
+                        <span class="text-[10px] text-emerald-500 bg-emerald-50 px-2 py-0.5 rounded-md uppercase tracking-wider">Duration Policy</span>
+                    </label>
+                    <div class="space-y-2 border border-slate-100 p-3 rounded-2xl bg-slate-50/50">
+                        <div id="configTypesList" class="space-y-2"></div>
+                        <button id="addTypeBtn" class="w-full py-3 border-2 border-dashed border-slate-200 rounded-xl text-slate-400 text-xs font-bold hover:bg-white hover:border-emerald-300 hover:text-emerald-600 transition flex items-center justify-center gap-2">
+                            <i data-lucide="plus-circle" class="w-4 h-4"></i> Tambah Jenis Izin
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-8 pt-6 border-t border-slate-50 flex items-center gap-8">
+                <div class="flex-1 max-w-xs">
+                    <label class="block text-sm font-bold text-slate-700 mb-2">Kuota Izin Per Bulan</label>
+                    <div class="relative">
+                        <input id="configQuota" type="number" value="3" class="w-full pl-4 pr-12 py-3 rounded-xl bg-slate-50 border-none focus:ring-2 focus:ring-indigo-500 font-bold text-lg">
+                        <span class="absolute right-4 top-3.5 text-xs text-slate-400 font-medium">Hari</span>
+                    </div>
+                </div>
+                <div class="flex-1 p-4 bg-amber-50 rounded-2xl border border-amber-100 flex gap-3">
+                    <i data-lucide="info" class="w-5 h-5 text-amber-600 shrink-0"></i>
+                    <p class="text-xs text-amber-800 leading-relaxed"><strong>Catatan:</strong> Perubahan konfigurasi akan langsung berdampak pada pilihan yang muncul di form pengajuan internship secara realtime.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION 2: DATA TABLE -->
+        <section class="card-elite rounded-[2rem] overflow-hidden">
+            <div class="p-8 border-b border-slate-50 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+                <div class="flex items-center gap-3">
+                    <h2 class="text-xl font-bold text-slate-900 flex items-center gap-2">
+                        <i data-lucide="list" class="w-5 h-5 text-indigo-600"></i>
+                        Daftar Pengajuan Izin
+                    </h2>
+                    <span id="summaryText" class="px-4 py-1.5 bg-slate-100 text-slate-600 text-xs font-bold rounded-full">Total Izin: 0</span>
+                </div>
+                <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+                    <div class="relative">
+                        <i data-lucide="search" class="w-4 h-4 absolute left-3 top-3 text-slate-400"></i>
+                        <input
+                            id="permitSearchInput"
+                            type="text"
+                            placeholder="Cari nama atau posisi..."
+                            class="pl-10 pr-4 py-2 text-sm rounded-xl bg-slate-50 border border-slate-200 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 w-full sm:w-64"
+                        >
+                    </div>
+                    <select
+                        id="permitStatusFilter"
+                        class="text-sm bg-slate-50 border border-slate-200 rounded-xl px-4 py-2 focus:ring-2 focus:ring-indigo-500 font-medium text-slate-600 cursor-pointer w-full sm:w-auto"
+                    >
+                        <option value="">Semua Status</option>
+                        <option value="pending">Pending</option>
+                        <option value="approved">Approved</option>
+                        <option value="rejected">Rejected</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="overflow-x-auto">
+                <table class="w-full text-left">
+                    <thead>
+                        <tr class="bg-slate-50/50">
+                            <th class="px-8 py-4 text-[11px] font-bold text-slate-400 uppercase tracking-widest">User Intern</th>
+                            <th class="px-6 py-4 text-[11px] font-bold text-slate-400 uppercase tracking-widest text-center">Tanggal</th>
+                            <th class="px-6 py-4 text-[11px] font-bold text-slate-400 uppercase tracking-widest">Kategori & Jenis</th>
+                            <th class="px-6 py-4 text-[11px] font-bold text-slate-400 uppercase tracking-widest">Status</th>
+                            <th class="px-6 py-4 text-[11px] font-bold text-slate-400 uppercase tracking-widest">Lampiran</th>
+                            <th class="px-8 py-4 text-[11px] font-bold text-slate-400 uppercase tracking-widest text-right">Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody id="permitTableBody" class="divide-y divide-slate-50"></tbody>
+                </table>
+            </div>
+            <div class="bg-slate-50/50 p-4 text-center">
+                <p class="text-[10px] text-slate-400 font-medium uppercase tracking-widest">End of data</p>
+            </div>
+        </section>
+            </main>
+
+            <div id="addOptionModal" class="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50 hidden">
+                <div class="bg-white rounded-3xl p-6 w-full max-w-md shadow-2xl border border-slate-100">
+                    <h3 id="addOptionModalTitle" class="text-lg font-bold text-slate-900 mb-4">Tambah Opsi</h3>
+                    <input
+                        type="text"
+                        id="addOptionModalInput"
+                        class="w-full px-4 py-3 rounded-2xl border border-slate-200 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm"
+                        placeholder="Masukkan nama opsi"
+                    >
+                    <input type="hidden" id="addOptionModalVariant">
+                    <div class="mt-6 flex gap-3">
+                        <button
+                            id="addOptionModalCancel"
+                            class="flex-1 py-2.5 border border-slate-200 rounded-2xl text-slate-600 text-sm font-bold hover:bg-slate-50 transition"
+                        >
+                            Batal
+                        </button>
+                        <button
+                            id="addOptionModalSave"
+                            class="flex-1 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-2xl text-sm font-bold shadow-md shadow-indigo-200 transition"
+                        >
+                            Simpan
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script type="module">
+        lucide.createIcons();
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+        import {
+            getFirestore,
+            collection,
+            getDocs,
+            query,
+            orderBy,
+            updateDoc,
+            doc,
+            getDoc,
+            setDoc,
+            deleteDoc,
+            onSnapshot
+        } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+        import { renderTopBar } from "../element/topbar.js";
+        import { renderSidebar } from "../element/sidebar.js";
+        const firebaseConfig = {
+            apiKey: "AIzaSyDyzzEYbJkkl-N8snrQf14qvj8De4YliV0",
+            authDomain: "pre-dialogika.firebaseapp.com",
+            projectId: "pre-dialogika",
+            storageBucket: "pre-dialogika.firebasestorage.app",
+            messagingSenderId: "343771410480",
+            appId: "1:343771410480:web:32881c9868522090237df5",
+            measurementId: "G-SXN811P3N0"
+        };
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+        window.db = db;
+        window.auth = auth;
+        window.collection = collection;
+        window.getDoc = getDoc;
+        window.getDocs = getDocs;
+        window.updateDoc = updateDoc;
+        window.deleteDoc = deleteDoc;
+        window.setDoc = setDoc;
+        window.doc = doc;
+        function getDirectPhotoUrl(url, uid) {
+            if (!url) return "";
+            if (url.includes("drive.google.com")) {
+                let id = "";
+                if (url.includes("id=")) {
+                    id = url.split("id=")[1].split("&")[0];
+                } else if (url.includes("/d/")) {
+                    id = url.split("/d/")[1].split("/")[0];
+                }
+                if (id) return "https://lh3.googleusercontent.com/u/0/d/" + id;
+            }
+            return url;
+        }
+        const userPhotoCache = {};
+        const topbarTarget = document.getElementById("topbarContainer");
+        if (topbarTarget) {
+            renderTopBar(topbarTarget);
+        }
+        const sidebarTarget = document.getElementById("sidebarContainer");
+        if (sidebarTarget) {
+            renderSidebar(sidebarTarget);
+        }
+        const summaryText = document.getElementById("summaryText");
+        const permitTableBody = document.getElementById("permitTableBody");
+        const permitSearchInput = document.getElementById("permitSearchInput");
+        const permitStatusFilter = document.getElementById("permitStatusFilter");
+        const configCategoriesList = document.getElementById("configCategoriesList");
+        const configTypesList = document.getElementById("configTypesList");
+        const addCategoryBtn = document.getElementById("addCategoryBtn");
+        const addTypeBtn = document.getElementById("addTypeBtn");
+        const saveConfigBtn = document.getElementById("saveConfigBtn");
+        const configQuotaInput = document.getElementById("configQuota");
+        const addOptionModal = document.getElementById("addOptionModal");
+        const addOptionModalTitle = document.getElementById("addOptionModalTitle");
+        const addOptionModalInput = document.getElementById("addOptionModalInput");
+        const addOptionModalVariant = document.getElementById("addOptionModalVariant");
+        const addOptionModalCancel = document.getElementById("addOptionModalCancel");
+        const addOptionModalSave = document.getElementById("addOptionModalSave");
+        let categoryOptionsState = [];
+        let typeOptionsState = [];
+        let allPermits = [];
+        let currentSearchTerm = "";
+        let currentStatusFilter = "";
+        let listenToPermitsRetryCount = 0;
+        let unsubscribePermits = null;
+        function renderStatusBadge(statusRaw) {
+            const value = String(statusRaw || "pending").toLowerCase();
+            if (value === "approved") {
+                return '<span class="px-3 py-1 bg-emerald-50 text-emerald-600 text-[10px] font-extrabold rounded-full uppercase tracking-tighter border border-emerald-100">Approved</span>';
+            }
+            if (value === "rejected") {
+                return '<span class="px-3 py-1 bg-rose-50 text-rose-600 text-[10px] font-extrabold rounded-full uppercase tracking-tighter border border-rose-100">Rejected</span>';
+            }
+            return '<span class="px-3 py-1 bg-amber-50 text-amber-600 text-[10px] font-extrabold rounded-full uppercase tracking-tighter border border-amber-100">Pending</span>';
+        }
+        function formatDateLabelFromString(value) {
+            if (!value) return "";
+            const parts = String(value).split("-");
+            if (parts.length !== 3) return "";
+            const year = parseInt(parts[0], 10);
+            const month = parseInt(parts[1], 10) - 1;
+            const day = parseInt(parts[2], 10);
+            const d = new Date(year, month, day);
+            if (isNaN(d.getTime())) return "";
+            const namaBulan = ["Jan", "Feb", "Mar", "Apr", "Mei", "Jun", "Jul", "Agu", "Sep", "Okt", "Nov", "Des"];
+            const dayLabel = String(d.getDate()).padStart(2, "0");
+            const monthLabel = namaBulan[d.getMonth()];
+            return dayLabel + " " + monthLabel;
+        }
+        function renderPermitTable(records) {
+            if (!permitTableBody) return;
+            if (!records.length) {
+                permitTableBody.innerHTML = "";
+                if (summaryText) {
+                    summaryText.textContent = "Total Izin: 0";
+                }
+                return;
+            }
+            const rowsHtml = records.map(p => {
+                const statusBadge = renderStatusBadge(p.status);
+                const startLabel = formatDateLabelFromString(p.start_date);
+                const endLabel = formatDateLabelFromString(p.end_date || p.start_date);
+                let tanggalLabel = startLabel;
+                if (startLabel && endLabel && endLabel !== startLabel) {
+                    tanggalLabel = startLabel + " - " + endLabel;
+                }
+                const kategori = p.category || "-";
+                const jenis = p.type || "-";
+                const reasonShort = (p.reason || "").length > 80 ? (p.reason || "").slice(0, 77) + "..." : (p.reason || "");
+                const lampiranHtml = p.attachment_url ? '<div class="flex items-center gap-1 text-slate-600"><i data-lucide="file-text" class="w-4 h-4"></i><a href="' + p.attachment_url + '" target="_blank" class="underline text-xs">Lihat</a></div>' : '<div class="flex items-center gap-1 text-slate-400"><i data-lucide="file-x-2" class="w-4 h-4"></i> Tidak ada</div>';
+                const avatarName = p.user_name || "User";
+                const fallbackAvatar = "https://ui-avatars.com/api/?name=" + encodeURIComponent(avatarName) + "&background=4F46E5&color=fff";
+                const photoUrl = p.photo || fallbackAvatar;
+                const avatarImg = '<img src="' + photoUrl + '" onerror="this.onerror=null;this.src=\'' + fallbackAvatar + '\';" class="w-10 h-10 rounded-full shadow-sm object-cover">';
+                return (
+                    '<tr class="hover:bg-slate-50/50 transition" data-id="' + p.id + '">' +
+                        '<td class="px-8 py-5">' +
+                            '<div class="flex items-center gap-3">' +
+                                avatarImg +
+                                '<div>' +
+                                    '<p class="text-sm font-bold text-slate-900">' + (p.user_name || "Tanpa Nama") + "</p>" +
+                                    '<p class="text-[10px] font-medium text-indigo-500 uppercase tracking-tighter">' + (p.user_position || "-") + "</p>" +
+                                "</div>" +
+                            "</div>" +
+                        "</td>" +
+                        '<td class="px-6 py-5 text-center">' +
+                            '<span class="bg-white border border-slate-200 px-3 py-1.5 rounded-lg text-xs font-bold text-slate-700 shadow-sm">' +
+                                (tanggalLabel || "-") +
+                            "</span>" +
+                        "</td>" +
+                        '<td class="px-6 py-5">' +
+                            '<div class="flex flex-col">' +
+                                '<span class="text-sm font-bold text-slate-800">' + kategori + ' <span class="text-slate-300 mx-1">•</span> ' + jenis + "</span>" +
+                                '<span class="text-xs text-slate-400 italic">"' + (reasonShort || "-") + '"</span>' +
+                            "</div>" +
+                        "</td>" +
+                        '<td class="px-6 py-5">' +
+                            statusBadge +
+                        "</td>" +
+                        '<td class="px-6 py-5 text-sm">' +
+                            lampiranHtml +
+                        "</td>" +
+                        '<td class="px-8 py-5">' +
+                            '<div class="flex justify-end items-center -space-x-px">' +
+                                '<button data-action="set-status" data-status="approved" data-id="' + p.id + '" class="flex items-center gap-1.5 px-4 py-2 bg-white border border-slate-200 rounded-l-xl text-xs font-bold text-emerald-600 hover:bg-emerald-50 transition">' +
+                                    '<i data-lucide="check-circle" class="w-3.5 h-3.5"></i> Approve' +
+                                "</button>" +
+                                '<button data-action="set-status" data-status="rejected" data-id="' + p.id + '" class="flex items-center gap-1.5 px-4 py-2 bg-white border border-slate-200 text-xs font-bold text-rose-600 hover:bg-rose-50 transition">' +
+                                    '<i data-lucide="x-circle" class="w-3.5 h-3.5"></i> Reject' +
+                                "</button>" +
+                                '<button data-action="delete-permit" data-id="' + p.id + '" class="flex items-center gap-1.5 px-3 py-2 bg-white border border-slate-200 rounded-r-xl text-xs font-bold text-slate-400 hover:text-red-600 hover:bg-red-50 transition">' +
+                                    '<i data-lucide="trash-2" class="w-3.5 h-3.5"></i>' +
+                                "</button>" +
+                            "</div>" +
+                        "</td>" +
+                    "</tr>"
+                );
+            }).join("");
+            permitTableBody.innerHTML = rowsHtml;
+            if (summaryText) {
+                summaryText.textContent = "Total Izin: " + records.length;
+            }
+            if (window.lucide && typeof window.lucide.createIcons === "function") {
+                window.lucide.createIcons();
+            }
+        }
+        function renderOptionCards(container, options, variant) {
+            if (!container) return;
+            if (!Array.isArray(options) || !options.length) {
+                container.innerHTML = '<p class="text-[11px] text-slate-400 italic">Belum ada opsi.</p>';
+                return;
+            }
+            const cardsHtml = options.map(opt => {
+                const label = opt.label || opt.value;
+                const value = opt.value || "";
+                let iconHtml = "";
+                let iconBg = "";
+                let iconText = "";
+                if (variant === "category") {
+                    iconBg = "bg-indigo-50";
+                    iconText = "text-indigo-600";
+                    iconHtml = '<i data-lucide="sliders-horizontal" class="w-4 h-4"></i>';
+                } else {
+                    iconBg = "bg-slate-100";
+                    iconText = "text-slate-600";
+                    iconHtml = '<i data-lucide="clock" class="w-4 h-4"></i>';
+                }
+                return (
+                    '<div class="flex items-center gap-3 bg-white p-3 rounded-xl border border-slate-100 shadow-sm group" data-value="' + value + '">' +
+                        '<div class="' + iconBg + " " + iconText + ' p-2 rounded-lg">' + iconHtml + "</div>" +
+                        '<div class="flex-1">' +
+                            '<p class="text-sm font-semibold text-slate-800">' + label + "</p>" +
+                            '<p class="text-[10px] text-slate-400 font-mono italic">Value ID: ' + value + "</p>" +
+                        "</div>" +
+                        '<button data-action="delete-option" data-variant="' + variant + '" data-value="' + value + '" class="opacity-0 group-hover:opacity-100 p-2 text-slate-400 hover:text-red-500 transition">' +
+                            '<i data-lucide="trash-2" class="w-4 h-4"></i>' +
+                        "</button>" +
+                    "</div>"
+                );
+            }).join("");
+            container.innerHTML = cardsHtml;
+            if (window.lucide && typeof window.lucide.createIcons === "function") {
+                window.lucide.createIcons();
+            }
+        }
+        function generateOptionId(label, existingOptions) {
+            const base = String(label || "").toLowerCase().replace(/[^a-z0-9\s-]/g, "").trim().replace(/\s+/g, "-").replace(/-+/g, "-");
+            const fallback = base || "opsi";
+            const existingValues = (existingOptions || []).map(opt => String(opt.value || "").toLowerCase());
+            if (!existingValues.includes(fallback)) {
+                return fallback;
+            }
+            let index = 2;
+            let candidate = fallback + "-" + index;
+            while (existingValues.includes(candidate)) {
+                index += 1;
+                candidate = fallback + "-" + index;
+            }
+            return candidate;
+        }
+        let currentOptionVariant = null;
+        function openAddOptionModal(variant) {
+            if (!addOptionModal || !addOptionModalTitle || !addOptionModalInput) return;
+            currentOptionVariant = variant;
+            if (addOptionModalVariant) {
+                addOptionModalVariant.value = variant;
+            }
+            if (variant === "category") {
+                addOptionModalTitle.textContent = "Tambah Kategori Baru";
+                addOptionModalInput.placeholder = "Masukkan nama kategori baru";
+            } else {
+                addOptionModalTitle.textContent = "Tambah Jenis Izin";
+                addOptionModalInput.placeholder = "Masukkan nama jenis izin baru";
+            }
+            addOptionModalInput.value = "";
+            addOptionModal.classList.remove("hidden");
+            addOptionModalInput.focus();
+        }
+        function closeAddOptionModal() {
+            if (!addOptionModal) return;
+            addOptionModal.classList.add("hidden");
+            currentOptionVariant = null;
+            if (addOptionModalInput) {
+                addOptionModalInput.value = "";
+            }
+            if (addOptionModalVariant) {
+                addOptionModalVariant.value = "";
+            }
+        }
+        async function loadPermitSettingsConfig() {
+            try {
+                const refDoc = doc(db, "settings", "permit_form");
+                const snap = await getDoc(refDoc);
+                if (!snap.exists()) {
+                    if (configQuotaInput && !configQuotaInput.value) {
+                        configQuotaInput.value = "3";
+                    }
+                    categoryOptionsState = [];
+                    typeOptionsState = [];
+                    renderOptionCards(configCategoriesList, categoryOptionsState, "category");
+                    renderOptionCards(configTypesList, typeOptionsState, "type");
+                    return;
+                }
+                const data = snap.data() || {};
+                const categories = Array.isArray(data.category_options) ? data.category_options : [];
+                const types = Array.isArray(data.type_options) ? data.type_options : [];
+                categoryOptionsState = categories.slice();
+                typeOptionsState = types.slice();
+                const quotaRaw = data.quota_per_month !== undefined && data.quota_per_month !== null ? data.quota_per_month : data.quota_3_months;
+                const quotaNum = typeof quotaRaw === "number" ? quotaRaw : parseInt(quotaRaw, 10);
+                renderOptionCards(configCategoriesList, categoryOptionsState, "category");
+                renderOptionCards(configTypesList, typeOptionsState, "type");
+                if (configQuotaInput && !isNaN(quotaNum) && quotaNum > 0) {
+                    configQuotaInput.value = String(quotaNum);
+                }
+            } catch (e) {
+                console.error("Gagal memuat konfigurasi form izin", e);
+            }
+        }
+        async function savePermitSettingsConfig() {
+            const quotaRaw = configQuotaInput ? configQuotaInput.value : "";
+            const quotaNum = parseInt(quotaRaw, 10);
+            const quotaValue = !isNaN(quotaNum) && quotaNum > 0 ? quotaNum : 3;
+            const refDoc = doc(db, "settings", "permit_form");
+            try {
+                await setDoc(refDoc, {
+                    category_options: categoryOptionsState,
+                    type_options: typeOptionsState,
+                    quota_per_month: quotaValue,
+                    quota_3_months: quotaValue
+                }, { merge: true });
+                alert("Konfigurasi form izin berhasil disimpan.");
+            } catch (e) {
+                console.error("Gagal menyimpan konfigurasi form izin", e);
+                alert("Gagal menyimpan konfigurasi form izin.");
+            }
+        }
+        function listenToPermits() {
+            try {
+                if (unsubscribePermits) {
+                    unsubscribePermits();
+                }
+                const q = query(collection(db, "permits"), orderBy("created_at", "desc"));
+                unsubscribePermits = onSnapshot(q, async snapshot => {
+                    listenToPermitsRetryCount = 0;
+                    const rows = [];
+                    const tasks = [];
+                    snapshot.forEach(docSnap => {
+                        tasks.push((async () => {
+                            const d = docSnap.data() || {};
+                            const userId = d.user_id || "";
+                            let rawPhoto = d.user_photo || "";
+                            if (!rawPhoto && userId) {
+                                if (userPhotoCache[userId] !== undefined) {
+                                    rawPhoto = userPhotoCache[userId] || "";
+                                } else {
+                                    try {
+                                        const userSnap = await getDoc(doc(db, "users", userId));
+                                        if (userSnap.exists()) {
+                                            const u = userSnap.data() || {};
+                                            rawPhoto = u.photo || "";
+                                            userPhotoCache[userId] = rawPhoto;
+                                        } else {
+                                            userPhotoCache[userId] = "";
+                                        }
+                                    } catch (err) {
+                                        console.error("Gagal memuat data user untuk foto", userId, err);
+                                        userPhotoCache[userId] = "";
+                                    }
+                                }
+                            }
+                            const photo = getDirectPhotoUrl(rawPhoto || "", userId || "");
+                            rows.push({
+                                id: docSnap.id,
+                                user_id: userId,
+                                user_name: d.user_name || "",
+                                user_position: d.user_position || "",
+                                photo,
+                                category: d.category || "",
+                                type: d.type || "",
+                                start_date: d.start_date || "",
+                                end_date: d.end_date || "",
+                                reason: d.reason || "",
+                                attachment_name: d.attachment_name || "",
+                                attachment_url: d.attachment_url || "",
+                                status: d.status || "pending",
+                                created_at: d.created_at || null
+                            });
+                        })());
+                    });
+                    await Promise.all(tasks);
+                    allPermits = rows;
+                    applyPermitFilters();
+                }, error => {
+                    console.error("Gagal memantau data izin", error);
+                    if (error.code === "unavailable" || (error.message && error.message.includes("abort")) || error.code === "cancelled") {
+                        listenToPermitsRetryCount += 1;
+                        const delay = Math.min(1000 * Math.pow(2, listenToPermitsRetryCount), 30000);
+                        setTimeout(listenToPermits, delay);
+                    }
+                    if (summaryText) {
+                        summaryText.textContent = "Gagal memuat data izin";
+                    }
+                });
+            } catch (e) {
+                console.error("Gagal memulai listener izin", e);
+                if (summaryText) {
+                    summaryText.textContent = "Gagal memuat data izin";
+                }
+            }
+        }
+        function applyPermitFilters() {
+            if (!Array.isArray(allPermits)) {
+                renderPermitTable([]);
+                return;
+            }
+            const term = String(currentSearchTerm || "").toLowerCase().trim();
+            const statusVal = String(currentStatusFilter || "").toLowerCase().trim();
+            let filtered = allPermits.slice();
+            if (term) {
+                filtered = filtered.filter(p => {
+                    const name = (p.user_name || "").toLowerCase();
+                    const position = (p.user_position || "").toLowerCase();
+                    const category = (p.category || "").toLowerCase();
+                    const type = (p.type || "").toLowerCase();
+                    const reason = (p.reason || "").toLowerCase();
+                    return (
+                        name.includes(term) ||
+                        position.includes(term) ||
+                        category.includes(term) ||
+                        type.includes(term) ||
+                        reason.includes(term)
+                    );
+                });
+            }
+            if (statusVal) {
+                filtered = filtered.filter(p => String(p.status || "").toLowerCase() === statusVal);
+            }
+            renderPermitTable(filtered);
+        }
+        async function updatePermitStatus(id, newStatus) {
+            if (!id || !newStatus) return;
+            try {
+                await updateDoc(doc(db, "permits", id), { status: newStatus });
+                allPermits = allPermits.map(p => {
+                    if (p.id === id) {
+                        return Object.assign({}, p, { status: newStatus });
+                    }
+                    return p;
+                });
+                renderPermitTable(allPermits);
+            } catch (e) {
+                console.error("Gagal mengubah status izin", e);
+                alert("Gagal mengubah status izin.");
+            }
+        }
+        async function deletePermit(id) {
+            if (!id) return;
+            if (!confirm("Yakin ingin menghapus data izin ini?")) return;
+            try {
+                await deleteDoc(doc(db, "permits", id));
+                allPermits = allPermits.filter(p => p.id !== id);
+                renderPermitTable(allPermits);
+            } catch (e) {
+                console.error("Gagal menghapus data izin", e);
+                alert("Gagal menghapus data izin.");
+            }
+        }
+        if (addCategoryBtn) {
+            addCategoryBtn.addEventListener("click", function () {
+                openAddOptionModal("category");
+            });
+        }
+        if (addTypeBtn) {
+            addTypeBtn.addEventListener("click", function () {
+                openAddOptionModal("type");
+            });
+        }
+        if (addOptionModalCancel) {
+            addOptionModalCancel.addEventListener("click", function () {
+                closeAddOptionModal();
+            });
+        }
+        if (addOptionModalSave) {
+            addOptionModalSave.addEventListener("click", function () {
+                if (!addOptionModalInput || !currentOptionVariant) return;
+                const label = addOptionModalInput.value.trim();
+                if (!label) return;
+                if (currentOptionVariant === "category") {
+                    const value = generateOptionId(label, categoryOptionsState);
+                    categoryOptionsState.push({ value, label });
+                    renderOptionCards(configCategoriesList, categoryOptionsState, "category");
+                } else if (currentOptionVariant === "type") {
+                    const value = generateOptionId(label, typeOptionsState);
+                    typeOptionsState.push({ value, label });
+                    renderOptionCards(configTypesList, typeOptionsState, "type");
+                }
+                closeAddOptionModal();
+            });
+        }
+        if (addOptionModal) {
+            addOptionModal.addEventListener("click", function (ev) {
+                if (ev.target === addOptionModal) {
+                    closeAddOptionModal();
+                }
+            });
+        }
+        if (configCategoriesList) {
+            configCategoriesList.addEventListener("click", function (ev) {
+                const btn = ev.target.closest("[data-action=\"delete-option\"]");
+                if (!btn) return;
+                const variant = btn.getAttribute("data-variant");
+                const value = btn.getAttribute("data-value");
+                if (!variant || !value) return;
+                if (!confirm("Hapus opsi ini?")) return;
+                if (variant === "category") {
+                    categoryOptionsState = categoryOptionsState.filter(opt => String(opt.value) !== value);
+                    renderOptionCards(configCategoriesList, categoryOptionsState, "category");
+                } else if (variant === "type") {
+                    typeOptionsState = typeOptionsState.filter(opt => String(opt.value) !== value);
+                    renderOptionCards(configTypesList, typeOptionsState, "type");
+                }
+            });
+        }
+        if (configTypesList) {
+            configTypesList.addEventListener("click", function (ev) {
+                const btn = ev.target.closest("[data-action=\"delete-option\"]");
+                if (!btn) return;
+                const variant = btn.getAttribute("data-variant");
+                const value = btn.getAttribute("data-value");
+                if (!variant || !value) return;
+                if (!confirm("Hapus opsi ini?")) return;
+                if (variant === "category") {
+                    categoryOptionsState = categoryOptionsState.filter(opt => String(opt.value) !== value);
+                    renderOptionCards(configCategoriesList, categoryOptionsState, "category");
+                } else if (variant === "type") {
+                    typeOptionsState = typeOptionsState.filter(opt => String(opt.value) !== value);
+                    renderOptionCards(configTypesList, typeOptionsState, "type");
+                }
+            });
+        }
+        if (permitSearchInput) {
+            permitSearchInput.addEventListener("input", function (ev) {
+                currentSearchTerm = ev.target.value || "";
+                applyPermitFilters();
+            });
+        }
+        if (permitStatusFilter) {
+            permitStatusFilter.addEventListener("change", function (ev) {
+                currentStatusFilter = ev.target.value || "";
+                applyPermitFilters();
+            });
+        }
+        if (saveConfigBtn) {
+            saveConfigBtn.addEventListener("click", function (ev) {
+                ev.preventDefault();
+                savePermitSettingsConfig();
+            });
+        }
+        if (permitTableBody) {
+            permitTableBody.addEventListener("click", function (ev) {
+                const statusBtn = ev.target.closest("[data-action=\"set-status\"]");
+                if (statusBtn) {
+                    const id = statusBtn.getAttribute("data-id");
+                    const status = statusBtn.getAttribute("data-status");
+                    if (!id || !status) return;
+                    updatePermitStatus(id, status);
+                    return;
+                }
+                const deleteBtn = ev.target.closest("[data-action=\"delete-permit\"]");
+                if (deleteBtn) {
+                    const id = deleteBtn.getAttribute("data-id");
+                    if (!id) return;
+                    deletePermit(id);
+                }
+            });
+        }
+        onAuthStateChanged(auth, async user => {
+            if (user) {
+                await loadPermitSettingsConfig();
+                listenToPermits();
+            } else {
+                window.location.href = "../index.html";
+            }
+        });
+    </script>
+</body>
+</html>

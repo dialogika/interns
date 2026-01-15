@@ -46,10 +46,21 @@ export function renderTopBar(target) {
                             <i class="bi bi-briefcase"></i>
                             <span>Portfolio</span>
                         </a>
-                        <a href="/personal/resume.html" class="profile-dropdown-item" data-menu-resume>
-                            <i class="bi bi-file-earmark-text"></i>
-                            <span>Resume</span>
-                        </a>
+                        <div class="profile-dropdown-accordion" data-accordion="form">
+                            <button class="profile-dropdown-item profile-dropdown-accordion-toggle" type="button" data-accordion-toggle="form">
+                                <i class="bi bi-file-earmark-text"></i>
+                                <span>Form</span>
+                                <i class="bi bi-chevron-down ms-auto" data-accordion-chevron="form"></i>
+                            </button>
+                            <div class="profile-dropdown-accordion-content" data-accordion-content="form">
+                                <a href="/personal/form-permit.html" class="profile-dropdown-item" data-menu-permit>
+                                    <span>Permit</span>
+                                </a>
+                                <a href="/personal/form-reimburse.html" class="profile-dropdown-item" data-menu-reimburse>
+                                    <span>Reimburse</span>
+                                </a>
+                            </div>
+                        </div>
                     </div>
                     <div class="profile-dropdown-divider"></div>
                     <button class="profile-dropdown-item profile-dropdown-logout" type="button" data-profile-logout>
@@ -126,7 +137,6 @@ export function renderTopBar(target) {
 
     const settingLink = target.querySelector('[data-menu-setting]');
     const portfolioLink = target.querySelector('[data-menu-portfolio]');
-    const resumeLink = target.querySelector('[data-menu-resume]');
 
     function attachUnderDevelopment(linkEl) {
         if (!linkEl) return;
@@ -138,7 +148,24 @@ export function renderTopBar(target) {
 
     attachUnderDevelopment(settingLink);
     attachUnderDevelopment(portfolioLink);
-    attachUnderDevelopment(resumeLink);
+
+    const accordionToggles = target.querySelectorAll('[data-accordion-toggle]');
+    accordionToggles.forEach(function (toggleEl) {
+        const key = toggleEl.getAttribute('data-accordion-toggle');
+        if (!key) return;
+        const contentEl = target.querySelector('[data-accordion-content="' + key + '"]');
+        const chevronEl = target.querySelector('[data-accordion-chevron="' + key + '"]');
+        if (!contentEl) return;
+        contentEl.style.display = 'none';
+        toggleEl.addEventListener('click', function (ev) {
+            ev.preventDefault();
+            const isHidden = contentEl.style.display === 'none';
+            contentEl.style.display = isHidden ? 'block' : 'none';
+            if (chevronEl) {
+                chevronEl.style.transform = isHidden ? 'rotate(180deg)' : '';
+            }
+        });
+    });
 
     const searchInput = target.querySelector('[data-topbar-search-input]');
     const searchButton = target.querySelector('[data-topbar-search-button]');
