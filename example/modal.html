@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Elite Lead Details Modal</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #0062ff;
+            --danger: #ff4d4f;
+            --slate-900: #0f172a;
+            --slate-600: #475569;
+            --slate-400: #94a3b8;
+            --bg-glass: rgba(255, 255, 255, 0.9);
+            --border: #f1f5f9;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Plus Jakarta Sans', sans-serif; }
+
+        body {
+            background: #e2e8f0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        /* --- MODAL CONTAINER --- */
+        .modal-elite {
+            width: 650px;
+            background: var(--white);
+            background: #ffffff;
+            border-radius: 32px;
+            box-shadow: 0 40px 100px -20px rgba(0,0,0,0.15);
+            overflow: hidden;
+            border: 1px solid rgba(255,255,255,0.8);
+            position: relative;
+        }
+
+        /* --- HEADER --- */
+        .modal-header {
+            padding: 32px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .modal-header h2 {
+            font-size: 1.4rem;
+            font-weight: 800;
+            color: var(--slate-900);
+            letter-spacing: -0.5px;
+        }
+
+        .action-group {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .icon-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: 0.2s;
+            border: none;
+            background: #f8fafc;
+        }
+
+        .btn-edit:hover { background: #e0f2fe; color: #0369a1; }
+        .btn-delete:hover { background: #fee2e2; color: #b91c1c; }
+        .btn-close:hover { background: #f1f5f9; }
+
+        /* --- PROFILE SECTION --- */
+        .profile-hero {
+            padding: 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            background: linear-gradient(to bottom, #fff, #fbfdff);
+        }
+
+        .profile-info h3 {
+            font-size: 1.8rem;
+            font-weight: 800;
+            color: var(--slate-900);
+            margin-bottom: 4px;
+        }
+
+        .profile-info p {
+            font-size: 1rem;
+            color: var(--slate-600);
+            font-weight: 600;
+        }
+
+        .status-badge {
+            background: #eef2ff;
+            color: #4338ca;
+            padding: 8px 16px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 800;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        /* --- DETAILS GRID --- */
+        .details-grid {
+            padding: 0 40px 40px 40px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 32px;
+        }
+
+        .detail-item {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .detail-item label {
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: var(--slate-400);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .detail-item span {
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: var(--slate-900);
+        }
+
+        .notes-area {
+            grid-column: span 2;
+            background: #f8fafc;
+            padding: 20px;
+            border-radius: 20px;
+            border: 1px dashed #e2e8f0;
+        }
+
+        /* --- FOOTER --- */
+        .modal-footer {
+            padding: 32px 40px;
+            background: #fff;
+            border-top: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .btn-whatsapp {
+            background: #25d366;
+            color: white;
+            padding: 14px 28px;
+            border-radius: 16px;
+            text-decoration: none;
+            font-weight: 700;
+            font-size: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            box-shadow: 0 10px 20px rgba(37, 211, 102, 0.2);
+            transition: 0.3s;
+        }
+
+        .btn-whatsapp:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 15px 30px rgba(37, 211, 102, 0.3);
+        }
+
+        .btn-secondary {
+            color: var(--slate-600);
+            font-weight: 700;
+            text-decoration: none;
+            padding: 12px 20px;
+            border-radius: 12px;
+            transition: 0.2s;
+        }
+
+        .btn-secondary:hover { background: #f1f5f9; }
+
+        /* Icons Mockup */
+        .icon { width: 18px; height: 18px; fill: currentColor; }
+
+    </style>
+</head>
+<body>
+
+    <div class="modal-elite">
+        <!-- Header -->
+        <div class="modal-header">
+            <h2>Lead Details</h2>
+            <div class="action-group">
+                <!-- Edit Icon Button -->
+                <button class="icon-btn btn-edit" title="Edit Data">
+                    <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+                </button>
+                <!-- Delete Icon Button -->
+                <button class="icon-btn btn-delete" title="Delete Lead">
+                    <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>
+                </button>
+                <div style="width: 1px; height: 20px; background: #e2e8f0; margin: 0 5px;"></div>
+                <button class="icon-btn btn-close">
+                    <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                </button>
+            </div>
+        </div>
+
+        <!-- Profile Hero -->
+        <div class="profile-hero">
+            <div class="profile-info">
+                <h3>Nadia Alfaiza</h3>
+                <p>+62 831 7204 6133</p>
+            </div>
+            <span class="status-badge">Initial Lead</span>
+        </div>
+
+        <!-- Details Grid -->
+        <div class="details-grid">
+            <div class="detail-item">
+                <label>Address</label>
+                <span>Jl. Magelang KM 5.5</span>
+            </div>
+            <div class="detail-item">
+                <label>City</label>
+                <span>Yogyakarta</span>
+            </div>
+            <div class="detail-item">
+                <label>Ads Channel</label>
+                <span>Meta Ads (Instagram)</span>
+            </div>
+            <div class="detail-item">
+                <label>Interest</label>
+                <span>Public Speaking for Kids</span>
+            </div>
+            <div class="detail-item">
+                <label>Due Date</label>
+                <span style="color: var(--danger); font-weight: 800;">Jan 19, 2026</span>
+            </div>
+            <div class="detail-item">
+                <label>Referral</label>
+                <span>Organic Search</span>
+            </div>
+            <div class="detail-item notes-area">
+                <label>Internal Notes</label>
+                <span style="display: block; margin-top: 8px; font-weight: 500; color: var(--slate-600); line-height: 1.6;">
+                    Orang tua tertarik untuk kelas privat akhir pekan. Sudah mengirimkan kurikulum dasar via WA. Menunggu konfirmasi jadwal trial.
+                </span>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="modal-footer">
+            <a href="#" class="btn-secondary">Close View</a>
+            <a href="#" class="btn-whatsapp">
+                <svg style="width: 20px; height: 20px;" fill="currentColor" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L0 24l6.335-1.662c1.72.937 3.659 1.432 5.63 1.433h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+                Continue to WhatsApp
+            </a>
+        </div>
+    </div>
+
+</body>
+</html>

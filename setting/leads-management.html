@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Leads Management Settings - Team Dialogika</title>
+    
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="../assets/css/style.css" rel="stylesheet" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        .modal-content {
+            border-radius: 12px;
+            border: none;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+        }
+        .modal-header { border-bottom: 1px solid #f3f4f6; padding: 20px 30px; }
+        .modal-body { padding: 30px; }
+        .modal-title { font-weight: 800; color: #111; font-size: 1.5rem; }
+        
+        .form-label { font-weight: 700; color: #374151; margin-bottom: 8px; font-size: 0.95rem; }
+        .form-control, .form-select {
+            padding: 10px 15px; border-radius: 6px; border: 1px solid #d1d5db;
+            font-size: 0.95rem;
+        }
+        .form-control:focus, .form-select:focus { border-color: var(--dlg-blue); box-shadow: 0 0 0 3px rgba(11, 43, 106, 0.1); }
+        .input-focus {
+            transition: all 0.2s;
+            border: 1.5px solid #e2e8f0;
+        }
+        .input-focus:focus {
+            border-color: #4f46e5;
+            outline: none;
+            box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.1);
+        }
+
+        .settings-card {
+            background: #ffffff;
+            border-radius: 20px;
+            border: 1px solid #e5e7eb;
+            padding: 24px;
+            box-shadow: 0 10px 30px rgba(15, 23, 42, 0.04);
+        }
+        .settings-card h5 {
+            font-weight: 800;
+            color: #0f172a;
+        }
+        .settings-card small {
+            color: #64748b;
+        }
+        .card-elite {
+            background: #ffffff;
+            border: 1px solid #f1f5f9;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.02), 0 8px 10px -6px rgba(0, 0, 0, 0.02);
+        }
+    </style>
+</head>
+<body>
+
+    <div id="topbarContainer"></div>
+    
+    <div class="dashboard-container">
+        
+        <div id="sidebarContainer"></div>
+
+        <main class="main-content">
+            <div class="mb-4">
+                <h4 class="fw-bold mb-0">Leads Management Settings</h4>
+                <small class="text-muted">Atur daftar Ads Channel dan Interest yang muncul di form Leads.</small>
+            </div>
+
+            <section class="card-elite rounded-[2rem] p-8">
+                <div class="flex justify-between items-start mb-8">
+                    <div>
+                        <h2 class="text-xl font-bold text-slate-900 flex items-center gap-2">
+                            <i data-lucide="settings-2" class="w-5 h-5 text-indigo-600"></i>
+                            Konfigurasi Form Leads
+                        </h2>
+                        <p class="text-sm text-slate-500 mt-1">Atur pilihan Ads Channel dan Interest yang muncul di form Leads.</p>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-10">
+                    <div class="space-y-4">
+                        <label class="text-sm font-bold text-slate-700 flex justify-between items-center">
+                            Ads Channel
+                            <span class="text-[10px] text-indigo-500 bg-indigo-50 px-2 py-0.5 rounded-md uppercase tracking-wider">Dropdown Options</span>
+                        </label>
+                        <div class="space-y-3 border border-slate-100 p-3 rounded-2xl bg-slate-50/50">
+                            <div id="adsChannelList" class="space-y-2"></div>
+                            <div class="mt-3 pt-3 border-t border-dashed border-slate-200">
+                                <label class="block text-[11px] font-semibold text-slate-500 mb-2">Tambah / Edit Ads Channel</label>
+                                <div class="flex flex-col sm:flex-row gap-2">
+                                    <input
+                                        type="text"
+                                        id="adsChannelInput"
+                                        class="flex-1 input-focus text-sm rounded-xl px-3 py-2 border border-slate-200 bg-white"
+                                        placeholder="Mis. Meta Ads, Google Ads"
+                                    >
+                                    <button
+                                        id="btnAddAdsChannel"
+                                        class="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-xs font-bold text-white shadow-sm flex items-center justify-center gap-2"
+                                    >
+                                        <i data-lucide="save" class="w-4 h-4"></i>
+                                        <span>Simpan</span>
+                                    </button>
+                                </div>
+                                <p class="mt-2 text-[11px] text-slate-400">Klik kartu di atas untuk mengedit, atau ikon hapus untuk menghapus.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="space-y-4">
+                        <label class="text-sm font-bold text-slate-700 flex justify-between items-center">
+                            Interest Program
+                            <span class="text-[10px] text-emerald-500 bg-emerald-50 px-2 py-0.5 rounded-md uppercase tracking-wider">Program Options</span>
+                        </label>
+                        <div class="space-y-3 border border-slate-100 p-3 rounded-2xl bg-slate-50/50">
+                            <div id="interestList" class="space-y-2"></div>
+                            <div class="mt-3 pt-3 border-t border-dashed border-slate-200">
+                                <label class="block text-[11px] font-semibold text-slate-500 mb-2">Tambah / Edit Interest</label>
+                                <div class="flex flex-col lg:flex-row gap-2">
+                                    <input
+                                        type="text"
+                                        id="interestNameInput"
+                                        class="flex-1 input-focus text-sm rounded-xl px-3 py-2 border border-slate-200 bg-white"
+                                        placeholder="Nama program, mis. Public Speaking Bootcamp"
+                                    >
+                                    <button
+                                        id="btnAddInterest"
+                                        class="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-xs font-bold text-white shadow-sm flex items-center justify-center gap-2"
+                                    >
+                                        <i data-lucide="save" class="w-4 h-4"></i>
+                                        <span>Simpan</span>
+                                    </button>
+                                </div>
+                                <p class="mt-2 text-[11px] text-slate-400">Interest bisa dikaitkan ke Ads Channel tertentu, atau dibiarkan umum.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script type="module">
+        import { renderTopBar } from "../element/topbar.js";
+        import { renderSidebar } from "../element/sidebar.js";
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+        import {
+            getFirestore,
+            doc,
+            collection,
+            getDoc,
+            getDocs,
+            setDoc,
+            deleteDoc
+        } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyDyzzEYbJkkl-N8snrQf14qvj8De4YliV0",
+            authDomain: "pre-dialogika.firebaseapp.com",
+            projectId: "pre-dialogika",
+            storageBucket: "pre-dialogika.firebasestorage.app",
+            messagingSenderId: "343771410480",
+            appId: "1:343771410480:web:32881c9868522090237df5",
+            measurementId: "G-SXN811P3N0"
+        };
+
+        const topbarTarget = document.getElementById("topbarContainer");
+        if (topbarTarget) {
+            renderTopBar(topbarTarget);
+        }
+        const sidebarTarget = document.getElementById("sidebarContainer");
+        if (sidebarTarget) {
+            renderSidebar(sidebarTarget);
+        }
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+        window.db = db;
+        window.collection = collection;
+        window.getDocs = getDocs;
+        window.getDoc = getDoc;
+        window.doc = doc;
+        window.setDoc = setDoc;
+        window.deleteDoc = deleteDoc;
+
+        window.toggleSidebar = () => {
+            const sidebar = document.getElementById("sidebarNav");
+            if (sidebar) sidebar.classList.toggle("show");
+        };
+
+        window.logout = async () => {
+            try {
+                await signOut(auth);
+            } catch (e) {}
+            try {
+                localStorage.removeItem("userData");
+            } catch (e) {}
+            window.location.href = "/index.html";
+        };
+
+        onAuthStateChanged(auth, (user) => {
+            if (!user) {
+                window.location.href = "../index.html";
+                return;
+            }
+        });
+
+        const adsChannelInput = document.getElementById("adsChannelInput");
+        const btnAddAdsChannel = document.getElementById("btnAddAdsChannel");
+        const adsChannelListEl = document.getElementById("adsChannelList");
+        const interestNameInput = document.getElementById("interestNameInput");
+        const btnAddInterest = document.getElementById("btnAddInterest");
+        const interestListEl = document.getElementById("interestList");
+
+        let adsChannels = [];
+        let interests = [];
+
+        async function loadAdsChannels() {
+            try {
+                const snap = await getDocs(collection(db, "leads_settings_ads_channels"));
+                const result = [];
+                snap.forEach((docSnap) => {
+                    const d = docSnap.data() || {};
+                    result.push({
+                        id: docSnap.id,
+                        name: d.name || ""
+                    });
+                });
+                adsChannels = result;
+                renderAdsChannels();
+            } catch (e) {
+                console.error("Gagal memuat ads channel", e);
+            }
+        }
+
+        function renderAdsChannels() {
+            adsChannelListEl.innerHTML = "";
+            if (!adsChannels.length) {
+                adsChannelListEl.innerHTML = '<p class="text-[11px] text-slate-400 italic mb-0">Belum ada ads channel.</p>';
+                return;
+            }
+            adsChannels.forEach((ch) => {
+                const card = document.createElement("div");
+                card.className = "flex items-center gap-3 bg-white p-3 rounded-xl border border-slate-100 shadow-sm group";
+                card.dataset.id = ch.id;
+
+                const iconWrapper = document.createElement("div");
+                iconWrapper.className = "bg-indigo-50 text-indigo-600 p-2 rounded-lg";
+                iconWrapper.innerHTML = '<i data-lucide="megaphone" class="w-4 h-4"></i>';
+
+                const textWrapper = document.createElement("div");
+                textWrapper.className = "flex-1";
+
+                const titleEl = document.createElement("p");
+                titleEl.className = "text-sm font-semibold text-slate-800 mb-0";
+                titleEl.textContent = ch.name;
+
+                const metaEl = document.createElement("p");
+                metaEl.className = "text-[10px] text-slate-400 font-mono italic mb-0";
+                metaEl.textContent = "Value ID: " + ch.id;
+
+                textWrapper.appendChild(titleEl);
+                textWrapper.appendChild(metaEl);
+
+                const deleteBtn = document.createElement("button");
+                deleteBtn.type = "button";
+                deleteBtn.className = "opacity-0 group-hover:opacity-100 p-2 text-slate-400 hover:text-red-500 transition";
+                deleteBtn.innerHTML = '<i data-lucide="trash-2" class="w-4 h-4"></i>';
+                deleteBtn.addEventListener("click", async (ev) => {
+                    ev.stopPropagation();
+                    await deleteAdsChannel(ch.id);
+                });
+
+                card.appendChild(iconWrapper);
+                card.appendChild(textWrapper);
+                card.appendChild(deleteBtn);
+
+                card.addEventListener("click", () => {
+                    adsChannelInput.value = ch.name;
+                    adsChannelInput.dataset.editId = ch.id;
+                });
+
+                adsChannelListEl.appendChild(card);
+            });
+            if (window.lucide && typeof window.lucide.createIcons === "function") {
+                window.lucide.createIcons();
+            }
+        }
+
+        async function saveAdsChannel() {
+            const name = (adsChannelInput.value || "").trim();
+            if (!name) return;
+            const editId = adsChannelInput.dataset.editId || "";
+            try {
+                if (editId) {
+                    await setDoc(doc(db, "leads_settings_ads_channels", editId), { name }, { merge: true });
+                } else {
+                    const ref = doc(collection(db, "leads_settings_ads_channels"));
+                    await setDoc(ref, { name });
+                }
+                adsChannelInput.value = "";
+                adsChannelInput.dataset.editId = "";
+                await loadAdsChannels();
+            } catch (e) {
+                console.error("Gagal menyimpan ads channel", e);
+            }
+        }
+
+        async function deleteAdsChannel(id) {
+            if (!id) return;
+            const ok = window.confirm("Hapus ads channel ini?");
+            if (!ok) return;
+            try {
+                await deleteDoc(doc(db, "leads_settings_ads_channels", id));
+                await loadAdsChannels();
+            } catch (e) {
+                console.error("Gagal menghapus ads channel", e);
+            }
+        }
+
+        async function loadInterests() {
+            try {
+                const snap = await getDocs(collection(db, "leads_settings_interests"));
+                const result = [];
+                snap.forEach((docSnap) => {
+                    const d = docSnap.data() || {};
+                    result.push({
+                        id: docSnap.id,
+                        name: d.name || "",
+                        ads_channel_id: d.ads_channel_id || ""
+                    });
+                });
+                interests = result;
+                renderInterests();
+            } catch (e) {
+                console.error("Gagal memuat interest", e);
+            }
+        }
+
+        function renderInterests() {
+            interestListEl.innerHTML = "";
+            if (!interests.length) {
+                interestListEl.innerHTML = '<p class="text-[11px] text-slate-400 italic mb-0">Belum ada interest.</p>';
+                return;
+            }
+            interests.forEach((it) => {
+                const card = document.createElement("div");
+                card.className = "flex items-center gap-3 bg-white p-3 rounded-xl border border-slate-100 shadow-sm group";
+                card.dataset.id = it.id;
+
+                const iconWrapper = document.createElement("div");
+                iconWrapper.className = "bg-emerald-50 text-emerald-600 p-2 rounded-lg";
+                iconWrapper.innerHTML = '<i data-lucide="sparkles" class="w-4 h-4"></i>';
+
+                const textWrapper = document.createElement("div");
+                textWrapper.className = "flex-1";
+
+                const titleEl = document.createElement("p");
+                titleEl.className = "text-sm font-semibold text-slate-800 mb-0";
+                titleEl.textContent = it.name;
+
+                const channel = adsChannels.find((c) => c.id === it.ads_channel_id);
+                const channelLabel = channel ? "Ads Channel: " + channel.name : "Ads Channel: Umum";
+
+                const channelEl = document.createElement("p");
+                channelEl.className = "text-[11px] text-slate-500 mb-0";
+                channelEl.textContent = channelLabel;
+
+                const metaEl = document.createElement("p");
+                metaEl.className = "text-[10px] text-slate-400 font-mono italic mb-0";
+                metaEl.textContent = "Value ID: " + it.id;
+
+                textWrapper.appendChild(titleEl);
+                textWrapper.appendChild(channelEl);
+                textWrapper.appendChild(metaEl);
+
+                const deleteBtn = document.createElement("button");
+                deleteBtn.type = "button";
+                deleteBtn.className = "opacity-0 group-hover:opacity-100 p-2 text-slate-400 hover:text-red-500 transition";
+                deleteBtn.innerHTML = '<i data-lucide="trash-2" class="w-4 h-4"></i>';
+                deleteBtn.addEventListener("click", async (ev) => {
+                    ev.stopPropagation();
+                    await deleteInterest(it.id);
+                });
+
+                card.appendChild(iconWrapper);
+                card.appendChild(textWrapper);
+                card.appendChild(deleteBtn);
+
+                card.addEventListener("click", () => {
+                    interestNameInput.value = it.name;
+                    interestNameInput.dataset.editId = it.id;
+                });
+
+                interestListEl.appendChild(card);
+            });
+            if (window.lucide && typeof window.lucide.createIcons === "function") {
+                window.lucide.createIcons();
+            }
+        }
+
+        async function saveInterest() {
+            const name = (interestNameInput.value || "").trim();
+            if (!name) return;
+            const adsChannelId = "";
+            const editId = interestNameInput.dataset.editId || "";
+            try {
+                if (editId) {
+                    await setDoc(doc(db, "leads_settings_interests", editId), {
+                        name,
+                        ads_channel_id: adsChannelId
+                    }, { merge: true });
+                } else {
+                    const ref = doc(collection(db, "leads_settings_interests"));
+                    await setDoc(ref, {
+                        name,
+                        ads_channel_id: adsChannelId
+                    });
+                }
+                interestNameInput.value = "";
+                interestNameInput.dataset.editId = "";
+                await loadInterests();
+            } catch (e) {
+                console.error("Gagal menyimpan interest", e);
+            }
+        }
+
+        async function deleteInterest(id) {
+            if (!id) return;
+            const ok = window.confirm("Hapus interest ini?");
+            if (!ok) return;
+            try {
+                await deleteDoc(doc(db, "leads_settings_interests", id));
+                await loadInterests();
+            } catch (e) {
+                console.error("Gagal menghapus interest", e);
+            }
+        }
+
+        if (btnAddAdsChannel) {
+            btnAddAdsChannel.addEventListener("click", (e) => {
+                e.preventDefault();
+                saveAdsChannel();
+            });
+        }
+        if (adsChannelInput) {
+            adsChannelInput.addEventListener("keydown", (e) => {
+                if (e.key === "Enter") {
+                    e.preventDefault();
+                    saveAdsChannel();
+                }
+            });
+        }
+        if (btnAddInterest) {
+            btnAddInterest.addEventListener("click", (e) => {
+                e.preventDefault();
+                saveInterest();
+            });
+        }
+        if (interestNameInput) {
+            interestNameInput.addEventListener("keydown", (e) => {
+                if (e.key === "Enter") {
+                    e.preventDefault();
+                    saveInterest();
+                }
+            });
+        }
+
+        loadAdsChannels().then(loadInterests);
+    </script>
+</body>
+</html>

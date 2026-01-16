@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Premium Employee Portfolio</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="../assets/css/style.css" rel="stylesheet" />
+    <style>
+        body { 
+            font-family: 'Plus Jakarta Sans', sans-serif; 
+            background: #fdfdfd; 
+            color: #1e293b;
+        }
+        .bento-card {
+            background: white;
+            border: 1px solid #f1f5f9;
+            box-shadow: 0 4px 20px -5px rgba(0,0,0,0.05);
+            transition: all 0.3s ease;
+        }
+        .bento-card:hover {
+            box-shadow: 0 10px 30px -10px rgba(0,0,0,0.1);
+            transform: translateY(-2px);
+        }
+        .gradient-blue {
+            background: linear-gradient(135deg, #2563eb 0%, #3b82f6 100%);
+        }
+        .text-gradient {
+            background: linear-gradient(to right, #1e293b, #475569);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+    </style>
+</head>
+<body class="bg-slate-50/50 antialiased py-12 px-4">
+
+    <div id="topbarContainer"></div>
+    
+    <div class="dashboard-container">
+        
+        <div id="sidebarContainer"></div>
+
+        <main class="main-content">
+    <div class="max-w-6xl mx-auto space-y-6">
+        
+        <!-- TOP SECTION: HEADER & MAIN INFO -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+            
+            <!-- Profile Main Card -->
+            <div class="lg:col-span-8 bento-card rounded-[2rem] p-8 flex flex-col md:flex-row items-center gap-8 relative overflow-hidden">
+                <div class="absolute top-0 right-0 p-8">
+                    <button class="bg-[#0B2B6A] hover:bg-[#061634] text-white px-6 py-2.5 rounded-full text-sm font-semibold transition shadow-lg shadow-[#0B2B6A]/30">
+                        Download Report
+                    </button>
+                </div>
+                
+                <div class="relative">
+                    <div class="w-40 h-40 rounded-[2.5rem] overflow-hidden ring-4 ring-blue-50">
+                        <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=400&fit=crop" alt="Profile" class="w-full h-full object-cover">
+                    </div>
+                    <div class="absolute -bottom-2 -right-2 bg-white p-2 rounded-2xl shadow-md">
+                        <div class="bg-green-500 w-4 h-4 rounded-full border-2 border-white"></div>
+                    </div>
+                </div>
+
+                <div class="text-center md:text-left">
+                    <h1 id="userName" class="text-4xl font-extrabold text-gradient tracking-tight">Nama Pengguna</h1>
+                    <p id="userPosition" class="text-blue-600 font-semibold mt-1 text-lg">Posisi</p>
+                    <p id="userDepartment" class="text-slate-400 font-medium">Divisi</p>
+                    
+                    <div class="flex flex-wrap gap-3 mt-6 justify-center md:justify-start">
+                        <div class="flex flex-col px-4 py-2 bg-slate-50 rounded-2xl border border-slate-100">
+                            <span class="text-[10px] uppercase font-bold text-slate-400">Join Date</span>
+                            <span id="userJoinDate" class="text-sm font-bold text-slate-700">-</span>
+                        </div>
+                        <div class="flex flex-col px-4 py-2 bg-slate-50 rounded-2xl border border-slate-100">
+                            <span class="text-[10px] uppercase font-bold text-slate-400">Contract End</span>
+                            <span id="userContractEnd" class="text-sm font-bold text-slate-700">-</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Personal Contact Card -->
+            <div class="lg:col-span-4 bento-card rounded-[2rem] p-8">
+                <h3 class="text-lg font-bold mb-6 flex items-center gap-2">
+                    <span class="w-1.5 h-6 bg-blue-600 rounded-full"></span>
+                    Personal Data
+                </h3>
+                <div class="space-y-5">
+                    <div class="flex items-center gap-4">
+                        <div class="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center text-blue-600">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
+                        </div>
+                        <div>
+                            <p class="text-[10px] font-bold text-slate-400 uppercase">Email Address</p>
+                            <p id="userEmail" class="text-sm font-semibold text-slate-700">-</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-4">
+                        <div class="w-10 h-10 rounded-xl bg-indigo-50 flex items-center justify-center text-indigo-600">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"></path></svg>
+                        </div>
+                        <div>
+                            <p class="text-[10px] font-bold text-slate-400 uppercase">Phone Number</p>
+                            <p id="userPhone" class="text-sm font-semibold text-slate-700">-</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-4">
+                        <div class="w-10 h-10 rounded-xl bg-purple-50 flex items-center justify-center text-purple-600">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                        </div>
+                        <div>
+                            <p class="text-[10px] font-bold text-slate-400 uppercase">Office Address</p>
+                            <p id="userOfficeAddress" class="text-sm font-semibold text-slate-700 leading-tight">-</p>
+                        </div>
+                    </div>
+                </div>
+                <button class="w-full mt-8 bg-[#0B2B6A] hover:bg-[#061634] text-white py-3 rounded-2xl text-sm font-bold transition-all">
+                    View Complete Profile
+                </button>
+            </div>
+        </div>
+
+        <!-- MIDDLE SECTION: ATTENDANCE & CHART -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+            
+            <!-- Attendance Bento Grid -->
+            <div class="lg:col-span-4 grid grid-cols-2 gap-4">
+                <div class="bento-card rounded-[2rem] p-6 text-center">
+                    <div class="w-12 h-12 bg-green-50 text-green-600 rounded-2xl flex items-center justify-center mx-auto mb-3">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                    </div>
+                    <p class="text-3xl font-extrabold">248</p>
+                    <p class="text-xs font-bold text-slate-400 uppercase tracking-widest mt-1">Presence</p>
+                </div>
+                <div class="bento-card rounded-[2rem] p-6 text-center">
+                    <div class="w-12 h-12 bg-red-50 text-red-600 rounded-2xl flex items-center justify-center mx-auto mb-3">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                    </div>
+                    <p class="text-3xl font-extrabold text-red-600">2</p>
+                    <p class="text-xs font-bold text-slate-400 uppercase tracking-widest mt-1">Late</p>
+                </div>
+                <div class="bento-card rounded-[2rem] p-6 text-center col-span-2 flex items-center justify-between">
+                    <div class="flex items-center gap-4">
+                        <div class="w-12 h-12 bg-orange-50 text-orange-600 rounded-2xl flex items-center justify-center">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                        </div>
+                        <div class="text-left">
+                            <p class="text-2xl font-extrabold">4</p>
+                            <p class="text-xs font-bold text-slate-400 uppercase tracking-widest">Permit / Izin</p>
+                        </div>
+                    </div>
+                    <button class="text-[#0B2B6A] font-bold text-sm bg-[#0B2B6A]/5 px-4 py-2 rounded-xl">History</button>
+                </div>
+            </div>
+
+            <!-- Quest Chart Bento -->
+            <div class="lg:col-span-5 bento-card rounded-[2rem] p-8">
+                <div class="flex justify-between items-start mb-4">
+                    <div>
+                        <h3 class="text-lg font-bold">Quest Performance</h3>
+                        <p class="text-sm text-slate-400">Task completion ratio</p>
+                    </div>
+                    <div class="text-right">
+                        <p class="text-2xl font-bold text-blue-600">127</p>
+                        <p class="text-[10px] font-bold text-slate-400 uppercase">Total Quests</p>
+                    </div>
+                </div>
+                <div class="flex items-center gap-8 h-48">
+                    <div class="w-1/2 h-full">
+                        <canvas id="questChart"></canvas>
+                    </div>
+                    <div class="w-1/2 space-y-4">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center gap-2">
+                                <div class="w-3 h-3 rounded-full bg-blue-600"></div>
+                                <span class="text-sm font-medium text-slate-600">Main Quest</span>
+                            </div>
+                            <span class="text-sm font-bold">85</span>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center gap-2">
+                                <div class="w-3 h-3 rounded-full bg-blue-300"></div>
+                                <span class="text-sm font-medium text-slate-600">Side Quest</span>
+                            </div>
+                            <span class="text-sm font-bold">42</span>
+                        </div>
+                        <button class="w-full py-2 bg-[#0B2B6A]/5 text-[#0B2B6A] rounded-xl text-xs font-bold mt-2">View Logs</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Superior Card -->
+            <div class="lg:col-span-3 bento-card rounded-[2rem] p-8 flex flex-col items-center text-center justify-center">
+                <p class="text-[10px] font-bold text-slate-400 uppercase mb-4 tracking-widest">Direct Superior</p>
+                <div class="w-20 h-20 rounded-full ring-4 ring-slate-50 overflow-hidden mb-3">
+                    <img id="userPhoto" src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=200&h=200&fit=crop" alt="User" class="w-full h-full object-cover">
+                </div>
+                <h4 id="userNameSmall" class="font-bold text-slate-800 leading-tight">Nama Pengguna</h4>
+                <p id="userPositionSmall" class="text-xs text-[#0B2B6A] font-medium">Posisi</p>
+                <button class="mt-6 w-full py-2.5 bg-[#0B2B6A] text-white rounded-2xl text-xs font-bold shadow-md shadow-[#0B2B6A]/30 flex items-center justify-center gap-2">
+                    <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24"><path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg>
+                    Contact Sarah
+                </button>
+            </div>
+        </div>
+
+        <!-- BOTTOM SECTION: ACHIEVEMENTS & NOTE -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+            
+            <!-- Achievements -->
+            <div class="lg:col-span-7 bento-card rounded-[2rem] p-8">
+                <h3 class="text-lg font-bold mb-6 flex items-center gap-2">
+                    <span class="w-1.5 h-6 bg-blue-600 rounded-full"></span>
+                    Hall of Achievements
+                </h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="p-4 rounded-3xl bg-blue-50/50 border border-blue-100 flex items-center gap-4 hover:bg-blue-50 transition-colors">
+                        <div class="text-3xl">🏅</div>
+                        <div>
+                            <p class="font-bold text-slate-800 text-sm">Best Innovator 2023</p>
+                            <p class="text-[10px] text-blue-600 font-bold uppercase tracking-tight">Q4 Annual Awards</p>
+                        </div>
+                    </div>
+                    <div class="p-4 rounded-3xl bg-amber-50/50 border border-amber-100 flex items-center gap-4 hover:bg-amber-50 transition-colors">
+                        <div class="text-3xl">⚡</div>
+                        <div>
+                            <p class="font-bold text-slate-800 text-sm">Rapid Execution</p>
+                            <p class="text-[10px] text-amber-600 font-bold uppercase tracking-tight">Project Delta Team</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Superior Note -->
+            <div class="lg:col-span-5 bento-card rounded-[2rem] p-8 bg-slate-900 text-white relative overflow-hidden">
+                <div class="absolute top-0 right-0 p-6 opacity-20">
+                    <svg class="w-20 h-20" fill="currentColor" viewBox="0 0 24 24"><path d="M14.017 21L14.017 18C14.017 16.8954 14.9124 16 16.017 16H19.017C19.5693 16 20.017 15.5523 20.017 15V9C20.017 8.44772 19.5693 8 19.017 8H15.017C14.4647 8 14.017 8.44772 14.017 9V11.5L12.017 12.5V9C12.017 7.34315 13.3601 6 15.017 6H19.017C20.6738 6 22.017 7.34315 22.017 9V15C22.017 16.6569 20.6738 18 19.017 18H16.017L14.017 21ZM4.01698 21L4.01698 18C4.01698 16.8954 4.91242 16 6.01698 16H9.01698C9.56927 16 10.017 15.5523 10.017 15V9C10.017 8.44772 9.56927 8 9.01698 8H5.01698C4.4647 8 4.01698 8.44772 4.01698 9V11.5L2.01698 12.5V9C2.01698 7.34315 3.36013 6 5.01698 6H9.01698C10.6738 6 12.017 7.34315 12.017 9V15C12.017 16.6569 10.6738 18 9.01698 18H6.01698L4.01698 21Z"></path></svg>
+                </div>
+                <h3 class="text-lg font-bold mb-4 relative z-10">Superior's Note</h3>
+                <p class="text-slate-300 text-sm italic leading-relaxed mb-6 relative z-10">
+                    "Aris adalah aset yang luar biasa bagi tim kami. Kemampuannya memecahkan masalah kompleks sangat membantu departemen Digital Transformation. Sangat bangga memilikinya dalam tim saya."
+                </p>
+                <div class="flex items-center gap-3 relative z-10">
+                    <img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&h=100&fit=crop" class="w-10 h-10 rounded-full ring-2 ring-blue-500">
+                    <div>
+                        <p class="text-sm font-bold">Sarah J. Wellington</p>
+                        <p class="text-[10px] text-blue-400 font-bold uppercase">Head of Technology</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+        </main>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script type="module">
+        import { renderTopBar } from "../element/topbar.js";
+        import { renderSidebar } from "../element/sidebar.js";
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+        import {
+            getFirestore,
+            doc,
+            getDoc
+        } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+        import { Chart } from "https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyDyzzEYbJkkl-N8snrQf14qvj8De4YliV0",
+            authDomain: "pre-dialogika.firebaseapp.com",
+            projectId: "pre-dialogika",
+            storageBucket: "pre-dialogika.firebasestorage.app",
+            messagingSenderId: "343771410480",
+            appId: "1:343771410480:web:32881c9868522090237df5",
+            measurementId: "G-SXN811P3N0"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        const topbarTarget = document.getElementById("topbarContainer");
+        if (topbarTarget) {
+            renderTopBar(topbarTarget);
+        }
+        const sidebarTarget = document.getElementById("sidebarContainer");
+        if (sidebarTarget) {
+            renderSidebar(sidebarTarget);
+        }
+
+        window.toggleSidebar = () => {
+            const sidebar = document.getElementById("sidebarNav");
+            if (sidebar) sidebar.classList.toggle("show");
+        };
+
+        function getSafe(obj, path, fallback = "") {
+            try {
+                return path.split(".").reduce((acc, key) => (acc && acc[key] != null ? acc[key] : undefined), obj) ?? fallback;
+            } catch (e) {
+                return fallback;
+            }
+        }
+
+        function populateUserProfile(userData, uid) {
+            const name = userData.name || userData.displayName || userData.email || "User";
+            const email = userData.email || "-";
+            const phone = userData.phone || userData.phoneNumber || "-";
+            const department = getSafe(userData, "employment.department", "-");
+            const position = getSafe(userData, "employment.position", "-");
+            const officeAddress = getSafe(userData, "employment.office_address", "-");
+            const joinDate = getSafe(userData, "employment.join_date", "-");
+            const contractEnd = getSafe(userData, "employment.contract_end", "-");
+            const photo = userData.photo || `https://i.pravatar.cc/150?u=${encodeURIComponent(uid)}`;
+
+            const nameEl = document.getElementById("userName");
+            const nameSmallEl = document.getElementById("userNameSmall");
+            const emailEl = document.getElementById("userEmail");
+            const phoneEl = document.getElementById("userPhone");
+            const deptEl = document.getElementById("userDepartment");
+            const posEl = document.getElementById("userPosition");
+            const posSmallEl = document.getElementById("userPositionSmall");
+            const joinEl = document.getElementById("userJoinDate");
+            const contractEl = document.getElementById("userContractEnd");
+            const officeEl = document.getElementById("userOfficeAddress");
+            const photoEl = document.getElementById("userPhoto");
+
+            if (nameEl) nameEl.textContent = name;
+            if (nameSmallEl) nameSmallEl.textContent = name;
+            if (emailEl) emailEl.textContent = email;
+            if (phoneEl) phoneEl.textContent = phone;
+            if (deptEl) deptEl.textContent = department || "-";
+            if (posEl) posEl.textContent = position || "-";
+            if (posSmallEl) posSmallEl.textContent = position || "-";
+            if (joinEl) joinEl.textContent = joinDate || "-";
+            if (contractEl) contractEl.textContent = contractEnd || "-";
+            if (officeEl) officeEl.textContent = officeAddress || "-";
+            if (photoEl) {
+                photoEl.src = photo;
+            }
+        }
+
+        function initQuestChart() {
+            const canvas = document.getElementById("questChart");
+            if (!canvas) return;
+            const ctx = canvas.getContext("2d");
+            if (!ctx) return;
+
+            new Chart(ctx, {
+                type: "doughnut",
+                data: {
+                    labels: ["Main Quest", "Side Quest"],
+                    datasets: [{
+                        data: [85, 42],
+                        backgroundColor: ["#2563eb", "#93c5fd"],
+                        hoverBackgroundColor: ["#1d4ed8", "#60a5fa"],
+                        borderWidth: 0,
+                        borderRadius: 10
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    cutout: "75%",
+                    plugins: {
+                        legend: { display: false }
+                    }
+                }
+            });
+        }
+
+        onAuthStateChanged(auth, async (user) => {
+            if (!user) {
+                window.location.href = "../index.html";
+                return;
+            }
+            try {
+                const snap = await getDoc(doc(db, "users", user.uid));
+                if (snap.exists()) {
+                    populateUserProfile(snap.data() || {}, user.uid);
+                } else {
+                    populateUserProfile({
+                        name: user.displayName || user.email || "User",
+                        email: user.email || ""
+                    }, user.uid);
+                }
+            } catch (e) {
+                console.error("Gagal memuat data profil user", e);
+                populateUserProfile({
+                    name: user.displayName || user.email || "User",
+                    email: user.email || ""
+                }, user.uid);
+            }
+            initQuestChart();
+        });
+    </script>
+</body>
+</html>
