@@ -1,3 +1,4 @@
+<!-- File ini adalah versi lama dari halaman register. Terjadi perubahan di akses firebase storage sehingga tidak memiliki akses untuk read/write. Diperlukan akses firebase storage untuk upload foto, sehingga aksi register tidak dapat dijalankan. Jika ingin melihat versi terbaru yang sudah disesuaikan dengan kebutuhan register, silakan akses register.html -->
 <!DOCTYPE html>
 <html lang="id">
 <head>
@@ -292,7 +293,7 @@
                       <i class="fas fa-cloud-upload-alt upload-icon"></i>
                       <span class="upload-text" id="uploadText">Klik untuk upload foto</span>
                       <span class="upload-hint">Format PNG, JPG (Max. 5MB)</span>
-                      <input type="file" id="inputPhoto" accept="image/*" hidden onchange="previewImage()">
+                      <input type="file" id="inputPhoto" accept="image/*" hidden required onchange="previewImage()">
                   </label>
               </div>
 
@@ -482,7 +483,7 @@
                   } 
               }); 
 
-              alert('Registrasi Berhasil! Data tersimpan.'); 
+              alert('Registrasi Berhasil! Data tersimpan di Firebase.'); 
               window.location.reload(); 
 
           } catch (error) { 
