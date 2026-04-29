@@ -530,7 +530,7 @@
 
         .pipeline-summary-grid {
             display: grid;
-            grid-template-columns: repeat(5, minmax(0, 1fr));
+            grid-template-columns: repeat(6, minmax(0, 1fr));
             gap: 16px;
             margin: 1.5rem 0 2rem;
         }
@@ -575,6 +575,10 @@
 
         .pipeline-stat-interview {
             border-top: 4px solid #f59e0b;
+        }
+
+        .pipeline-stat-accepted {
+            border-top: 4px solid #6366f1;
         }
 
         .pipeline-stat-onboarding {
@@ -1030,6 +1034,12 @@
             background: #fff7ed;
             color: #b45309;
             border-color: #fdba74;
+        }
+
+        .status-accepted {
+            background: #eef2ff;
+            color: #4338ca;
+            border-color: #a5b4fc;
         }
 
         .status-onboarding {
@@ -2107,6 +2117,11 @@
                             <div class="pipeline-stat-value">0</div>
                             <div class="pipeline-stat-note">Kandidat sedang dijadwalkan atau diwawancara.</div>
                         </div>
+                        <div class="pipeline-stat-card pipeline-stat-accepted">
+                            <div class="pipeline-stat-label">Accepted</div>
+                            <div class="pipeline-stat-value">0</div>
+                            <div class="pipeline-stat-note">Kandidat lolos seleksi dan menunggu onboarding.</div>
+                        </div>
                         <div class="pipeline-stat-card pipeline-stat-onboarding">
                             <div class="pipeline-stat-label">Onboarding</div>
                             <div class="pipeline-stat-value">0</div>
@@ -2405,7 +2420,6 @@
             const term = (searchInput && searchInput.value ? searchInput.value : "").toLowerCase();
             const statusValue = statusFilter ? (statusFilter.value || "").toLowerCase() : "";
             const sortValue = sortSelect ? (sortSelect.value || "none") : "none";
-            const normalizedFilterStatus = statusValue === "accepted" ? "onboarding" : statusValue;
 
             const gridItems = Array.from(document.querySelectorAll('.candidate-item'));
             const listRows = Array.from(document.querySelectorAll('.candidate-row'));
@@ -2414,7 +2428,7 @@
                 const text = item.innerText.toLowerCase();
                 const itemStatus = (item.dataset.status || "").toLowerCase();
                 const matchesSearch = text.includes(term);
-                const matchesStatus = !normalizedFilterStatus || itemStatus === normalizedFilterStatus;
+                const matchesStatus = !statusValue || itemStatus === statusValue;
                 item.style.display = matchesSearch && matchesStatus ? "" : "none";
             });
 
@@ -2422,7 +2436,7 @@
                 const text = row.innerText.toLowerCase();
                 const rowStatus = (row.dataset.status || "").toLowerCase();
                 const matchesSearch = text.includes(term);
-                const matchesStatus = !normalizedFilterStatus || rowStatus === normalizedFilterStatus;
+                const matchesStatus = !statusValue || rowStatus === statusValue;
                 row.style.display = matchesSearch && matchesStatus ? "" : "none";
             });
 
@@ -3405,6 +3419,12 @@
                 caption: "Proses wawancara"
             },
             {
+                value: "accepted",
+                label: "Accepted",
+                badgeClass: "status-accepted",
+                caption: "Lolos seleksi"
+            },
+            {
                 value: "onboarding",
                 label: "Onboarding",
                 badgeClass: "status-onboarding",
@@ -3421,7 +3441,8 @@
         function normalizeStatus(value) {
             const raw = value ? value.toString().trim().toLowerCase() : "";
             if (raw === "interview") return "interview";
-            if (raw === "onboarding" || raw === "accept" || raw === "accepted" || raw === "decision") return "onboarding";
+            if (raw === "accept" || raw === "accepted" || raw === "decision") return "accepted";
+            if (raw === "onboarding") return "onboarding";
             if (raw === "rejected" || raw === "reject") return "rejected";
             return "screening";
         }
@@ -3435,9 +3456,11 @@
 
         function resolveDisplayStatus(recruitment) {
             const state = recruitment || {};
+            const normalizedCurrent = normalizeStatus(state.current || "screening");
             const finalDecision = normalizeDecision(state.final_decision || state.finalDecision || "");
             if (finalDecision === "rejected") return "rejected";
-            return normalizeStatus(state.current || "screening");
+            if (finalDecision === "accepted" && normalizedCurrent !== "onboarding") return "accepted";
+            return normalizedCurrent;
         }
 
         function getStatusMeta(status) {
@@ -3480,7 +3503,7 @@
         function updatePipelineSummary(counts) {
             const summaryEl = document.getElementById("candidatePipelineSummary");
             if (!summaryEl) return;
-            const total = (counts.screening || 0) + (counts.interview || 0) + (counts.onboarding || 0) + (counts.rejected || 0);
+            const total = (counts.screening || 0) + (counts.interview || 0) + (counts.accepted || 0) + (counts.onboarding || 0) + (counts.rejected || 0);
             summaryEl.innerHTML =
                 '<div class="pipeline-stat-card pipeline-stat-total">' +
                     '<div class="pipeline-stat-label">Total Kandidat</div>' +
@@ -3495,6 +3518,11 @@
                 '<div class="pipeline-stat-card pipeline-stat-interview">' +
                     '<div class="pipeline-stat-label">Interview</div>' +
                     '<div class="pipeline-stat-value">' + (counts.interview || 0) + '</div>' +
+                    
+                '</div>' +
+                '<div class="pipeline-stat-card pipeline-stat-accepted">' +
+                    '<div class="pipeline-stat-label">Accepted</div>' +
+                    '<div class="pipeline-stat-value">' + (counts.accepted || 0) + '</div>' +
                     
                 '</div>' +
                 '<div class="pipeline-stat-card pipeline-stat-onboarding">' +
@@ -3513,6 +3541,7 @@
             const counts = {
                 screening: 0,
                 interview: 0,
+                accepted: 0,
                 onboarding: 0,
                 rejected: 0
             };
