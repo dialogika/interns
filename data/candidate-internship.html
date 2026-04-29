@@ -2070,6 +2070,7 @@
                                     <option value="">Semua status</option>
                                     <option value="screening">Screening</option>
                                     <option value="interview">Interview</option>
+                                    <option value="accepted">Accepted</option>
                                     <option value="onboarding">Onboarding</option>
                                     <option value="rejected">Rejected</option>
                                 </select>
@@ -2404,6 +2405,7 @@
             const term = (searchInput && searchInput.value ? searchInput.value : "").toLowerCase();
             const statusValue = statusFilter ? (statusFilter.value || "").toLowerCase() : "";
             const sortValue = sortSelect ? (sortSelect.value || "none") : "none";
+            const normalizedFilterStatus = statusValue === "accepted" ? "onboarding" : statusValue;
 
             const gridItems = Array.from(document.querySelectorAll('.candidate-item'));
             const listRows = Array.from(document.querySelectorAll('.candidate-row'));
@@ -2412,7 +2414,7 @@
                 const text = item.innerText.toLowerCase();
                 const itemStatus = (item.dataset.status || "").toLowerCase();
                 const matchesSearch = text.includes(term);
-                const matchesStatus = !statusValue || itemStatus === statusValue;
+                const matchesStatus = !normalizedFilterStatus || itemStatus === normalizedFilterStatus;
                 item.style.display = matchesSearch && matchesStatus ? "" : "none";
             });
 
@@ -2420,7 +2422,7 @@
                 const text = row.innerText.toLowerCase();
                 const rowStatus = (row.dataset.status || "").toLowerCase();
                 const matchesSearch = text.includes(term);
-                const matchesStatus = !statusValue || rowStatus === statusValue;
+                const matchesStatus = !normalizedFilterStatus || rowStatus === normalizedFilterStatus;
                 row.style.display = matchesSearch && matchesStatus ? "" : "none";
             });
 
