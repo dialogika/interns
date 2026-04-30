@@ -264,7 +264,7 @@
                   <input type="email" class="form-control" id="lookupCandidateEmail" placeholder="Masukkan email yang terdaftar di kandidat onboarding">
                   <button type="button" class="btn blue-dialogika-btn" id="btnLookupCandidate">Muat Data</button>
               </div>
-              <div class="small text-muted mt-2" id="lookupCandidateHint">Masukkan email kandidat, lalu klik Muat Data untuk mengisi form otomatis.</div>
+              <div class="small text-muted mt-2" id="lookupCandidateHint">Opsional: masukkan email kandidat onboarding lalu klik Muat Data untuk autofill. Jika belum ada data onboarding, form bisa diisi manual.</div>
           </div>
           <h4 class="mb-4 text-center fw-bold" style="color: #07276B;">Registrasi for Intern</h4>
           <form id="regForm">
@@ -642,13 +642,7 @@
           const password = document.getElementById('inputPass').value; 
           const file = document.getElementById('inputPhoto').files[0]; 
 
-          if (!prefilledCandidateContext) {
-              alert("Muat data kandidat onboarding terlebih dahulu melalui kolom email di atas form.");
-              btn.innerText = "Submit Registration";
-              btn.disabled = false;
-              return;
-          }
-          if (email !== normalizeEmail(prefilledCandidateContext.email)) {
+          if (prefilledCandidateContext && email !== normalizeEmail(prefilledCandidateContext.email)) {
               alert("Email pada form harus sama dengan email kandidat yang divalidasi.");
               btn.innerText = "Submit Registration";
               btn.disabled = false;
@@ -668,6 +662,8 @@
 
               const selectedRoleId = (document.getElementById('inputRoleId').value || "internship").trim();
               const roleTitle = selectedRoleId.toLowerCase() === "internship" ? "Internship" : selectedRoleId;
+              const sourceCollection = prefilledCandidateContext ? prefilledCandidateContext.source : "";
+              const sourceCandidateId = prefilledCandidateContext ? (prefilledCandidateContext.sourceDocId || "") : "";
               await setDoc(doc(db, "users", user.uid), { 
                   name: document.getElementById('inputName').value, 
                   email: email, 
@@ -691,9 +687,9 @@
                       role_id: selectedRoleId, 
                       level_order: 4 
                   },
-                  onboardingSourceCollection: prefilledCandidateContext.source,
-                  onboardingSourceCandidateId: prefilledCandidateContext.sourceDocId || "",
-                  internshipPreRegistered: true,
+                  onboardingSourceCollection: sourceCollection,
+                  onboardingSourceCandidateId: sourceCandidateId,
+                  internshipPreRegistered: !!prefilledCandidateContext,
                   registrationCompleted: true,
                   registeredAt: new Date()
               }); 

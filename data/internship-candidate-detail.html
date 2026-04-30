@@ -459,6 +459,12 @@
             gap: 10px;
         }
 
+        .summary-inline-row {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 10px 14px;
+        }
+
         .summary-inline-item {
             display: flex;
             align-items: flex-start;
@@ -470,6 +476,10 @@
         .summary-inline-item i {
             color: #2563eb;
             margin-top: 3px;
+        }
+
+        .summary-inline-item-full {
+            width: 100%;
         }
 
         .kv-grid {
@@ -1334,6 +1344,11 @@
             .interviewer-grid {
                 grid-template-columns: 1fr;
             }
+
+            .summary-inline-row {
+                grid-template-columns: 1fr;
+            }
+
 
             .status-live-row {
                 align-items: flex-start;
@@ -2810,6 +2825,14 @@
             const mentorId = recruitment.mentor_id || data.mentor_id || "";
             const rejectionReason = recruitment.rejection_reason || "";
             const rejectionNotes = recruitment.rejection_notes || "";
+            const screeningHistoryEntry = history
+                .slice()
+                .sort((a, b) => (parseDateValue(b.date)?.getTime() || 0) - (parseDateValue(a.date)?.getTime() || 0))
+                .find(item => normalizeStatus(item.status || "") === "interview" && normalizeStatus(item.previousStatus || "") === "screening");
+            const screeningByName = recruitment.screening_by_name || recruitment.screened_by_name || recruitment.screening_by || screeningHistoryEntry?.by || "";
+            const screeningByEmail = recruitment.screening_by_email || recruitment.screened_by_email || screeningHistoryEntry?.byEmail || "";
+            const screeningByUid = recruitment.screening_by_uid || recruitment.screened_by_uid || screeningHistoryEntry?.byId || null;
+            const screeningAt = recruitment.screening_at || recruitment.screened_at || screeningHistoryEntry?.date || null;
             const inactiveRecord = isInactiveCandidateRecord(data);
 
             return {
@@ -2851,6 +2874,10 @@
                 finalDecisionAt,
                 interviewerIds,
                 history,
+                screeningByName,
+                screeningByEmail,
+                screeningByUid,
+                screeningAt,
                 onboardingStartDate,
                 departmentId,
                 mentorId,
@@ -3087,6 +3114,8 @@
             const vm = getCandidateViewModel(currentCandidate);
             vm.auditTrail = buildAuditTrail(currentCandidate);
             const interviewerNames = getInterviewerNames(vm.interviewerIds);
+            const screeningByDisplay = vm.screeningByName || vm.screeningByEmail || "-";
+            const screeningAtDisplay = vm.screeningAt ? formatDateTime(vm.screeningAt) : "-";
             const statusBadge = '<span class="' + getStatusBadgeClasses(vm.displayStatus) + '">' + escapeHtml(getStatusLabel(vm.displayStatus)) + '</span>';
             const decisionBadge = getDecisionBadgeHtml(vm.finalDecision);
             const workModeBadge = '<span class="work-mode-badge ' + escapeHtml(vm.workModeClass || "work-mode-unknown") + '"><i class="fa-solid fa-briefcase"></i>' + escapeHtml(vm.workModeLabel || "Belum Ditentukan") + '</span>';
@@ -3233,9 +3262,15 @@
                         '</div>' +
                         '<div class="pipeline-stepper">' + buildStatusStepperHtml(vm.displayStatus) + '</div>' +
                         '<div class="summary-inline-list mb-4">' +
-                            '<div class="summary-inline-item"><i class="fa-regular fa-calendar-days"></i><span>Jadwal interview: ' + escapeHtml(formatDateTime(vm.interviewSchedule)) + '</span></div>' +
-                            '<div class="summary-inline-item"><i class="fa-regular fa-user"></i><span>Interviewer: ' + escapeHtml(interviewerNames.length ? interviewerNames.join(", ") : "-") + '</span></div>' +
-                            '<div class="summary-inline-item"><i class="fa-regular fa-note-sticky"></i><span>Catatan internal: ' + escapeHtml(vm.interviewNotes || "-") + '</span></div>' +
+                            '<div class="summary-inline-row">' +
+                                '<div class="summary-inline-item"><i class="fa-regular fa-calendar-days"></i><span>Jadwal interview: ' + escapeHtml(formatDateTime(vm.interviewSchedule)) + '</span></div>' +
+                                '<div class="summary-inline-item"><i class="fa-regular fa-user-check"></i><span>Discreening oleh: ' + escapeHtml(screeningByDisplay) + '</span></div>' +
+                            '</div>' +
+                            '<div class="summary-inline-row">' +
+                                '<div class="summary-inline-item"><i class="fa-regular fa-user"></i><span>Interviewer: ' + escapeHtml(interviewerNames.length ? interviewerNames.join(", ") : "-") + '</span></div>' +
+                                '<div class="summary-inline-item"><i class="fa-regular fa-clock"></i><span>Waktu screening: ' + escapeHtml(screeningAtDisplay) + '</span></div>' +
+                            '</div>' +
+                            '<div class="summary-inline-item summary-inline-item-full"><i class="fa-regular fa-note-sticky"></i><span>Catatan internal: ' + escapeHtml(vm.interviewNotes || "-") + '</span></div>' +
                         '</div>' +
                         actionHtml +
                     '</div>' +
@@ -4716,7 +4751,9 @@
                         previousSchedule: previousSchedule || null,
                         whatsappStatus: "sent",
                         whatsappSentAt: interviewWhatsappConfirmedAt,
-                        by: actor.name
+                        by: actor.name,
+                        byId: actor.id || null,
+                        byEmail: actor.email || ""
                     }),
                     "audit_trail": arrayUnion(auditEntry),
                     logs: arrayUnion({
@@ -4740,6 +4777,12 @@
                         whatsappSentAt: interviewWhatsappConfirmedAt
                     })
                 };
+                if (!isEditMode) {
+                    firestorePayload["recruitment_status.screening_by_uid"] = actor.id || null;
+                    firestorePayload["recruitment_status.screening_by_name"] = actor.name || "";
+                    firestorePayload["recruitment_status.screening_by_email"] = actor.email || "";
+                    firestorePayload["recruitment_status.screening_at"] = nowIso;
+                }
 
                 await persistCandidateUpdate(currentCandidate.id, firestorePayload, isEditMode ? "PATCH" : "PUT", {
                     action: isEditMode ? "edit-interview-schedule" : "schedule-interview",
