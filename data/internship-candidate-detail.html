@@ -2467,16 +2467,21 @@
 
         function getActorName() {
             if (auth && auth.currentUser) {
-                return auth.currentUser.displayName || auth.currentUser.email || "";
+                const uid = auth.currentUser.uid || "";
+                const mappedName = uid ? (usersMap[uid]?.name || "") : "";
+                return mappedName || auth.currentUser.displayName || "";
             }
             return "";
         }
 
         function getActor() {
             const user = auth.currentUser;
+            const uid = user ? (user.uid || "") : "";
+            const mappedName = uid ? (usersMap[uid]?.name || "") : "";
+            const actorName = mappedName || (user ? (user.displayName || "") : "");
             return {
                 id: user ? user.uid : null,
-                name: user ? (user.displayName || user.email || "System") : "System",
+                name: actorName || "System",
                 email: user ? (user.email || "") : ""
             };
         }
@@ -2833,6 +2838,10 @@
             const screeningByEmail = recruitment.screening_by_email || recruitment.screened_by_email || screeningHistoryEntry?.byEmail || "";
             const screeningByUid = recruitment.screening_by_uid || recruitment.screened_by_uid || screeningHistoryEntry?.byId || null;
             const screeningAt = recruitment.screening_at || recruitment.screened_at || screeningHistoryEntry?.date || null;
+            const screeningByNameLooksEmail = (screeningByName || "").includes("@");
+            const screeningByResolvedName = screeningByNameLooksEmail
+                ? (screeningByUid ? (usersMap[screeningByUid]?.name || "") : "")
+                : screeningByName;
             const inactiveRecord = isInactiveCandidateRecord(data);
 
             return {
@@ -2874,7 +2883,7 @@
                 finalDecisionAt,
                 interviewerIds,
                 history,
-                screeningByName,
+                screeningByName: screeningByResolvedName || "",
                 screeningByEmail,
                 screeningByUid,
                 screeningAt,
@@ -3114,7 +3123,7 @@
             const vm = getCandidateViewModel(currentCandidate);
             vm.auditTrail = buildAuditTrail(currentCandidate);
             const interviewerNames = getInterviewerNames(vm.interviewerIds);
-            const screeningByDisplay = vm.screeningByName || vm.screeningByEmail || "-";
+            const screeningByDisplay = vm.screeningByName || "-";
             const screeningAtDisplay = vm.screeningAt ? formatDateTime(vm.screeningAt) : "-";
             const statusBadge = '<span class="' + getStatusBadgeClasses(vm.displayStatus) + '">' + escapeHtml(getStatusLabel(vm.displayStatus)) + '</span>';
             const decisionBadge = getDecisionBadgeHtml(vm.finalDecision);
