@@ -2570,7 +2570,10 @@
             updateDoc,
             setDoc,
             serverTimestamp,
-            arrayUnion
+            arrayUnion,
+            query,
+            where,
+            limit
         } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
         import {
             getStorage,
@@ -4737,9 +4740,9 @@
                 }
                 updateCandidateStatusUI(talentId, normalized);
                 if (normalized === "onboarding") {
-                    const ok = confirm("Duplikasi data ke Intern Management dengan start=onboarding dan end=+3 bulan?");
-                    if (ok) {
-                        duplicateCandidateToInternUsers(talentId).catch(() => {});
+                    const copied = await duplicateCandidateToInternUsers(talentId);
+                    if (!copied) {
+                        alert("Status onboarding berhasil diperbarui, tetapi sinkronisasi data kandidat ke users gagal. Silakan coba ubah status lagi atau cek koneksi.");
                     }
                 }
             }
@@ -4768,7 +4771,8 @@
                 const internship = data.internship || data.internship_info || {};
                 const employment = data.employment || {};
                 const name = basic.full_name || data.full_name || scouting.full_name || "";
-                const email = internship.email || contact.email || basic.email || "";
+                const emailRaw = internship.email || contact.email || basic.email || "";
+                const email = (emailRaw || "").toString().trim().toLowerCase();
                 const phone = internship.whatsapp || contact.whatsapp || contact.phone || "";
                 const address = internship.address || contact.address || "";
                 const campus = internship.campus || education.campus || education.university || "";
@@ -4793,17 +4797,54 @@
                     address: address || "",
                     campus: campus || "",
                     phone: phone || "",
-                    email: email || ""
+                    email: email || "",
+                    access: {
+                        role_id: "internship",
+                        level_order: 4
+                    },
+                    onboardingSourceCollection: INTERNSHIP_CANDIDATES_COLLECTION,
+                    onboardingSourceCandidateId: talentId,
+                    internshipPreRegistered: true,
+                    registrationCompleted: false,
+                    candidatePhoto: basic.img || basic.photo || data.photo || "",
+                    createdAt: new Date(),
+                    updatedAt: new Date()
                 };
                 if (Object.keys(socials).length) {
                     payload.socials = socials;
                 }
-                const usersRef = collection(db, "users");
-                await addDoc(usersRef, payload);
-                alert("Data berhasil diduplikasi ke Intern Management.");
+                if (email) {
+                    const existingByEmailSnap = await getDocs(query(
+                        collection(db, "users"),
+                        where("email", "==", email),
+                        limit(10)
+                    ));
+                    let matchedDoc = null;
+                    existingByEmailSnap.forEach((docSnap) => {
+                        if (matchedDoc) return;
+                        const row = docSnap.data() || {};
+                        if (
+                            row.onboardingSourceCandidateId === talentId ||
+                            row.internshipPreRegistered === true ||
+                            row.registrationCompleted === false
+                        ) {
+                            matchedDoc = docSnap;
+                        }
+                    });
+                    if (matchedDoc) {
+                        await updateDoc(doc(db, "users", matchedDoc.id), {
+                            ...payload,
+                            createdAt: matchedDoc.data()?.createdAt || new Date(),
+                            updatedAt: new Date()
+                        });
+                        return true;
+                    }
+                }
+                await addDoc(collection(db, "users"), payload);
+                return true;
             } catch (e) {
                 console.error("Gagal menduplikasi ke Intern Management", e);
-                alert("Gagal menduplikasi data ke Intern Management.");
+                return false;
             }
         }
 

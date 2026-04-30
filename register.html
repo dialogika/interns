@@ -258,6 +258,14 @@
 
       <!-- 2. BAGIAN FORM -->
       <div class="form-box" style="padding-top:150px;">
+          <div class="mb-4 p-3 rounded-3 border" style="background:#f8fbff; border-color:#dbeafe !important;">
+              <label class="form-label fw-semibold mb-2">Validasi Email Kandidat</label>
+              <div class="input-group">
+                  <input type="email" class="form-control" id="lookupCandidateEmail" placeholder="Masukkan email yang terdaftar di kandidat onboarding">
+                  <button type="button" class="btn blue-dialogika-btn" id="btnLookupCandidate">Muat Data</button>
+              </div>
+              <div class="small text-muted mt-2" id="lookupCandidateHint">Masukkan email kandidat, lalu klik Muat Data untuk mengisi form otomatis.</div>
+          </div>
           <h4 class="mb-4 text-center fw-bold" style="color: #07276B;">Registrasi for Intern</h4>
           <form id="regForm">
               
@@ -293,18 +301,33 @@
                       <i class="fas fa-cloud-upload-alt upload-icon"></i>
                       <span class="upload-text" id="uploadText">Klik untuk upload foto</span>
                       <span class="upload-hint">Format PNG, JPG (Max. 5MB)</span>
-                      <input type="file" id="inputPhoto" accept="image/*" hidden required onchange="previewImage()">
+                      <input type="file" id="inputPhoto" accept="image/*" hidden onchange="previewImage()">
                   </label>
               </div>
 
               <div class="row">
                   <div class="col-md-6 mb-3">
                       <label class="form-label">Birth Date</label>
-                      <input type="date" class="form-control" id="inputBirth" name="birth" required oninput="updateCard()">
+                      <input type="date" class="form-control" id="inputBirth" name="birth" oninput="updateCard()">
                   </div>
                   <div class="col-md-6 mb-3">
                       <label class="form-label">Phone</label>
                       <input type="tel" class="form-control" id="inputPhone" placeholder="08..." required oninput="updateCard('back')">
+                  </div>
+              </div>
+
+              <div class="row">
+                  <div class="col-md-6 mb-3">
+                      <label class="form-label">Campus</label>
+                      <input type="text" class="form-control" id="inputCampus" placeholder="Nama kampus" required>
+                  </div>
+                  <div class="col-md-6 mb-3">
+                      <label class="form-label">Role ID</label>
+                      <select class="form-select" id="inputRoleId">
+                          <option value="internship" selected>internship</option>
+                          <option value="intern">intern</option>
+                          <option value="staff">staff</option>
+                      </select>
                   </div>
               </div>
 
@@ -352,7 +375,7 @@
       // 1. Import Firebase Functions 
       import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js"; 
       import { getAuth, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js"; 
-      import { getFirestore, doc, setDoc, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js"; 
+      import { getFirestore, doc, setDoc, updateDoc, collection, getDocs, query, where, limit } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js"; 
       import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js"; 
 
       // 2. Konfigurasi Firebase Anda
@@ -371,6 +394,8 @@
       const auth = getAuth(app); 
       const db = getFirestore(app); 
       const storage = getStorage(app); 
+      let prefilledCandidateContext = null;
+      let prefilledPhotoUrl = "";
 
       // --- UI LOGIC (Tetap sama seperti aslinya) --- 
       const cardWrapper = document.getElementById('cardWrapper'); 
@@ -397,6 +422,9 @@
           const pass = document.getElementById('inputPass').value; 
           const birthDate = document.getElementById('inputBirth').value; 
           const pos = document.getElementById('inputPos').value; 
+          const phone = document.getElementById('inputPhone').value;
+          const ig = document.getElementById('inputIG').value;
+          const linkedin = document.getElementById('inputLinked').value;
 
           document.getElementById('cardName').innerText = name || 'FULL NAME'; 
           document.getElementById('cardPosDisplay').innerText = pos || 'POSITION'; 
@@ -408,6 +436,9 @@
               document.getElementById('cardIDDisplay').innerText = `${randomFirstFour} ${hiddenMiddle} ${String(d.getMonth()+1).padStart(2,'0')}${String(d.getDate()).padStart(2,'0')}`; 
           } 
           document.getElementById('cardEmailBack').innerText = email || 'email@example.com'; 
+          document.getElementById('cardPhone').innerText = 'Tel: ' + (phone || '-');
+          document.getElementById('cardIG').innerText = 'IG: ' + (ig || '-');
+          document.getElementById('cardLinked').innerText = 'In: ' + (linkedin || '-');
           if(side === 'back') cardWrapper.classList.add('flipped'); 
       }; 
 
@@ -433,12 +464,172 @@
                   opt.text = d.data().name; 
                   selectPos.appendChild(opt); 
               }); 
+              // Re-apply prefilled position value if lookup was completed before options were loaded.
+              setSelectValueOrAppend(selectPos, selectPos.dataset.prefillValue || "");
           } catch (e) { 
               console.error("Gagal load posisi:", e); 
               selectPos.innerHTML = '<option>Gagal memuat data</option>'; 
           } 
       } 
       loadPositions(); 
+
+      function normalizeEmail(value) {
+          return (value || "").toString().trim().toLowerCase();
+      }
+
+      function setSelectValueOrAppend(selectEl, value) {
+          if (!selectEl) return;
+          const normalized = (value || "").toString().trim();
+          if (!normalized) return;
+          const existing = Array.from(selectEl.options).find(opt => (opt.value || "").toString().trim().toLowerCase() === normalized.toLowerCase());
+          if (existing) {
+              selectEl.value = existing.value;
+              return;
+          }
+          const opt = document.createElement("option");
+          opt.value = normalized;
+          opt.textContent = normalized;
+          selectEl.appendChild(opt);
+          selectEl.value = normalized;
+      }
+
+      function fillFormWithCandidate(candidate, context) {
+          prefilledCandidateContext = context || null;
+          prefilledPhotoUrl = candidate.photo || "";
+          document.getElementById("inputName").value = candidate.name || "";
+          document.getElementById("inputEmail").value = candidate.email || "";
+          document.getElementById("inputPhone").value = candidate.phone || "";
+          document.getElementById("inputCampus").value = candidate.campus || "";
+          document.getElementById("inputIG").value = candidate.instagram || "";
+          document.getElementById("inputLinked").value = candidate.linkedin || "";
+          document.getElementById("inputRoleId").value = candidate.roleId || "internship";
+          const posSelectEl = document.getElementById("inputPos");
+          posSelectEl.dataset.prefillValue = candidate.position || "";
+          setSelectValueOrAppend(posSelectEl, candidate.position || "");
+          if (candidate.photo) {
+              document.getElementById('cardPhotoPreview').style.backgroundImage = `url(${candidate.photo})`;
+              document.getElementById('uploadText').innerText = "Foto kandidat sudah dimuat dari database";
+          } else {
+              document.getElementById('uploadText').innerText = "Klik untuk upload foto";
+          }
+          updateCard();
+      }
+
+      async function lookupCandidateByEmail(email) {
+          const normalizedEmail = normalizeEmail(email);
+          if (!normalizedEmail) return null;
+
+          const usersSnap = await getDocs(query(
+              collection(db, "users"),
+              where("email", "==", normalizedEmail),
+              limit(20)
+          ));
+          let preUser = null;
+          usersSnap.forEach((docSnap) => {
+              if (preUser) return;
+              const data = docSnap.data() || {};
+              if (data.internshipPreRegistered === true || data.onboardingSourceCandidateId) {
+                  preUser = { id: docSnap.id, data };
+              }
+          });
+          if (preUser) {
+              const row = preUser.data || {};
+              return {
+                  source: "users",
+                  sourceDocId: preUser.id,
+                  email: normalizedEmail,
+                  candidate: {
+                      name: row.name || "",
+                      email: normalizeEmail(row.email || normalizedEmail),
+                      phone: row.phone || "",
+                      campus: row.campus || "",
+                      photo: row.candidatePhoto || row.photo || "",
+                      position: row.position || (row.employment && row.employment.position) || "",
+                      roleId: (row.access && row.access.role_id) || "internship",
+                      instagram: (row.socials && row.socials.instagram) || "",
+                      linkedin: (row.socials && row.socials.linkedin) || ""
+                  }
+              };
+          }
+
+          const screeningCandidates = [];
+          const contactEmailSnap = await getDocs(query(
+              collection(db, "interns_screening"),
+              where("contact_info.email", "==", normalizedEmail),
+              limit(5)
+          ));
+          contactEmailSnap.forEach((docSnap) => screeningCandidates.push({ id: docSnap.id, data: docSnap.data() || {} }));
+          const internshipEmailSnap = await getDocs(query(
+              collection(db, "interns_screening"),
+              where("internship.email", "==", normalizedEmail),
+              limit(5)
+          ));
+          internshipEmailSnap.forEach((docSnap) => screeningCandidates.push({ id: docSnap.id, data: docSnap.data() || {} }));
+
+          const matched = screeningCandidates.find((row) => {
+              const data = row.data || {};
+              const recruitment = data.recruitment_status || {};
+              const current = (recruitment.current || "").toString().toLowerCase();
+              const decision = (recruitment.final_decision || "").toString().toLowerCase();
+              return current === "onboarding" || current === "accepted" || decision === "accepted";
+          });
+          if (!matched) return null;
+          const data = matched.data || {};
+          const basic = data.basic_info || {};
+          const contact = data.contact_info || {};
+          const internship = data.internship || data.internship_info || {};
+          const education = data.education || {};
+          return {
+              source: "interns_screening",
+              sourceDocId: matched.id,
+              email: normalizedEmail,
+              candidate: {
+                  name: basic.full_name || data.full_name || "",
+                  email: normalizeEmail(internship.email || contact.email || normalizedEmail),
+                  phone: internship.whatsapp || contact.whatsapp || contact.phone || "",
+                  campus: internship.campus || education.campus || education.university || "",
+                  photo: basic.img || basic.photo || data.photo || "",
+                  position: internship.position || (data.employment && data.employment.position) || "",
+                  roleId: "internship",
+                  instagram: internship.instagram || "",
+                  linkedin: internship.linkedin || ""
+              }
+          };
+      }
+
+      document.getElementById("btnLookupCandidate").addEventListener("click", async () => {
+          const hintEl = document.getElementById("lookupCandidateHint");
+          const lookupBtn = document.getElementById("btnLookupCandidate");
+          const raw = document.getElementById("lookupCandidateEmail").value;
+          const email = normalizeEmail(raw);
+          if (!email) {
+              hintEl.textContent = "Email wajib diisi.";
+              hintEl.className = "small text-danger mt-2";
+              return;
+          }
+          lookupBtn.disabled = true;
+          lookupBtn.textContent = "Memuat...";
+          try {
+              const result = await lookupCandidateByEmail(email);
+              if (!result) {
+                  prefilledCandidateContext = null;
+                  prefilledPhotoUrl = "";
+                  hintEl.textContent = "Data kandidat onboarding tidak ditemukan untuk email tersebut.";
+                  hintEl.className = "small text-danger mt-2";
+                  return;
+              }
+              fillFormWithCandidate(result.candidate, result);
+              hintEl.textContent = "Data kandidat berhasil dimuat. Silakan cek/edit data lalu buat password akun.";
+              hintEl.className = "small text-success mt-2";
+          } catch (error) {
+              console.error("Gagal memuat data kandidat", error);
+              hintEl.textContent = "Terjadi kendala saat memuat data kandidat.";
+              hintEl.className = "small text-danger mt-2";
+          } finally {
+              lookupBtn.disabled = false;
+              lookupBtn.textContent = "Muat Data";
+          }
+      });
 
       // --- 4. PROSES REGISTRASI KE FIREBASE --- 
       document.getElementById('regForm').addEventListener('submit', async (e) => { 
@@ -447,27 +638,46 @@
           btn.innerText = "Processing..."; 
           btn.disabled = true; 
 
-          const email = document.getElementById('inputEmail').value; 
+          const email = normalizeEmail(document.getElementById('inputEmail').value); 
           const password = document.getElementById('inputPass').value; 
           const file = document.getElementById('inputPhoto').files[0]; 
+
+          if (!prefilledCandidateContext) {
+              alert("Muat data kandidat onboarding terlebih dahulu melalui kolom email di atas form.");
+              btn.innerText = "Submit Registration";
+              btn.disabled = false;
+              return;
+          }
+          if (email !== normalizeEmail(prefilledCandidateContext.email)) {
+              alert("Email pada form harus sama dengan email kandidat yang divalidasi.");
+              btn.innerText = "Submit Registration";
+              btn.disabled = false;
+              return;
+          }
 
           try { 
               const userCredential = await createUserWithEmailAndPassword(auth, email, password); 
               const user = userCredential.user; 
 
-              let photoURL = ""; 
+              let photoURL = prefilledPhotoUrl || ""; 
               if (file) { 
                   const storageRef = ref(storage, `users/${user.uid}/profile_photo`); 
                   await uploadBytes(storageRef, file); 
                   photoURL = await getDownloadURL(storageRef); 
               } 
 
+              const selectedRoleId = (document.getElementById('inputRoleId').value || "internship").trim();
+              const roleTitle = selectedRoleId.toLowerCase() === "internship" ? "Internship" : selectedRoleId;
               await setDoc(doc(db, "users", user.uid), { 
                   name: document.getElementById('inputName').value, 
                   email: email, 
                   birth: document.getElementById('inputBirth').value, 
                   phone: document.getElementById('inputPhone').value, 
+                  campus: document.getElementById('inputCampus').value,
                   photo: photoURL, 
+                  candidatePhoto: photoURL,
+                  role: roleTitle,
+                  internshipStatus: "Active",
                   employment: { 
                       position: document.getElementById('inputPos').value, 
                       department: "", 
@@ -478,10 +688,23 @@
                       linkedin: document.getElementById('inputLinked').value 
                   }, 
                   access: { 
-                      role_id: "internship", 
+                      role_id: selectedRoleId, 
                       level_order: 4 
-                  } 
+                  },
+                  onboardingSourceCollection: prefilledCandidateContext.source,
+                  onboardingSourceCandidateId: prefilledCandidateContext.sourceDocId || "",
+                  internshipPreRegistered: true,
+                  registrationCompleted: true,
+                  registeredAt: new Date()
               }); 
+
+              if (prefilledCandidateContext.source === "users" && prefilledCandidateContext.sourceDocId) {
+                  await updateDoc(doc(db, "users", prefilledCandidateContext.sourceDocId), {
+                      registrationCompleted: true,
+                      registeredAuthUid: user.uid,
+                      updatedAt: new Date()
+                  });
+              }
 
               alert('Registrasi Berhasil! Data tersimpan di Firebase.'); 
               window.location.reload(); 
