@@ -1543,6 +1543,115 @@
                 padding: 20px 10px;
             }
         }
+
+        /* ----- NEW RESPONSIVE OVERRIDES ----- */
+        @media (max-width: 1024px) {
+            body.page-shell {
+                padding: 1.5rem !important;
+            }
+            .pipeline-stepper {
+                display: flex;
+                flex-wrap: nowrap;
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+                padding-bottom: 0.5rem;
+                justify-content: flex-start;
+            }
+            .pipeline-step {
+                flex: 0 0 auto;
+                min-width: 180px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            body.page-shell {
+                padding: 1rem !important;
+            }
+            .detail-hero {
+                padding: 1.5rem 1rem;
+            }
+            .detail-hero .d-flex.align-items-start.gap-4 {
+                flex-direction: column !important;
+                align-items: center !important;
+                text-align: center;
+                gap: 1rem !important;
+            }
+            .detail-hero .min-w-0 {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+            }
+            .detail-chip-row {
+                justify-content: center;
+                margin-top: 0.5rem;
+            }
+            .detail-avatar {
+                width: 90px;
+                height: 90px;
+                margin: 0 auto;
+            }
+            .kv-grid, .answer-grid, .summary-inline-row {
+                grid-template-columns: 1fr;
+            }
+            .status-live-row {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 0.5rem;
+            }
+            .action-cta {
+                flex-direction: column;
+            }
+            .action-cta .btn {
+                width: 100%;
+                margin-bottom: 0.2rem;
+            }
+            .interviewer-grid {
+                grid-template-columns: 1fr;
+            }
+            .summary-inline-row {
+                gap: 10px;
+            }
+            .detail-card {
+                padding: 1.25rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            body.page-shell {
+                padding: 0.5rem !important;
+            }
+            .detail-name {
+                font-size: 1.4rem;
+                text-align: center;
+            }
+            .detail-card {
+                padding: 1rem;
+            }
+            .pipeline-step {
+                min-width: 160px;
+            }
+            .detail-back-link {
+                width: 100%;
+                justify-content: center;
+                margin-bottom: 0.5rem;
+            }
+            .doc-links {
+                flex-direction: column;
+                width: 100%;
+            }
+            .doc-link {
+                width: 100%;
+                justify-content: center;
+            }
+            .icon-link-row {
+                justify-content: center;
+                width: 100%;
+            }
+            .detail-meta-chip {
+                font-size: 0.8rem;
+                padding: 6px 10px;
+            }
+        }
     </style>
 </head>
 <body class="p-8 page-shell">
