@@ -175,9 +175,83 @@ export function renderSidebar(target) {
                 z-index: 4999 !important;
             }
 
+            .sidebar-close-row {
+                display: flex;
+                justify-content: flex-end;
+                padding: 12px 12px 0 12px;
+            }
+            .sidebar-close-btn {
+                border: none;
+                background: #f3f4f6;
+                color: #334155;
+                border-radius: 10px;
+                width: 34px;
+                height: 34px;
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                transition: transform 0.18s ease, background-color 0.18s ease, color 0.18s ease;
+            }
+            .sidebar-close-btn:hover {
+                background: #e2e8f0;
+                color: #0f172a;
+                transform: scale(1.04);
+            }
+            .sidebar-close-btn:active {
+                transform: scale(0.96);
+            }
+            .sidebar-backdrop {
+                position: fixed;
+                inset: 0;
+                background: rgba(15, 23, 42, 0.3);
+                opacity: 0;
+                visibility: hidden;
+                transition: opacity 0.25s ease, visibility 0.25s ease;
+                z-index: 999;
+            }
+            .sidebar-backdrop.show {
+                opacity: 1;
+                visibility: visible;
+            }
+            #sidebarNav {
+                transition: transform 0.28s ease, box-shadow 0.28s ease;
+                will-change: transform;
+            }
+            #sidebarNav.is-closed-desktop {
+                transform: translateX(calc(-1 * var(--sidebar-width, 290px)));
+                box-shadow: none;
+            }
+            .mobile-toggle {
+                position: relative;
+                z-index: 1002;
+            }
+            body.sidebar-collapsed .mobile-toggle {
+                display: inline-flex !important;
+                align-items: center;
+                justify-content: center;
+                pointer-events: auto;
+            }
+            body.sidebar-collapsed .main-content {
+                margin-left: 0 !important;
+                width: 100% !important;
+            }
+            @media (max-width: 991px) {
+                .sidebar-close-row {
+                    padding-top: 8px;
+                }
+                #sidebarNav.is-closed-desktop {
+                    transform: translateX(-100%);
+                }
+            }
+
         </style>
         <!-- 2. SIDEBAR (Light, Smart Filters, Pending Widget) -->
         <aside class="sidebar" id="sidebarNav">
+            <div class="sidebar-close-row">
+                <button type="button" class="sidebar-close-btn" id="sidebarCloseBtn" aria-label="Tutup sidebar">
+                    <i class="bi bi-x-lg"></i>
+                </button>
+            </div>
             
             <!-- WRAPPER UNTUK AREA YANG BISA DI-SCROLL -->
             <div class="sidebar-scroll-wrapper">
@@ -264,13 +338,14 @@ export function renderSidebar(target) {
                 <button class="btn-review btn-dlg-blue shadow-none" style="margin-bottom:14px;">Review Now</button>
                 
                 <!-- COPYRIGHT (Muncul hanya saat scroll mentok bawah) -->
-                <div class="sidebarCopyright fw-semibold" style="font-size: 12px;">
+                <div class="sidebar-copyright fw-semibold" style="font-size: 12px;">
                     &copy; Copyright 2025<br/> PT Dialogika Persona Indonesia
                 </div>
             </div>
 
         </aside>
 
+        <div class="sidebar-backdrop" id="sidebarBackdrop" aria-hidden="true"></div>
         <div id="questBoardOverlay"></div>
 
         <div class="modal fade" id="questBoardModal" data-bs-backdrop="false" tabindex="-1" aria-hidden="true">
@@ -296,6 +371,7 @@ export function renderSidebar(target) {
 
         // PANGGIL LANGSUNG SETELAH target.innerHTML
 initLogoutModal();
+initSidebarController();
 
 function initLogoutModal() {
     const logoutBtn = document.getElementById('logoutBtn');
@@ -306,6 +382,18 @@ function initLogoutModal() {
 
     if (!logoutBtn || !confirmLogout || !modalEl) {
         console.error('Logout modal element not found');
+        return;
+    }
+
+    if (typeof bootstrap === 'undefined' || !bootstrap.Modal) {
+        logoutBtn.addEventListener('click', function (e) {
+            e.preventDefault();
+            if (window.confirm('Apakah Anda yakin ingin logout?')) {
+                localStorage.removeItem('userData');
+                sessionStorage.clear();
+                window.location.href = '/index.html';
+            }
+        });
         return;
     }
 
@@ -321,6 +409,154 @@ function initLogoutModal() {
         sessionStorage.clear();
         window.location.href = '/index.html';
     });
+}
+
+function initSidebarController() {
+    const sidebar = document.getElementById('sidebarNav');
+    const closeBtn = document.getElementById('sidebarCloseBtn');
+    const backdrop = document.getElementById('sidebarBackdrop');
+    const stateKey = 'dlg.sidebar.state.v1';
+    if (!sidebar) return;
+
+    function isMobile() {
+        return window.matchMedia('(max-width: 991px)').matches;
+    }
+
+    function persistState(isOpen) {
+        try {
+            localStorage.setItem(stateKey, isOpen ? 'open' : 'closed');
+        } catch (e) {}
+    }
+
+    function getToggleButtons() {
+        return Array.prototype.slice.call(
+            document.querySelectorAll('[data-sidebar-toggle], .mobile-toggle')
+        );
+    }
+
+    function prepareToggleButton(btn) {
+        if (!btn) return;
+        btn.setAttribute('aria-controls', 'sidebarNav');
+        if (!btn.getAttribute('type')) {
+            btn.setAttribute('type', 'button');
+        }
+        if (btn.getAttribute('onclick')) {
+            btn.removeAttribute('onclick');
+        }
+    }
+
+    function syncToggleButtons(isOpen) {
+        var buttons = getToggleButtons();
+        buttons.forEach(function (btn) {
+            prepareToggleButton(btn);
+            btn.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+        });
+    }
+
+    function applyState(isOpen, shouldPersist) {
+        const mobile = isMobile();
+        if (mobile) {
+            sidebar.classList.toggle('show', !!isOpen);
+            sidebar.classList.remove('is-closed-desktop');
+            if (backdrop) backdrop.classList.toggle('show', !!isOpen);
+            document.body.classList.remove('sidebar-collapsed');
+        } else {
+            sidebar.classList.remove('show');
+            if (backdrop) backdrop.classList.remove('show');
+            sidebar.classList.toggle('is-closed-desktop', !isOpen);
+            document.body.classList.toggle('sidebar-collapsed', !isOpen);
+        }
+        sidebar.setAttribute('aria-hidden', isOpen ? 'false' : 'true');
+        syncToggleButtons(!!isOpen);
+        if (shouldPersist !== false) {
+            persistState(!!isOpen);
+        }
+    }
+
+    function isSidebarOpen() {
+        if (isMobile()) {
+            return sidebar.classList.contains('show');
+        }
+        return !sidebar.classList.contains('is-closed-desktop');
+    }
+
+    function openSidebar() {
+        applyState(true, true);
+    }
+
+    function closeSidebar() {
+        applyState(false, true);
+    }
+
+    function toggleSidebar() {
+        applyState(!isSidebarOpen(), true);
+    }
+
+    function handleToggleClick(ev) {
+        const toggleEl = ev.target && ev.target.closest
+            ? ev.target.closest('[data-sidebar-toggle], .mobile-toggle')
+            : null;
+        if (!toggleEl) return;
+        ev.preventDefault();
+        ev.stopPropagation();
+        toggleSidebar();
+    }
+
+    let initialState = null;
+    try {
+        initialState = localStorage.getItem(stateKey);
+    } catch (e) {}
+    if (initialState === 'closed') {
+        applyState(false, false);
+    } else if (initialState === 'open') {
+        applyState(true, false);
+    } else {
+        applyState(!isMobile(), false);
+    }
+
+    if (closeBtn) {
+        closeBtn.addEventListener('click', function (ev) {
+            ev.preventDefault();
+            closeSidebar();
+        });
+    }
+
+    if (backdrop) {
+        backdrop.addEventListener('click', function (ev) {
+            ev.preventDefault();
+            closeSidebar();
+        });
+    }
+
+    document.addEventListener('click', function (ev) {
+        if (!isMobile() || !isSidebarOpen()) return;
+        const clickedToggle = ev.target && ev.target.closest
+            ? ev.target.closest('[data-sidebar-toggle], .mobile-toggle')
+            : null;
+        if (clickedToggle) return;
+        if (!sidebar.contains(ev.target)) {
+            closeSidebar();
+        }
+    });
+
+    if (!window.__dlgSidebarToggleHandlerBound) {
+        document.addEventListener('click', handleToggleClick, true);
+        window.__dlgSidebarToggleHandlerBound = true;
+    }
+
+    document.addEventListener('keydown', function (ev) {
+        if (ev.key === 'Escape' && isSidebarOpen()) {
+            closeSidebar();
+        }
+    });
+
+    window.addEventListener('resize', function () {
+        applyState(isSidebarOpen(), false);
+    });
+
+    window.openSidebar = openSidebar;
+    window.closeSidebar = closeSidebar;
+    window.toggleSidebar = toggleSidebar;
 }
 
 

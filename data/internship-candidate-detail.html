@@ -1842,8 +1842,6 @@
         const API_BASE_URL = (window.__INTERNSHIP_RECRUITMENT_API_BASE__ || document.documentElement.dataset.internshipApiBase || "").toString().trim().replace(/\/$/, "");
         const INTERVIEW_LOCATION_URL = "https://maps.app.goo.gl/aGKfqEzzVbhnHsdq6?g_st=com.google.maps.preview.copy";
         const ONBOARDING_LOCATION_URL = "https://maps.app.goo.gl/HuoK9xxp2Ji54v9k9";
-        // Temporary toggle for QA/testing flow. Set to false (or remove) after testing selesai.
-        const ENABLE_TEST_STAGE_ROLLBACK = true;
         const detailRoot = document.getElementById("detailRoot");
         const usersMap = {};
         const departmentsMap = {};
@@ -2287,32 +2285,6 @@
             const normalized = normalizeStatus(status);
             const index = STATUS_PIPELINE.findIndex(item => item.value === normalized);
             return index === -1 ? 0 : index;
-        }
-
-        function getRollbackTargetStatus(status) {
-            const normalized = normalizeStatus(status);
-            if (normalized === "interview") return "screening";
-            if (normalized === "accepted") return "interview";
-            if (normalized === "onboarding") return "accepted";
-            if (normalized === "rejected") return "interview";
-            return "";
-        }
-
-        function buildRollbackActionPanelHtml(vm) {
-            if (!ENABLE_TEST_STAGE_ROLLBACK || !vm || vm.isInactive) return "";
-            const targetStatus = getRollbackTargetStatus(vm.displayStatus);
-            if (!targetStatus) return "";
-            return (
-                '<div class="action-panel mt-3">' +
-                    '<div class="action-panel-title">Mode Testing: Kembali ke Tahap Sebelumnya</div>' +
-                    '<div class="action-panel-note">Fitur sementara untuk QA. Gunakan hanya saat pengujian, lalu hapus setelah testing selesai.</div>' +
-                    '<div class="action-cta">' +
-                        '<button type="button" class="btn btn-outline-warning" id="btnRollbackStage" data-target-status="' + escapeHtml(targetStatus) + '">' +
-                            '<i class="fa-solid fa-arrow-rotate-left me-2"></i>Kembali ke ' + escapeHtml(getStatusLabel(targetStatus)) +
-                        '</button>' +
-                    '</div>' +
-                '</div>'
-            );
         }
 
         function normalizeWorkMode(modeValue) {
@@ -3192,8 +3164,6 @@
                 actionHtml =
                     '<div class="status-empty-note">Kandidat telah ditandai rejected dan tidak memiliki aksi lanjutan pada halaman ini.</div>';
             }
-            actionHtml += buildRollbackActionPanelHtml(vm);
-
             detailRoot.innerHTML =
                 '<div class="section-stack">' +
                     '<div class="detail-hero">' +
@@ -3255,12 +3225,12 @@
                     '<div class="detail-card">' +
                         '<div class="detail-card-title"><span class="detail-card-title-icon"><i class="fa-solid fa-user-pen"></i></span><span>Jawaban Kandidat</span></div>' +
                         '<div class="answer-grid">' +
-                            buildTextPanel("Reason", vm.reason) +
-                            buildTextPanel("Short Description", vm.shortDescription) +
-                            buildTextPanel("Choose", vm.choose) +
-                            buildTextPanel("Experience", vm.experience) +
-                            buildTextPanel("Hope", vm.hope) +
-                            buildTextPanel("Catatan Tambahan", vm.other) +
+                            buildTextPanel("Tentang Diri Anda", vm.shortDescription) +
+                            buildTextPanel("Alasan Mendaftar", vm.choose) +
+                            buildTextPanel("Pengalaman Sebelumnya", vm.experience) +
+                            buildTextPanel("Harapan Bergabung Dialogika", vm.hope) +
+                            buildTextPanel("Preferensi Perusahaan", vm.reason) +
+                            buildTextPanel("Pendaftaran di Perusahaan Lain", vm.other) +
                         '</div>' +
                     '</div>' +
                     '<div class="detail-card">' +
@@ -5140,120 +5110,11 @@
             }
         }
 
-        async function rollbackCandidateStageForTesting(vm) {
-            if (!ENABLE_TEST_STAGE_ROLLBACK) return;
-            if (!(await ensureCandidateActiveForProgress("rollback_stage_testing"))) return;
-            if (!currentCandidate || !currentCandidate.id) {
-                showError("Data kandidat tidak tersedia.");
-                return;
-            }
-            const fromStatus = normalizeStatus(vm && vm.displayStatus ? vm.displayStatus : "");
-            const toStatus = getRollbackTargetStatus(fromStatus);
-            if (!toStatus) {
-                showWarning("Tahap saat ini tidak memiliki tahapan sebelumnya.");
-                return;
-            }
-
-            const confirm = await Swal.fire({
-                icon: "warning",
-                title: "Kembalikan ke tahap sebelumnya?",
-                html:
-                    'Mode testing akan mengubah status kandidat dari <b>' + escapeHtml(getStatusLabel(fromStatus)) + "</b> ke <b>" + escapeHtml(getStatusLabel(toStatus)) + "</b>.",
-                showCancelButton: true,
-                confirmButtonText: "Ya, rollback",
-                cancelButtonText: "Batal",
-                reverseButtons: true
-            });
-            if (!confirm.isConfirmed) return;
-
-            try {
-                const latestVm = await getLatestCandidateSnapshot(currentCandidate.id);
-                if (normalizeStatus(latestVm.displayStatus) !== fromStatus) {
-                    renderCandidateDetail();
-                    showWarning("Status kandidat sudah berubah. Silakan cek ulang sebelum rollback.");
-                    return;
-                }
-
-                const actor = getActor();
-                const nowIso = new Date().toISOString();
-                const firestorePayload = {
-                    "recruitment_status.current": toStatus,
-                    "recruitment_status.history": arrayUnion({
-                        status: toStatus,
-                        previousStatus: fromStatus,
-                        date: nowIso,
-                        action: "rollback_testing",
-                        by: actor.name
-                    }),
-                    "audit_trail": arrayUnion({
-                        ...getAuditBase(actor, fromStatus, toStatus, "Rollback status untuk testing", "Rollback manual khusus QA/testing"),
-                        timestamp: nowIso,
-                        action: "rollback_testing"
-                    }),
-                    logs: arrayUnion({
-                        action: "internship_status_rollback_testing",
-                        from: fromStatus,
-                        to: toStatus,
-                        by: actor.name,
-                        uid: actor.id,
-                        date: nowIso,
-                        note: "Rollback status sementara untuk kebutuhan QA/testing."
-                    })
-                };
-
-                if (toStatus === "screening") {
-                    firestorePayload.interviewers = [];
-                    firestorePayload["recruitment_status.interview_schedule"] = null;
-                    firestorePayload["recruitment_status.due_date"] = null;
-                    firestorePayload["recruitment_status.interview_mode"] = null;
-                    firestorePayload["recruitment_status.interview_meeting_link"] = null;
-                    firestorePayload["recruitment_status.interview_location"] = null;
-                    firestorePayload["recruitment_status.interview_notes"] = "";
-                    firestorePayload["recruitment_status.final_decision"] = null;
-                    firestorePayload["recruitment_status.final_decision_at"] = null;
-                    firestorePayload["recruitment_status.onboarding_start_date"] = null;
-                    firestorePayload["recruitment_status.department_id"] = null;
-                    firestorePayload["recruitment_status.mentor_id"] = null;
-                    firestorePayload["recruitment_status.rejection_reason"] = null;
-                    firestorePayload["recruitment_status.rejection_notes"] = null;
-                } else if (toStatus === "interview") {
-                    firestorePayload["recruitment_status.final_decision"] = null;
-                    firestorePayload["recruitment_status.final_decision_at"] = null;
-                    firestorePayload["recruitment_status.onboarding_start_date"] = null;
-                    firestorePayload["recruitment_status.department_id"] = null;
-                    firestorePayload["recruitment_status.mentor_id"] = null;
-                    firestorePayload["recruitment_status.rejection_reason"] = null;
-                    firestorePayload["recruitment_status.rejection_notes"] = null;
-                } else if (toStatus === "accepted") {
-                    firestorePayload["recruitment_status.final_decision"] = "accepted";
-                    firestorePayload["recruitment_status.final_decision_at"] = nowIso;
-                    firestorePayload["recruitment_status.onboarding_start_date"] = null;
-                    firestorePayload["recruitment_status.department_id"] = null;
-                    firestorePayload["recruitment_status.mentor_id"] = null;
-                    firestorePayload["recruitment_status.rejection_reason"] = null;
-                    firestorePayload["recruitment_status.rejection_notes"] = null;
-                }
-
-                await persistCandidateUpdate(currentCandidate.id, firestorePayload, "PATCH", {
-                    action: "rollback-stage-testing",
-                    candidateId: currentCandidate.id,
-                    statusFrom: fromStatus,
-                    statusTo: toStatus,
-                    actor
-                });
-                showSuccess("Status kandidat dikembalikan ke tahap " + getStatusLabel(toStatus) + " (mode testing).");
-            } catch (error) {
-                console.error("Gagal rollback status kandidat untuk testing", error);
-                showError(error.message || "Rollback tahap gagal diproses.");
-            }
-        }
-
         function bindDetailActions(vm) {
             const openInterviewBtn = document.getElementById("btnOpenInterviewModal");
             const openDecisionBtn = document.getElementById("btnOpenDecisionModal");
             const editInterviewBtn = document.getElementById("btnEditInterviewSchedule");
             const openOnboardingBtn = document.getElementById("btnOpenOnboardingModal");
-            const rollbackBtn = document.getElementById("btnRollbackStage");
             const downloadCvBtn = document.getElementById("btnDownloadCv");
             const downloadPortfolioBtn = document.getElementById("btnDownloadPortfolio");
 
@@ -5280,9 +5141,6 @@
             }
             if (openOnboardingBtn) {
                 openOnboardingBtn.addEventListener("click", () => openOnboardingModal());
-            }
-            if (rollbackBtn) {
-                rollbackBtn.addEventListener("click", () => rollbackCandidateStageForTesting(vm));
             }
             if (downloadCvBtn) {
                 downloadCvBtn.addEventListener("click", async () => {

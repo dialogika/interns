@@ -304,7 +304,7 @@
     <script type="module">
         import { renderTopBar } from "../element/topbar.js";
         import { renderSidebar } from "../element/sidebar.js";
-        import { renderRightbarRecruit } from "../element/rightbar-recruit.js";
+        // import { renderRightbarRecruit } from "../element/rightbar-recruit.js";
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
         import {
@@ -343,11 +343,11 @@
             } catch (error) {
                 console.error("Gagal render sidebar", error);
             }
-            try {
-                renderRightbarRecruit();
-            } catch (error) {
-                console.error("Gagal render rightbar", error);
-            }
+            // try {
+            //     renderRightbarRecruit();
+            // } catch (error) {
+            //     console.error("Gagal render rightbar", error);
+            // }
         }
 
         safeRenderLayout();

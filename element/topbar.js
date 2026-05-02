@@ -1,5 +1,33 @@
 export function renderTopBar(target) {
     if (!target) return;
+
+    if (!document.getElementById('topbarLogoNavStyles')) {
+        const styleEl = document.createElement('style');
+        styleEl.id = 'topbarLogoNavStyles';
+        styleEl.textContent = `
+            .topbar-logo-link {
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                border-radius: 10px;
+                padding: 4px 8px;
+                transition: transform 0.16s ease, opacity 0.16s ease, box-shadow 0.16s ease;
+                text-decoration: none;
+            }
+            .topbar-logo-link:hover {
+                transform: translateY(-1px) scale(1.01);
+                opacity: 0.92;
+                box-shadow: 0 6px 18px rgba(11, 43, 106, 0.15);
+            }
+            .topbar-logo-link:active,
+            .topbar-logo-link.is-pressed {
+                transform: translateY(0) scale(0.98);
+                opacity: 0.85;
+            }
+        `;
+        document.head.appendChild(styleEl);
+    }
+
     target.innerHTML = `
     <nav class="top-bar">
         <div class="d-flex align-items-center">
@@ -12,7 +40,9 @@ export function renderTopBar(target) {
             </div>
         </div>
         <div class="logo-center">
-            <img src="https://www.dialogika.co/assets/img/logo.webp" alt="Dialogika Logo" style="height:35px;">
+            <a href="/home.html" class="topbar-logo-link" data-topbar-home-link aria-label="Kembali ke halaman login">
+                <img src="https://www.dialogika.co/assets/img/logo.webp" alt="Dialogika Logo" style="height:35px;">
+            </a>
         </div>
         <div class="d-flex align-items-center gap-3">
             <div class="text-end d-none d-lg-block lh-1">
@@ -82,6 +112,7 @@ export function renderTopBar(target) {
     const dropdownEmail = target.querySelector('#profile-dropdown-email');
     const nameDisplay = target.querySelector('#user-name-display');
     const roleDisplay = target.querySelector('#user-role-display');
+    const homeLogoLink = target.querySelector('[data-topbar-home-link]');
 
     if (mainPhoto && dropdownPhoto) {
         dropdownPhoto.src = mainPhoto.src;
@@ -191,4 +222,12 @@ export function renderTopBar(target) {
     }
 
     attachSearchUnderDevelopment(searchInput, searchButton);
+
+    if (homeLogoLink) {
+        homeLogoLink.addEventListener('click', function (ev) {
+            ev.preventDefault();
+            homeLogoLink.classList.add('is-pressed');
+            window.location.assign('/index.html');
+        });
+    }
 }
