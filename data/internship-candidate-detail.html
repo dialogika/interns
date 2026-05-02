@@ -4828,96 +4828,6 @@
             return d;
         }
 
-        async function duplicateCandidateToInternUsers(talentId, onboardingDate, departmentName, mentorId) {
-            try {
-                const snap = await getDoc(doc(db, INTERNSHIP_CANDIDATES_COLLECTION, talentId));
-                if (!snap.exists()) return;
-                const data = snap.data() || {};
-                const basic = data.basic_info || {};
-                const scouting = data.scouting_info || {};
-                const contact = data.contact_info || {};
-                const education = data.education || {};
-                const internship = data.internship || data.internship_info || {};
-                const employment = data.employment || {};
-                const name = basic.full_name || data.full_name || scouting.full_name || "";
-                const emailRaw = internship.email || contact.email || basic.email || "";
-                const email = (emailRaw || "").toString().trim().toLowerCase();
-                const phone = internship.whatsapp || contact.whatsapp || contact.phone || "";
-                const address = internship.address || contact.address || "";
-                const campus = internship.campus || education.campus || education.university || "";
-                const positionKey = internship.position || employment.position || "";
-                const department = data.department || employment.department || "";
-                const mode = internship.mode || "";
-                const socials = {};
-                if ((internship.instagram || "").trim()) socials.instagram = internship.instagram.trim();
-                if ((internship.linkedin || "").trim()) socials.linkedin = internship.linkedin.trim();
-                const startDate = parseDateValue(onboardingDate) || new Date();
-                const endDate = addMonths(startDate, 3);
-                const payload = {
-                    name: name || "",
-                    role: "Internship",
-                    internshipStatus: "Active",
-                    internshipStartDate: startDate,
-                    internshipEndDate: endDate,
-                    position: positionKey || "",
-                    department: departmentName || department || "",
-                    mode: mode || "",
-                    address: address || "",
-                    campus: campus || "",
-                    phone: phone || "",
-                    email: email || "",
-                    mentorId: mentorId || "",
-                    mentorName: mentorId ? (usersMap[mentorId]?.name || "") : "",
-                    access: {
-                        role_id: "internship",
-                        level_order: 4
-                    },
-                    onboardingSourceCollection: INTERNSHIP_CANDIDATES_COLLECTION,
-                    onboardingSourceCandidateId: talentId,
-                    internshipPreRegistered: true,
-                    registrationCompleted: false,
-                    candidatePhoto: basic.img || basic.photo || data.photo || "",
-                    createdAt: new Date(),
-                    updatedAt: new Date()
-                };
-                if (Object.keys(socials).length) {
-                    payload.socials = socials;
-                }
-                if (email) {
-                    const existingByEmailSnap = await getDocs(query(
-                        collection(db, "users"),
-                        where("email", "==", email),
-                        limit(10)
-                    ));
-                    let matchedDoc = null;
-                    existingByEmailSnap.forEach((docSnap) => {
-                        if (matchedDoc) return;
-                        const row = docSnap.data() || {};
-                        if (
-                            row.onboardingSourceCandidateId === talentId ||
-                            row.internshipPreRegistered === true ||
-                            row.registrationCompleted === false
-                        ) {
-                            matchedDoc = docSnap;
-                        }
-                    });
-                    if (matchedDoc) {
-                        await updateDoc(doc(db, "users", matchedDoc.id), {
-                            ...payload,
-                            createdAt: matchedDoc.data()?.createdAt || new Date(),
-                            updatedAt: new Date()
-                        });
-                        return true;
-                    }
-                }
-                await addDoc(collection(db, "users"), payload);
-                return true;
-            } catch (error) {
-                console.error("Gagal menduplikasi data ke Intern Management", error);
-                return false;
-            }
-        }
-
         async function submitDecisionForm(event) {
             event.preventDefault();
             const form = event.currentTarget || document.getElementById("decisionForm");
@@ -5126,13 +5036,6 @@
 
                     decisionModal.hide();
                     showSuccess("Kandidat berhasil diproses ke tahap onboarding.");
-
-                    const copied = await duplicateCandidateToInternUsers(currentCandidate.id, onboardingDateTime.toISOString(), departmentName);
-                    if (copied) {
-                        showSuccess("Data kandidat otomatis disalin ke Intern Management.");
-                    } else {
-                        showError("Status kandidat sudah berubah, tetapi sinkronisasi ke Intern Management gagal.");
-                    }
                     return;
                 }
 

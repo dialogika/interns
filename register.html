@@ -372,10 +372,16 @@
 
   <!-- Firebase SDK Modular -->
   <script type="module">
+      import {
+          normalizeEmail,
+          buildInternsScreeningEmailQueries,
+          pickOnboardingCandidate,
+          mapInternsScreeningCandidate
+      } from "./element/register-candidate-lookup.js";
       // 1. Import Firebase Functions 
       import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js"; 
       import { getAuth, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js"; 
-      import { getFirestore, doc, setDoc, updateDoc, collection, getDocs, query, where, limit } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js"; 
+      import { getFirestore, doc, setDoc, collection, getDocs, query, where, limit } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js"; 
       import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js"; 
 
       // 2. Konfigurasi Firebase Anda
@@ -473,8 +479,22 @@
       } 
       loadPositions(); 
 
-      function normalizeEmail(value) {
-          return (value || "").toString().trim().toLowerCase();
+      function setPostVerificationMode(isVerified) {
+          const lockFieldIds = [
+              "inputName",
+              "inputEmail",
+              "inputPhone",
+              "inputCampus",
+              "inputIG",
+              "inputLinked",
+              "inputPos",
+              "inputRoleId",
+              "inputPhoto"
+          ];
+          lockFieldIds.forEach((id) => {
+              const el = document.getElementById(id);
+              if (el) el.disabled = !!isVerified;
+          });
       }
 
       function setSelectValueOrAppend(selectEl, value) {
@@ -519,82 +539,33 @@
           const normalizedEmail = normalizeEmail(email);
           if (!normalizedEmail) return null;
 
-          const usersSnap = await getDocs(query(
-              collection(db, "users"),
-              where("email", "==", normalizedEmail),
-              limit(20)
-          ));
-          let preUser = null;
-          usersSnap.forEach((docSnap) => {
-              if (preUser) return;
-              const data = docSnap.data() || {};
-              if (data.internshipPreRegistered === true || data.onboardingSourceCandidateId) {
-                  preUser = { id: docSnap.id, data };
-              }
+          const queries = buildInternsScreeningEmailQueries({
+              db,
+              email: normalizedEmail,
+              collection,
+              query,
+              where,
+              limit
           });
-          if (preUser) {
-              const row = preUser.data || {};
-              return {
-                  source: "users",
-                  sourceDocId: preUser.id,
-                  email: normalizedEmail,
-                  candidate: {
-                      name: row.name || "",
-                      email: normalizeEmail(row.email || normalizedEmail),
-                      phone: row.phone || "",
-                      campus: row.campus || "",
-                      photo: row.candidatePhoto || row.photo || "",
-                      position: row.position || (row.employment && row.employment.position) || "",
-                      roleId: (row.access && row.access.role_id) || "internship",
-                      instagram: (row.socials && row.socials.instagram) || "",
-                      linkedin: (row.socials && row.socials.linkedin) || ""
+          if (!queries.length) return null;
+
+          const docsById = new Map();
+          for (const queryRef of queries) {
+              const snap = await getDocs(queryRef);
+              snap.forEach((docSnap) => {
+                  if (!docsById.has(docSnap.id)) {
+                      docsById.set(docSnap.id, { id: docSnap.id, data: docSnap.data() || {} });
                   }
-              };
+              });
           }
 
-          const screeningCandidates = [];
-          const contactEmailSnap = await getDocs(query(
-              collection(db, "interns_screening"),
-              where("contact_info.email", "==", normalizedEmail),
-              limit(5)
-          ));
-          contactEmailSnap.forEach((docSnap) => screeningCandidates.push({ id: docSnap.id, data: docSnap.data() || {} }));
-          const internshipEmailSnap = await getDocs(query(
-              collection(db, "interns_screening"),
-              where("internship.email", "==", normalizedEmail),
-              limit(5)
-          ));
-          internshipEmailSnap.forEach((docSnap) => screeningCandidates.push({ id: docSnap.id, data: docSnap.data() || {} }));
-
-          const matched = screeningCandidates.find((row) => {
-              const data = row.data || {};
-              const recruitment = data.recruitment_status || {};
-              const current = (recruitment.current || "").toString().toLowerCase();
-              const decision = (recruitment.final_decision || "").toString().toLowerCase();
-              return current === "onboarding" || current === "accepted" || decision === "accepted";
-          });
+          const matched = pickOnboardingCandidate(Array.from(docsById.values()));
           if (!matched) return null;
-          const data = matched.data || {};
-          const basic = data.basic_info || {};
-          const contact = data.contact_info || {};
-          const internship = data.internship || data.internship_info || {};
-          const education = data.education || {};
-          return {
-              source: "interns_screening",
-              sourceDocId: matched.id,
-              email: normalizedEmail,
-              candidate: {
-                  name: basic.full_name || data.full_name || "",
-                  email: normalizeEmail(internship.email || contact.email || normalizedEmail),
-                  phone: internship.whatsapp || contact.whatsapp || contact.phone || "",
-                  campus: internship.campus || education.campus || education.university || "",
-                  photo: basic.img || basic.photo || data.photo || "",
-                  position: internship.position || (data.employment && data.employment.position) || "",
-                  roleId: "internship",
-                  instagram: internship.instagram || "",
-                  linkedin: internship.linkedin || ""
-              }
-          };
+          const mapped = mapInternsScreeningCandidate(matched, normalizedEmail);
+          if (!mapped || !mapped.candidate || !mapped.candidate.avatar_url) {
+              throw new Error("INCOMPLETE_CANDIDATE_AVATAR");
+          }
+          return mapped;
       }
 
       document.getElementById("btnLookupCandidate").addEventListener("click", async () => {
@@ -614,16 +585,25 @@
               if (!result) {
                   prefilledCandidateContext = null;
                   prefilledPhotoUrl = "";
+                  setPostVerificationMode(false);
                   hintEl.textContent = "Data kandidat onboarding tidak ditemukan untuk email tersebut.";
                   hintEl.className = "small text-danger mt-2";
                   return;
               }
               fillFormWithCandidate(result.candidate, result);
-              hintEl.textContent = "Data kandidat berhasil dimuat. Silakan cek/edit data lalu buat password akun.";
+              setPostVerificationMode(true);
+              hintEl.textContent = "Email terverifikasi. Lanjutkan isi Birth Date dan Password untuk menyelesaikan pendaftaran.";
               hintEl.className = "small text-success mt-2";
           } catch (error) {
               console.error("Gagal memuat data kandidat", error);
-              hintEl.textContent = "Terjadi kendala saat memuat data kandidat.";
+              prefilledCandidateContext = null;
+              prefilledPhotoUrl = "";
+              setPostVerificationMode(false);
+              if (error && error.message === "INCOMPLETE_CANDIDATE_AVATAR") {
+                  hintEl.textContent = "Data kandidat ditemukan tetapi belum lengkap (avatar_url tidak tersedia). Hubungi admin recruitment.";
+              } else {
+                  hintEl.textContent = "Terjadi kendala saat memuat data kandidat dari interns_screening.";
+              }
               hintEl.className = "small text-danger mt-2";
           } finally {
               lookupBtn.disabled = false;
@@ -697,14 +677,6 @@
                   registrationCompleted: true,
                   registeredAt: new Date()
               }); 
-
-              if (prefilledCandidateContext.source === "users" && prefilledCandidateContext.sourceDocId) {
-                  await updateDoc(doc(db, "users", prefilledCandidateContext.sourceDocId), {
-                      registrationCompleted: true,
-                      registeredAuthUid: user.uid,
-                      updatedAt: new Date()
-                  });
-              }
 
               alert('Registrasi Berhasil! Data tersimpan di Firebase.'); 
               window.location.reload(); 
