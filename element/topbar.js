@@ -40,7 +40,7 @@ export function renderTopBar(target) {
             </div>
         </div>
         <div class="logo-center">
-            <a href="/home.html" class="topbar-logo-link" data-topbar-home-link aria-label="Kembali ke halaman login">
+            <a href="/home.html" class="topbar-logo-link" data-topbar-home-link aria-label="Kembali ke halaman home">
                 <img src="https://www.dialogika.co/assets/img/logo.webp" alt="Dialogika Logo" style="height:35px;">
             </a>
         </div>
@@ -227,7 +227,7 @@ export function renderTopBar(target) {
         homeLogoLink.addEventListener('click', function (ev) {
             ev.preventDefault();
             homeLogoLink.classList.add('is-pressed');
-            window.location.assign('/index.html');
+            window.location.assign('/home.html');
         });
     }
 }
