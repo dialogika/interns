@@ -1,4 +1,4 @@
-﻿﻿﻿﻿﻿﻿<!DOCTYPE html>
+﻿﻿<!DOCTYPE html>
 <html lang="id">
 <head>
     <meta charset="UTF-8">
@@ -4739,114 +4739,8 @@
                     return;
                 }
                 updateCandidateStatusUI(talentId, normalized);
-                if (normalized === "onboarding") {
-                    const copied = await duplicateCandidateToInternUsers(talentId);
-                    if (!copied) {
-                        alert("Status onboarding berhasil diperbarui, tetapi sinkronisasi data kandidat ke users gagal. Silakan coba ubah status lagi atau cek koneksi.");
-                    }
-                }
             }
         });
-
-        function addMonths(date, months) {
-            const d = new Date(date.getTime());
-            const day = d.getDate();
-            d.setMonth(d.getMonth() + months);
-            if (d.getDate() < day) {
-                d.setDate(0);
-            }
-            return d;
-        }
-
-        async function duplicateCandidateToInternUsers(talentId) {
-            try {
-                const ref = doc(db, INTERNSHIP_CANDIDATES_COLLECTION, talentId);
-                const snap = await getDoc(ref);
-                if (!snap.exists()) return;
-                const data = snap.data() || {};
-                const basic = data.basic_info || {};
-                const scouting = data.scouting_info || {};
-                const contact = data.contact_info || {};
-                const education = data.education || {};
-                const internship = data.internship || data.internship_info || {};
-                const employment = data.employment || {};
-                const name = basic.full_name || data.full_name || scouting.full_name || "";
-                const emailRaw = internship.email || contact.email || basic.email || "";
-                const email = (emailRaw || "").toString().trim().toLowerCase();
-                const phone = internship.whatsapp || contact.whatsapp || contact.phone || "";
-                const address = internship.address || contact.address || "";
-                const campus = internship.campus || education.campus || education.university || "";
-                const positionKey = internship.position || employment.position || "";
-                const department = data.department || employment.department || "";
-                const mode = internship.mode || "";
-                const socials = {};
-                if ((internship.instagram || "").trim()) socials.instagram = (internship.instagram || "").trim();
-                if ((internship.linkedin || "").trim()) socials.linkedin = (internship.linkedin || "").trim();
-                const now = new Date();
-                const onboardingDate = now;
-                const endDate = addMonths(onboardingDate, 3);
-                const payload = {
-                    name: name || "",
-                    role: "Internship",
-                    internshipStatus: "Active",
-                    internshipStartDate: onboardingDate,
-                    internshipEndDate: endDate,
-                    position: positionKey || "",
-                    department: department || "",
-                    mode: mode || "",
-                    address: address || "",
-                    campus: campus || "",
-                    phone: phone || "",
-                    email: email || "",
-                    access: {
-                        role_id: "internship",
-                        level_order: 4
-                    },
-                    onboardingSourceCollection: INTERNSHIP_CANDIDATES_COLLECTION,
-                    onboardingSourceCandidateId: talentId,
-                    internshipPreRegistered: true,
-                    registrationCompleted: false,
-                    candidatePhoto: basic.img || basic.photo || data.photo || "",
-                    createdAt: new Date(),
-                    updatedAt: new Date()
-                };
-                if (Object.keys(socials).length) {
-                    payload.socials = socials;
-                }
-                if (email) {
-                    const existingByEmailSnap = await getDocs(query(
-                        collection(db, "users"),
-                        where("email", "==", email),
-                        limit(10)
-                    ));
-                    let matchedDoc = null;
-                    existingByEmailSnap.forEach((docSnap) => {
-                        if (matchedDoc) return;
-                        const row = docSnap.data() || {};
-                        if (
-                            row.onboardingSourceCandidateId === talentId ||
-                            row.internshipPreRegistered === true ||
-                            row.registrationCompleted === false
-                        ) {
-                            matchedDoc = docSnap;
-                        }
-                    });
-                    if (matchedDoc) {
-                        await updateDoc(doc(db, "users", matchedDoc.id), {
-                            ...payload,
-                            createdAt: matchedDoc.data()?.createdAt || new Date(),
-                            updatedAt: new Date()
-                        });
-                        return true;
-                    }
-                }
-                await addDoc(collection(db, "users"), payload);
-                return true;
-            } catch (e) {
-                console.error("Gagal menduplikasi ke Intern Management", e);
-                return false;
-            }
-        }
 
         onAuthStateChanged(auth, (user) => {
             if (!user) {
