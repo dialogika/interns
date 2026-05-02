@@ -175,31 +175,6 @@ export function renderSidebar(target) {
                 z-index: 4999 !important;
             }
 
-            .sidebar-close-row {
-                display: flex;
-                justify-content: flex-end;
-                padding: 12px 12px 0 12px;
-            }
-            .sidebar-close-btn {
-                border: none;
-                background: #f3f4f6;
-                color: #334155;
-                border-radius: 10px;
-                width: 34px;
-                height: 34px;
-                display: inline-flex;
-                align-items: center;
-                justify-content: center;
-                transition: transform 0.18s ease, background-color 0.18s ease, color 0.18s ease;
-            }
-            .sidebar-close-btn:hover {
-                background: #e2e8f0;
-                color: #0f172a;
-                transform: scale(1.04);
-            }
-            .sidebar-close-btn:active {
-                transform: scale(0.96);
-            }
             .sidebar-backdrop {
                 position: fixed;
                 inset: 0;
@@ -224,6 +199,10 @@ export function renderSidebar(target) {
             .mobile-toggle {
                 position: relative;
                 z-index: 1002;
+                display: inline-flex !important;
+                align-items: center;
+                justify-content: center;
+                pointer-events: auto;
             }
             body.sidebar-collapsed .mobile-toggle {
                 display: inline-flex !important;
@@ -236,9 +215,6 @@ export function renderSidebar(target) {
                 width: 100% !important;
             }
             @media (max-width: 991px) {
-                .sidebar-close-row {
-                    padding-top: 8px;
-                }
                 #sidebarNav.is-closed-desktop {
                     transform: translateX(-100%);
                 }
@@ -247,12 +223,6 @@ export function renderSidebar(target) {
         </style>
         <!-- 2. SIDEBAR (Light, Smart Filters, Pending Widget) -->
         <aside class="sidebar" id="sidebarNav">
-            <div class="sidebar-close-row">
-                <button type="button" class="sidebar-close-btn" id="sidebarCloseBtn" aria-label="Tutup sidebar">
-                    <i class="bi bi-x-lg"></i>
-                </button>
-            </div>
-            
             <!-- WRAPPER UNTUK AREA YANG BISA DI-SCROLL -->
             <div class="sidebar-scroll-wrapper">
                 
