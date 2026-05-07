@@ -69,6 +69,100 @@
             background: #e2e8f0;
         }
 
+        .detail-avatar-trigger {
+            border: 0;
+            padding: 0;
+            background: transparent;
+            cursor: zoom-in;
+            border-radius: 32px;
+            line-height: 0;
+        }
+
+        .detail-avatar-trigger:focus-visible {
+            outline: 3px solid rgba(37, 99, 235, 0.55);
+            outline-offset: 3px;
+        }
+
+        .detail-avatar-trigger .detail-avatar {
+            transition: transform 0.22s ease, box-shadow 0.22s ease;
+        }
+
+        .detail-avatar-trigger:hover .detail-avatar {
+            transform: translateY(-2px) scale(1.015);
+            box-shadow: 0 22px 46px rgba(37, 99, 235, 0.22);
+        }
+
+        .candidate-photo-viewer {
+            position: fixed;
+            inset: 0;
+            z-index: 1200;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+            background: rgba(2, 6, 23, 0.74);
+            backdrop-filter: blur(3px);
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+            transition: opacity 0.24s ease, visibility 0.24s ease;
+        }
+
+        .candidate-photo-viewer.is-open {
+            opacity: 1;
+            visibility: visible;
+            pointer-events: auto;
+        }
+
+        .candidate-photo-viewer-dialog {
+            position: relative;
+            width: min(94vw, 1080px);
+            max-height: 92vh;
+            transform: translateY(12px) scale(0.98);
+            opacity: 0;
+            transition: transform 0.24s ease, opacity 0.24s ease;
+        }
+
+        .candidate-photo-viewer.is-open .candidate-photo-viewer-dialog {
+            transform: translateY(0) scale(1);
+            opacity: 1;
+        }
+
+        .candidate-photo-viewer-image {
+            width: 100%;
+            max-height: 86vh;
+            display: block;
+            object-fit: contain;
+            border-radius: 18px;
+            background: #0f172a;
+            box-shadow: 0 20px 65px rgba(2, 6, 23, 0.62);
+        }
+
+        .candidate-photo-viewer-close {
+            position: absolute;
+            top: -12px;
+            right: -12px;
+            width: 42px;
+            height: 42px;
+            border: 0;
+            border-radius: 999px;
+            background: rgba(15, 23, 42, 0.95);
+            color: #ffffff;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 12px 28px rgba(2, 6, 23, 0.45);
+            cursor: pointer;
+        }
+
+        .candidate-photo-viewer-close:hover {
+            background: #1e293b;
+        }
+
+        body.photo-viewer-open {
+            overflow: hidden;
+        }
+
         .detail-name {
             margin: 0;
             font-size: clamp(1.5rem, 2vw, 2.1rem);
@@ -76,6 +170,7 @@
             line-height: 1.18;
             color: #0f172a;
             letter-spacing: -0.03em;
+            text-align: left !important;
         }
 
         .detail-chip-row {
@@ -1342,6 +1437,27 @@
                 border-radius: 24px;
             }
 
+            .candidate-photo-viewer {
+                padding: 0.75rem;
+            }
+
+            .candidate-photo-viewer-dialog {
+                width: 96vw;
+                max-height: 94vh;
+            }
+
+            .candidate-photo-viewer-image {
+                max-height: 90vh;
+                border-radius: 14px;
+            }
+
+            .candidate-photo-viewer-close {
+                top: -10px;
+                right: -10px;
+                width: 38px;
+                height: 38px;
+            }
+
             .interviewer-grid {
                 grid-template-columns: 1fr;
             }
@@ -1572,23 +1688,25 @@
             }
             .detail-hero .d-flex.align-items-start.gap-4 {
                 flex-direction: column !important;
-                align-items: center !important;
-                text-align: center;
+                align-items: flex-start !important;
+                text-align: left;
                 gap: 1rem !important;
             }
             .detail-hero .min-w-0 {
                 display: flex;
                 flex-direction: column;
-                align-items: center;
+                align-items: flex-start;
+                width: 100%;
+                text-align: left !important;
             }
             .detail-chip-row {
-                justify-content: center;
+                justify-content: flex-start;
                 margin-top: 0.5rem;
             }
             .detail-avatar {
                 width: 90px;
                 height: 90px;
-                margin: 0 auto;
+                margin: 0;
             }
             .kv-grid, .answer-grid, .summary-inline-row {
                 grid-template-columns: 1fr;
@@ -1622,7 +1740,7 @@
             }
             .detail-name {
                 font-size: 1.4rem;
-                text-align: center;
+                text-align: left;
             }
             .detail-card {
                 padding: 1rem;
@@ -1670,6 +1788,15 @@
                 </div>
             </div>
         </main>
+    </div>
+
+    <div id="candidatePhotoViewer" class="candidate-photo-viewer" aria-hidden="true">
+        <div class="candidate-photo-viewer-dialog">
+            <button type="button" class="candidate-photo-viewer-close" id="candidatePhotoViewerClose" aria-label="Tutup preview foto kandidat">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+            <img id="candidatePhotoViewerImage" class="candidate-photo-viewer-image" src="" alt="Foto kandidat">
+        </div>
     </div>
 
     <div class="modal fade" id="interviewModal" tabindex="-1" aria-labelledby="interviewModalLabel" aria-hidden="true">
@@ -2117,6 +2244,7 @@
         let rejectionWhatsappRetryCount = 0;
         let rejectionWhatsappLastAttemptAt = null;
         let positionLabelsCache = null;
+        let photoViewerEventsBound = false;
 
         renderTopBar(document.getElementById("topbarContainer"));
         renderSidebar(document.getElementById("sidebarContainer"));
@@ -2153,6 +2281,53 @@
                 icon: "warning",
                 title: title || "Perhatian",
                 text: message
+            });
+        }
+
+        function openCandidatePhotoViewer(imageUrl, candidateName) {
+            const overlayEl = document.getElementById("candidatePhotoViewer");
+            const imageEl = document.getElementById("candidatePhotoViewerImage");
+            if (!overlayEl || !imageEl || !imageUrl) return;
+            imageEl.src = imageUrl;
+            imageEl.alt = "Foto kandidat " + (candidateName || "");
+            overlayEl.classList.add("is-open");
+            overlayEl.setAttribute("aria-hidden", "false");
+            document.body.classList.add("photo-viewer-open");
+        }
+
+        function closeCandidatePhotoViewer() {
+            const overlayEl = document.getElementById("candidatePhotoViewer");
+            const imageEl = document.getElementById("candidatePhotoViewerImage");
+            if (!overlayEl || !imageEl) return;
+            overlayEl.classList.remove("is-open");
+            overlayEl.setAttribute("aria-hidden", "true");
+            document.body.classList.remove("photo-viewer-open");
+            window.setTimeout(() => {
+                if (!overlayEl.classList.contains("is-open")) {
+                    imageEl.src = "";
+                }
+            }, 220);
+        }
+
+        function bindCandidatePhotoViewerEvents() {
+            if (photoViewerEventsBound) return;
+            photoViewerEventsBound = true;
+            const overlayEl = document.getElementById("candidatePhotoViewer");
+            const closeBtn = document.getElementById("candidatePhotoViewerClose");
+            if (closeBtn) {
+                closeBtn.addEventListener("click", closeCandidatePhotoViewer);
+            }
+            if (overlayEl) {
+                overlayEl.addEventListener("click", (event) => {
+                    if (event.target === overlayEl) {
+                        closeCandidatePhotoViewer();
+                    }
+                });
+            }
+            document.addEventListener("keydown", (event) => {
+                if (event.key === "Escape") {
+                    closeCandidatePhotoViewer();
+                }
             });
         }
 
@@ -3437,7 +3612,7 @@
                     actionHtml +=
                         '<div class="action-panel mt-3">' +
                             '<div class="action-panel-title text-danger">Pengunduran Diri Kandidat</div>' +
-                            '<div class="action-panel-note">Gunakan tombol ini jika kandidat menginformasikan mengundurkan diri. Status pipeline tidak akan diubah.</div>' +
+                            '<div class="action-panel-note">Gunakan tombol ini jika kandidat menginformasikan mengundurkan diri.</div>' +
                             '<div class="action-cta">' +
                                 '<button type="button" class="btn btn-outline-danger" id="btnMarkWithdrawn"><i class="fa-solid fa-user-minus me-2"></i>Mengundurkan Diri</button>' +
                             '</div>' +
@@ -3457,7 +3632,9 @@
                             '</div>' +
                             '<div class="d-flex flex-column flex-lg-row align-items-lg-start justify-content-between gap-4">' +
                                 '<div class="d-flex align-items-start gap-4">' +
-                                    '<img src="' + escapeHtml(vm.avatarUrl) + '" alt="' + escapeHtml(vm.name) + '" class="detail-avatar">' +
+                                    '<button type="button" class="detail-avatar-trigger" id="candidatePhotoTrigger" aria-label="Lihat foto kandidat ukuran penuh">' +
+                                        '<img src="' + escapeHtml(vm.avatarUrl) + '" alt="' + escapeHtml(vm.name) + '" class="detail-avatar">' +
+                                    '</button>' +
                                     '<div class="min-w-0">' +
                                         '<h1 class="detail-name">' + escapeHtml(vm.name) + '</h1>' +
                                         '<div class="detail-chip-row">' +
@@ -5517,11 +5694,18 @@
                     await downloadCandidateFile(vm.portfolioFileUrl, "portfolio-candidate", downloadPortfolioBtn, "Mengunduh portofolio...");
                 });
             }
+            const photoTriggerBtn = document.getElementById("candidatePhotoTrigger");
+            if (photoTriggerBtn) {
+                photoTriggerBtn.addEventListener("click", () => {
+                    openCandidatePhotoViewer(vm.avatarUrl, vm.name);
+                });
+            }
         }
 
         function initializeModalBindings() {
             interviewModal = new bootstrap.Modal(document.getElementById("interviewModal"));
             decisionModal = new bootstrap.Modal(document.getElementById("decisionModal"));
+            bindCandidatePhotoViewerEvents();
             syncInterviewModalViewportHeight();
             initializePickers();
             populateDepartmentSelect("");
