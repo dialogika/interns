@@ -2668,6 +2668,10 @@
 
         function isInactiveCandidateRecord(data) {
             if (!data) return false;
+            const activeStatus = (data.active_status || data.activeStatus || data.activity_status || "").toString().trim().toLowerCase();
+            if (activeStatus) {
+                return activeStatus !== "active";
+            }
             const recordStatus = (data.record_status || data.recordStatus || data.status || "").toString().trim().toLowerCase();
             const deletedValue = (data.is_deleted ?? data.isDeleted ?? "").toString().trim().toLowerCase();
             const sourcePage = (data.deleted_source_page || data.deletedSourcePage || "").toString().trim().toLowerCase();
@@ -3006,6 +3010,7 @@
             const internship = data.internship || data.internship_info || {};
             const scouting = data.scouting_info || {};
             const recruitment = data.recruitment_status || data.recruitment_system || {};
+            const withdrawal = data.withdrawal || {};
 
             const name = basic.full_name || scouting.full_name || data.full_name || "Tanpa Nama";
             const avatarUrl = basic.avatar_url || "https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?auto=format&fit=crop&q=80&w=800";
@@ -3061,6 +3066,10 @@
             const screeningByResolvedName = screeningByNameLooksEmail
                 ? (screeningByUid ? (usersMap[screeningByUid]?.name || "") : "")
                 : screeningByName;
+            const isWithdrawn = withdrawal.isWithdrawn === true || withdrawal.withdrawn === true || data.isWithdrawn === true || data.withdrawn === true;
+            const withdrawalReason = withdrawal.reason || withdrawal.notes || data.withdrawal_reason || "";
+            const withdrawalAt = withdrawal.at || withdrawal.date || data.withdrawal_at || null;
+            const withdrawalByName = withdrawal.byName || withdrawal.by || data.withdrawal_by_name || "";
             const inactiveRecord = isInactiveCandidateRecord(data);
 
             return {
@@ -3106,6 +3115,10 @@
                 screeningByEmail,
                 screeningByUid,
                 screeningAt,
+                isWithdrawn,
+                withdrawalReason,
+                withdrawalAt,
+                withdrawalByName,
                 onboardingStartDate,
                 departmentId,
                 mentorId,
@@ -3411,6 +3424,26 @@
                 actionHtml =
                     '<div class="status-empty-note">Kandidat telah ditandai rejected dan tidak memiliki aksi lanjutan pada halaman ini.</div>';
             }
+            if (!vm.isInactive) {
+                if (vm.isWithdrawn) {
+                    actionHtml +=
+                        '<div class="alert alert-danger mt-3 mb-0">' +
+                            '<strong>Kandidat mengundurkan diri.</strong> ' +
+                            'Dicatat pada ' + escapeHtml(formatDateTime(vm.withdrawalAt)) +
+                            (vm.withdrawalByName ? ' oleh ' + escapeHtml(vm.withdrawalByName) : '') +
+                            (vm.withdrawalReason ? '<div class="mt-2"><strong>Alasan:</strong> ' + escapeHtml(vm.withdrawalReason) + '</div>' : '') +
+                        '</div>';
+                } else {
+                    actionHtml +=
+                        '<div class="action-panel mt-3">' +
+                            '<div class="action-panel-title text-danger">Pengunduran Diri Kandidat</div>' +
+                            '<div class="action-panel-note">Gunakan tombol ini jika kandidat menginformasikan mengundurkan diri. Status pipeline tidak akan diubah.</div>' +
+                            '<div class="action-cta">' +
+                                '<button type="button" class="btn btn-outline-danger" id="btnMarkWithdrawn"><i class="fa-solid fa-user-minus me-2"></i>Mengundurkan Diri</button>' +
+                            '</div>' +
+                        '</div>';
+                }
+            }
             detailRoot.innerHTML =
                 '<div class="section-stack">' +
                     '<div class="detail-hero">' +
@@ -3567,6 +3600,87 @@
             }
             await updateDoc(doc(db, INTERNSHIP_CANDIDATES_COLLECTION, talentId), firestorePayload);
             return { source: "firestore" };
+        }
+
+        async function markCandidateAsWithdrawn(vm) {
+            if (!(await ensureCandidateActiveForProgress("mark_candidate_withdrawn"))) return;
+            if (!currentCandidate || !currentCandidate.id) {
+                showError("Data kandidat tidak tersedia.");
+                return;
+            }
+            if (vm && vm.isWithdrawn) {
+                showWarning("Kandidat ini sudah tercatat mengundurkan diri.");
+                return;
+            }
+
+            const result = await Swal.fire({
+                icon: "warning",
+                title: "Tandai kandidat mengundurkan diri?",
+                input: "textarea",
+                inputLabel: "Alasan pengunduran diri",
+                inputPlaceholder: "Opsional",
+                inputAttributes: {
+                    "aria-label": "Alasan pengunduran diri kandidat"
+                },
+                showCancelButton: true,
+                confirmButtonText: "Ya, simpan",
+                cancelButtonText: "Batal",
+                reverseButtons: true
+            });
+            if (!result.isConfirmed) return;
+
+            try {
+                const latestVm = await getLatestCandidateSnapshot(currentCandidate.id);
+                if (latestVm.isWithdrawn) {
+                    renderCandidateDetail();
+                    showWarning("Kandidat ini sudah lebih dulu ditandai mengundurkan diri.");
+                    return;
+                }
+
+                const actor = getActor();
+                const nowIso = new Date().toISOString();
+                const withdrawalReason = (result.value || "").toString().trim();
+                const firestorePayload = {
+                    "withdrawal.isWithdrawn": true,
+                    "withdrawal.reason": withdrawalReason,
+                    "withdrawal.at": nowIso,
+                    "withdrawal.by": actor.name || "",
+                    "withdrawal.byName": actor.name || "",
+                    "withdrawal.byId": actor.id || null,
+                    "withdrawal.byEmail": actor.email || "",
+                    "audit_trail": arrayUnion({
+                        ...getAuditBase(actor, latestVm.displayStatus, latestVm.displayStatus, "Kandidat mengundurkan diri", withdrawalReason || "Kandidat menolak melanjutkan proses rekrutmen."),
+                        timestamp: nowIso,
+                        action: "candidate_withdrawal"
+                    }),
+                    logs: arrayUnion({
+                        action: "candidate_withdrawal",
+                        by: actor.name || "System",
+                        uid: actor.id || null,
+                        date: nowIso,
+                        note: withdrawalReason || ""
+                    })
+                };
+
+                await persistCandidateUpdate(currentCandidate.id, firestorePayload, "PATCH", {
+                    action: "candidate-withdrawal",
+                    candidateId: currentCandidate.id,
+                    withdrawal: {
+                        isWithdrawn: true,
+                        reason: withdrawalReason,
+                        at: nowIso,
+                        by: actor.name || "",
+                        byName: actor.name || "",
+                        byId: actor.id || null,
+                        byEmail: actor.email || ""
+                    },
+                    actor
+                });
+                showSuccess("Kandidat berhasil ditandai mengundurkan diri.");
+            } catch (error) {
+                console.error("Gagal menandai kandidat mengundurkan diri", error);
+                showError(error.message || "Gagal menyimpan data pengunduran diri kandidat.");
+            }
         }
 
         async function loadCandidateDetail() {
@@ -5362,6 +5476,7 @@
             const openDecisionBtn = document.getElementById("btnOpenDecisionModal");
             const editInterviewBtn = document.getElementById("btnEditInterviewSchedule");
             const openOnboardingBtn = document.getElementById("btnOpenOnboardingModal");
+            const markWithdrawnBtn = document.getElementById("btnMarkWithdrawn");
             const downloadCvBtn = document.getElementById("btnDownloadCv");
             const downloadPortfolioBtn = document.getElementById("btnDownloadPortfolio");
 
@@ -5388,6 +5503,9 @@
             }
             if (openOnboardingBtn) {
                 openOnboardingBtn.addEventListener("click", () => openOnboardingModal());
+            }
+            if (markWithdrawnBtn) {
+                markWithdrawnBtn.addEventListener("click", () => markCandidateAsWithdrawn(vm));
             }
             if (downloadCvBtn) {
                 downloadCvBtn.addEventListener("click", async () => {

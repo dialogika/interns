@@ -230,9 +230,15 @@
         }
 
         .trash-actions {
-            display: flex;
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
             gap: 0.75rem;
-            flex-wrap: wrap;
+            align-items: stretch;
+        }
+
+        .trash-actions .btn {
+            width: 100%;
+            white-space: nowrap;
         }
 
         .trash-empty-state {
@@ -450,9 +456,12 @@
             collection,
             getDocs,
             doc,
+            getDoc,
+            deleteDoc,
             updateDoc,
             serverTimestamp
         } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+        import { getStorage, ref as storageRef, deleteObject } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyDyzzEYbJkkl-N8snrQf14qvj8De4YliV0",
@@ -467,7 +476,9 @@
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getFirestore(app);
+        const storage = getStorage(app);
         const INTERNSHIP_CANDIDATES_COLLECTION = "interns_screening";
+        const INTERNSHIP_TRASH_COLLECTION = "interns_screening_trash";
         let inactivePageLoadInFlight = false;
 
         function safeRenderLayout() {
@@ -543,6 +554,10 @@
 
         function isInactiveCandidateRecord(data) {
             if (!data) return false;
+            const activeStatus = (data.active_status || data.activeStatus || data.activity_status || "").toString().trim().toLowerCase();
+            if (activeStatus) {
+                return activeStatus !== "active";
+            }
             const recordStatus = (data.record_status || data.recordStatus || data.status || "").toString().trim().toLowerCase();
             const deletedValue = (data.is_deleted ?? data.isDeleted ?? "").toString().trim().toLowerCase();
             const sourcePage = (data.deleted_source_page || data.deletedSourcePage || "").toString().trim().toLowerCase();
@@ -606,8 +621,11 @@
                             '</div>' +
                         '</div>' +
                         '<div class="trash-actions">' +
-                            '<button type="button" class="btn btn-success rounded-pill px-3 restore-candidate-btn" data-talent-id="' + talentId + '" data-name="' + name + '">' +
-                                '<i class="fa-solid fa-rotate-left me-2"></i>Pulihkan' +
+                            '<button type="button" class="btn btn-success rounded-pill px-3 restore-candidate-btn" data-talent-id="' + talentId + '" data-name="' + name + '" title="restore" aria-label="restore">' +
+                                '<i class="fa-solid fa-rotate-left"></i>' +
+                            '</button>' +
+                            '<button type="button" class="btn btn-outline-danger rounded-pill px-3 permanent-delete-candidate-btn" data-talent-id="' + talentId + '" data-name="' + name + '">' +
+                                '<i class="fa-solid fa-trash-can me-2"></i>delete permanen' +
                             '</button>' +
                         '</div>' +
                     '</div>' +
@@ -661,8 +679,11 @@
         async function restoreCandidate(talentId) {
             const user = auth.currentUser;
             await updateDoc(doc(db, INTERNSHIP_CANDIDATES_COLLECTION, talentId), {
+                active_status: "Active",
                 is_deleted: false,
                 record_status: "active",
+                deleted_source_page: null,
+                deleted_source_label: null,
                 deleted_at: null,
                 deleted_by_uid: null,
                 deleted_by_name: null,
@@ -671,6 +692,77 @@
                 restored_by_uid: user ? user.uid : "",
                 restored_by_name: user ? (user.displayName || user.email || "Recruitment Team") : "Recruitment Team"
             });
+        }
+
+        function isFirebaseStorageUrl(url) {
+            const value = (url || "").toString().trim();
+            if (!value) return false;
+            if (value.startsWith("gs://")) return true;
+            return (
+                value.includes("firebasestorage.googleapis.com") ||
+                value.includes("storage.googleapis.com")
+            );
+        }
+
+        function collectCandidateUploadedFileUrls(data) {
+            const source = data || {};
+            const basic = source.basic_info || {};
+            const internship = source.internship || source.internship_info || {};
+            const possibleUrls = [
+                basic.avatar_url,
+                basic.img,
+                basic.photo,
+                source.photo,
+                source.candidatePhoto,
+                internship.resume_url,
+                source.resume_url,
+                internship.portfolio_url,
+                source.portfolio_url
+            ];
+            const uniqueUrls = new Set();
+            possibleUrls.forEach((item) => {
+                const value = (item || "").toString().trim();
+                if (!value) return;
+                if (!isFirebaseStorageUrl(value)) return;
+                uniqueUrls.add(value);
+            });
+            return Array.from(uniqueUrls);
+        }
+
+        async function deleteStorageFileByUrl(fileUrl) {
+            if (!isFirebaseStorageUrl(fileUrl)) return;
+            try {
+                const fileRef = storageRef(storage, fileUrl);
+                await deleteObject(fileRef);
+            } catch (error) {
+                const code = (error && error.code) ? error.code : "";
+                if (code === "storage/object-not-found") return;
+                throw error;
+            }
+        }
+
+        async function permanentlyDeleteCandidate(talentId) {
+            if (!talentId) return;
+            const candidateRef = doc(db, INTERNSHIP_CANDIDATES_COLLECTION, talentId);
+            const trashRef = doc(db, INTERNSHIP_TRASH_COLLECTION, talentId);
+
+            let candidateData = null;
+            try {
+                const snap = await getDoc(candidateRef);
+                if (snap.exists()) {
+                    candidateData = snap.data() || {};
+                }
+            } catch (error) {
+                console.warn("Gagal membaca data kandidat sebelum hapus permanen", error);
+            }
+
+            const fileUrls = collectCandidateUploadedFileUrls(candidateData);
+            for (const fileUrl of fileUrls) {
+                await deleteStorageFileByUrl(fileUrl);
+            }
+
+            await deleteDoc(candidateRef);
+            await deleteDoc(trashRef);
         }
 
         function renderInactiveCandidatesList(candidates) {
@@ -805,15 +897,20 @@
 
         document.addEventListener("click", async (event) => {
             const restoreBtn = event.target.closest(".restore-candidate-btn");
+            const permanentDeleteBtn = event.target.closest(".permanent-delete-candidate-btn");
             if (restoreBtn) {
                 event.stopPropagation();
             }
-            if (!restoreBtn) {
+            if (permanentDeleteBtn) {
+                event.stopPropagation();
+            }
+            if (!restoreBtn && !permanentDeleteBtn) {
                 const card = event.target.closest("#inactiveGrid .trash-card");
                 if (!card) return;
                 navigateToInactiveCandidateDetail(card);
                 return;
             }
+            if (!restoreBtn) return;
             const talentId = restoreBtn.getAttribute("data-talent-id") || "";
             const name = restoreBtn.getAttribute("data-name") || "kandidat ini";
             if (!talentId) return;
@@ -829,6 +926,32 @@
                 console.error("Gagal memulihkan kandidat", error);
                 restoreBtn.disabled = false;
                 window.alert("Gagal memulihkan kandidat.");
+            }
+            return;
+        });
+
+        document.addEventListener("click", async (event) => {
+            const permanentDeleteBtn = event.target.closest(".permanent-delete-candidate-btn");
+            if (!permanentDeleteBtn) return;
+            event.stopPropagation();
+
+            const talentId = permanentDeleteBtn.getAttribute("data-talent-id") || "";
+            const name = permanentDeleteBtn.getAttribute("data-name") || "kandidat ini";
+            if (!talentId) return;
+
+            const ok = window.confirm(
+                "Hapus permanen " + name + "?\n\nAksi ini akan menghapus seluruh data kandidat beserta file upload (foto/CV/portofolio) dari Firebase dan tidak bisa dibatalkan."
+            );
+            if (!ok) return;
+
+            try {
+                permanentDeleteBtn.disabled = true;
+                await permanentlyDeleteCandidate(talentId);
+                await loadInactiveCandidates();
+            } catch (error) {
+                console.error("Gagal hapus permanen kandidat", error);
+                permanentDeleteBtn.disabled = false;
+                window.alert("Gagal menghapus permanen kandidat.");
             }
         });
 

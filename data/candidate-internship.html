@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="id">
 <head>
     <meta charset="UTF-8">
@@ -1049,6 +1049,12 @@
         }
 
         .status-rejected {
+            background: #fef2f2;
+            color: #b91c1c;
+            border-color: #fca5a5;
+        }
+
+        .status-withdrawn {
             background: #fef2f2;
             color: #b91c1c;
             border-color: #fca5a5;
@@ -3610,6 +3616,16 @@
             return normalizedCurrent;
         }
 
+        function getCandidateWithdrawalMeta(data) {
+            const source = data || {};
+            const withdrawal = source.withdrawal || {};
+            return {
+                isWithdrawn: withdrawal.isWithdrawn === true || withdrawal.withdrawn === true || source.isWithdrawn === true || source.withdrawn === true,
+                reason: withdrawal.reason || withdrawal.notes || source.withdrawal_reason || "",
+                at: withdrawal.at || withdrawal.date || source.withdrawal_at || null
+            };
+        }
+
         function getStatusMeta(status) {
             const normalized = normalizeStatus(status);
             return STATUS_PIPELINE.find(item => item.value === normalized) || STATUS_PIPELINE[0];
@@ -3908,6 +3924,10 @@
 
         function isInactiveCandidateRecord(data) {
             if (!data) return false;
+            const activeStatus = (data.active_status || data.activeStatus || data.activity_status || "").toString().trim().toLowerCase();
+            if (activeStatus) {
+                return activeStatus !== "active";
+            }
             const recordStatus = (data.record_status || data.recordStatus || "").toString().trim().toLowerCase();
             return data.is_deleted === true || recordStatus === "inactive" || !!data.deleted_at || !!data.deletedAt;
         }
@@ -3955,6 +3975,7 @@
                 last_status: payload?.lastStatus || "Screening",
                 is_deleted: true,
                 record_status: "inactive",
+                active_status: "nonActive",
                 deleted_source_page: "candidate-internship",
                 deleted_source_label: "Kandidat Internship",
                 deleted_at: serverTimestamp(),
@@ -3966,6 +3987,7 @@
             await updateDoc(doc(db, INTERNSHIP_CANDIDATES_COLLECTION, talentId), {
                 is_deleted: true,
                 record_status: "inactive",
+                active_status: "nonActive",
                 deleted_source_page: "candidate-internship",
                 deleted_source_label: "Kandidat Internship",
                 deleted_at: serverTimestamp(),
@@ -4025,6 +4047,10 @@
             const statusLabel = getStatusLabel(currentStatus);
             const statusBadgeClasses = getStatusBadgeClasses(currentStatus);
             const statusStepperHtml = buildStatusStepperHtml(currentStatus);
+            const withdrawalMeta = getCandidateWithdrawalMeta(data);
+            const withdrawalBadgeHtml = withdrawalMeta.isWithdrawn
+                ? '<span class="status-badge-modern status-withdrawn">Mengundurkan Diri</span>'
+                : '';
 
             container.innerHTML =
                 '<div class="candidate-profile-wrapper py-6 px-4 md:px-6 flex justify-center" >' +
@@ -4046,7 +4072,10 @@
                                         '</div>' +
                                     '</div>' +
                                     '<div class="d-flex flex-column align-items-start align-items-md-end gap-3">' +
-                                        '<span class="' + statusBadgeClasses + '">' + statusLabel + '</span>' +
+                                        '<div class="candidate-header-chips">' +
+                                            '<span class="' + statusBadgeClasses + '">' + statusLabel + '</span>' +
+                                            withdrawalBadgeHtml +
+                                        '</div>' +
                                         '<div class="pipeline-stepper" style="max-width:420px;">' + statusStepperHtml + '</div>' +
                                     '</div>' +
                                 '</div>' +
@@ -4141,6 +4170,7 @@
 
             const statusLabel = getStatusLabel(currentStatus);
             const statusBadgeClasses = getStatusBadgeClasses(currentStatus);
+            const isWithdrawn = params.isWithdrawn === true;
             const positionHtml = position
                 ? '<span class="candidate-role">' + position + '</span>'
                 : '<span class="candidate-role">-</span>';
@@ -4153,6 +4183,7 @@
                 '<div class="candidate-header-chips">' +
                     positionHtml +
                     '<span class="' + statusBadgeClasses + '">' + statusLabel + '</span>' +
+                    (isWithdrawn ? '<span class="status-badge-modern status-withdrawn">Mengundurkan Diri</span>' : '') +
                 '</div>';
             const detailListHtml =
                 '<div class="candidate-details-list">' +
@@ -4317,6 +4348,13 @@
                     if (isInactiveCandidateRecord(data)) {
                         return;
                     }
+                    const activityStatusRaw = (data.active_status || data.activeStatus || data.activity_status || "").toString().trim();
+                    if (!activityStatusRaw) {
+                        updateDoc(doc(db, INTERNSHIP_CANDIDATES_COLLECTION, docSnap.id), {
+                            active_status: "Active",
+                            updated_at: serverTimestamp()
+                        }).catch(() => {});
+                    }
                     const basic = data.basic_info || {};
                     const scouting = data.scouting_info || {};
                     const contact = data.contact_info || {};
@@ -4371,6 +4409,7 @@
 
                     const recruitment = data.recruitment_status || data.recruitment_system || {};
                     const currentStatus = resolveDisplayStatus(recruitment);
+                    const withdrawalMeta = getCandidateWithdrawalMeta(data);
                     const dueDateRaw = recruitment.interview_schedule || recruitment.due_date || null;
                     const dueDateInputValue = formatDueDateForInput(dueDateRaw);
                     const interviewScheduleRaw = formatScheduleSortValue(dueDateRaw);
@@ -4414,6 +4453,7 @@
                         chooseText,
                         talentId: docSnap.id,
                         status: currentStatus,
+                        isWithdrawn: withdrawalMeta.isWithdrawn,
                         createdSortValue,
                         dueDateInputValue,
                         interviewScheduleRaw,
@@ -4588,6 +4628,7 @@
                 },
                 role_id: ROLE_ID,
                 role_name: ROLE_NAME,
+                active_status: "Active",
                 updated_at: serverTimestamp()
             };
 
