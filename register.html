@@ -259,12 +259,12 @@
       <!-- 2. BAGIAN FORM -->
       <div class="form-box" style="padding-top:150px;">
           <div class="mb-4 p-3 rounded-3 border" style="background:#f8fbff; border-color:#dbeafe !important;">
-              <label class="form-label fw-semibold mb-2">Validasi Email Kandidat</label>
+              <label class="form-label fw-semibold mb-2">Validasi Email Kandidat (opsional)</label>
               <div class="input-group">
                   <input type="email" class="form-control" id="lookupCandidateEmail" placeholder="Masukkan email yang terdaftar di kandidat onboarding">
                   <button type="button" class="btn blue-dialogika-btn" id="btnLookupCandidate">Muat Data</button>
               </div>
-              <div class="small text-muted mt-2" id="lookupCandidateHint">Masukkan email kandidat, lalu klik Muat Data untuk mengisi form otomatis.</div>
+              <div class="small text-muted mt-2" id="lookupCandidateHint">Masukkan email kandidat untuk memuat data otomatis. Jika tidak, isi form secara manual.</div>
           </div>
           <h4 class="mb-4 text-center fw-bold" style="color: #07276B;">Registrasi for Intern</h4>
           <form id="regForm">
@@ -586,8 +586,8 @@
                   prefilledCandidateContext = null;
                   prefilledPhotoUrl = "";
                   setPostVerificationMode(false);
-                  hintEl.textContent = "Data kandidat onboarding tidak ditemukan untuk email tersebut.";
-                  hintEl.className = "small text-danger mt-2";
+                  hintEl.textContent = "Data kandidat tidak ditemukan. Silakan isi form secara manual.";
+                  hintEl.className = "small text-warning mt-2";
                   return;
               }
               fillFormWithCandidate(result.candidate, result);
@@ -622,17 +622,16 @@
           const password = document.getElementById('inputPass').value; 
           const file = document.getElementById('inputPhoto').files[0]; 
 
-          if (!prefilledCandidateContext) {
-              alert("Muat data kandidat onboarding terlebih dahulu melalui kolom email di atas form.");
+          if (!email) {
+              alert("Email wajib diisi untuk registrasi.");
               btn.innerText = "Submit Registration";
               btn.disabled = false;
               return;
           }
-          if (email !== normalizeEmail(prefilledCandidateContext.email)) {
-              alert("Email pada form harus sama dengan email kandidat yang divalidasi.");
-              btn.innerText = "Submit Registration";
-              btn.disabled = false;
-              return;
+
+          let candidateContext = prefilledCandidateContext;
+          if (candidateContext && email !== normalizeEmail(candidateContext.email)) {
+              candidateContext = null;
           }
 
           try { 
@@ -671,9 +670,9 @@
                       role_id: selectedRoleId, 
                       level_order: 4 
                   },
-                  onboardingSourceCollection: prefilledCandidateContext.source,
-                  onboardingSourceCandidateId: prefilledCandidateContext.sourceDocId || "",
-                  internshipPreRegistered: true,
+                  onboardingSourceCollection: candidateContext ? candidateContext.source : "",
+                  onboardingSourceCandidateId: candidateContext ? candidateContext.sourceDocId || "" : "",
+                  internshipPreRegistered: !!candidateContext,
                   registrationCompleted: true,
                   registeredAt: new Date()
               }); 
