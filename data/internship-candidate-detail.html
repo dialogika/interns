@@ -710,6 +710,12 @@
             color: #1d4ed8;
         }
 
+        .icon-link-btn#btnMoveToInactive:hover {
+            background: #dc2626;
+            color: #ffffff;
+            border-color: #dc2626;
+        }
+
         .history-list {
             display: flex;
             flex-direction: column;
@@ -2176,12 +2182,14 @@
             getDoc,
             getDocs,
             addDoc,
+            setDoc,
             updateDoc,
             arrayUnion,
             onSnapshot,
             query,
             where,
-            limit
+            limit,
+            serverTimestamp
         } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
         import {
             getStorage,
@@ -2212,6 +2220,7 @@
         const db = getFirestore(app);
         const storage = getStorage(app);
         const INTERNSHIP_CANDIDATES_COLLECTION = "interns_screening";
+        const INTERNSHIP_TRASH_COLLECTION = "interns_screening_trash";
         const AUTHORIZED_INTERVIEWER_TITLES = ["Human Capital Management", "Recruitment Specialist", "Head of Department of Happy Team"];
         const API_BASE_URL = (window.__INTERNSHIP_RECRUITMENT_API_BASE__ || document.documentElement.dataset.internshipApiBase || "").toString().trim().replace(/\/$/, "");
         const INTERVIEW_LOCATION_URL = "https://maps.app.goo.gl/aGKfqEzzVbhnHsdq6?g_st=com.google.maps.preview.copy";
@@ -3659,6 +3668,7 @@
                                         (vm.whatsappLink ? '<a class="icon-link-btn" href="' + escapeHtml(vm.whatsappLink) + '" target="_blank" rel="noopener noreferrer" aria-label="Hubungi via WhatsApp"><i class="fa-brands fa-whatsapp"></i></a>' : '') +
                                         (vm.linkedin ? '<a class="icon-link-btn" href="' + escapeHtml(vm.linkedin) + '" target="_blank" rel="noopener noreferrer" aria-label="Buka LinkedIn kandidat"><i class="fa-brands fa-linkedin-in"></i></a>' : '') +
                                         (vm.instagram ? '<a class="icon-link-btn" href="' + escapeHtml(vm.instagram) + '" target="_blank" rel="noopener noreferrer" aria-label="Buka Instagram kandidat"><i class="fa-brands fa-instagram"></i></a>' : '') +
+                                        (!vm.isInactive ? '<button type="button" class="icon-link-btn" id="btnMoveToInactive" style="border-color: #fca5a5; color: #dc2626;" title="Pindahkan ke Kandidat Nonaktif" aria-label="Pindahkan kandidat ke nonaktif"><i class="fa-solid fa-trash-can"></i></button>' : '') +
                                     '</div>' +
                                 '</div>' +
                             '</div>' +
@@ -3857,6 +3867,80 @@
             } catch (error) {
                 console.error("Gagal menandai kandidat mengundurkan diri", error);
                 showError(error.message || "Gagal menyimpan data pengunduran diri kandidat.");
+            }
+        }
+
+        async function moveDetailCandidateToInactive(vm) {
+            if (!currentCandidate || !currentCandidate.id) {
+                showError("Data kandidat tidak tersedia.");
+                return;
+            }
+            if (vm && vm.isInactive) {
+                showWarning("Kandidat ini sudah berada di halaman Kandidat Nonaktif.");
+                return;
+            }
+            const result = await Swal.fire({
+                icon: "warning",
+                title: "Pindahkan ke Kandidat Nonaktif?",
+                html: "Kandidat <strong>" + escapeHtml(vm.name || "ini") + "</strong> akan dipindahkan ke halaman Kandidat Nonaktif.<br><br>Data tidak akan dihapus permanen dan masih bisa dipulihkan kapan saja.",
+                showCancelButton: true,
+                confirmButtonText: "Ya, Pindahkan",
+                cancelButtonText: "Batal",
+                confirmButtonColor: "#dc2626",
+                reverseButtons: true
+            });
+            if (!result.isConfirmed) return;
+            try {
+                const talentId = currentCandidate.id;
+                const user = auth.currentUser;
+                const deletedByName = user ? (user.displayName || user.email || "Recruitment Team") : "Recruitment Team";
+                const deletedByEmail = user ? (user.email || "") : "";
+                const statusLabel = getStatusLabel(vm.displayStatus || "screening");
+
+                await setDoc(doc(db, INTERNSHIP_TRASH_COLLECTION, talentId), {
+                    source_doc_id: talentId,
+                    source_collection: INTERNSHIP_CANDIDATES_COLLECTION,
+                    name: vm.name || "Tanpa Nama",
+                    position: vm.position || "-",
+                    email: vm.email || "-",
+                    campus: vm.campus || "-",
+                    avatar_url: vm.avatarUrl || "",
+                    last_status: statusLabel,
+                    is_deleted: true,
+                    record_status: "inactive",
+                    active_status: "nonActive",
+                    deleted_source_page: "internship-candidate-detail",
+                    deleted_source_label: "Detail Kandidat Internship",
+                    deleted_at: serverTimestamp(),
+                    deleted_by_uid: user ? user.uid : "",
+                    deleted_by_name: deletedByName,
+                    deleted_by_email: deletedByEmail,
+                    updated_at: serverTimestamp()
+                });
+
+                await updateDoc(doc(db, INTERNSHIP_CANDIDATES_COLLECTION, talentId), {
+                    is_deleted: true,
+                    record_status: "inactive",
+                    active_status: "nonActive",
+                    deleted_source_page: "internship-candidate-detail",
+                    deleted_source_label: "Detail Kandidat Internship",
+                    deleted_at: serverTimestamp(),
+                    deleted_by_uid: user ? user.uid : "",
+                    deleted_by_name: deletedByName,
+                    deleted_by_email: deletedByEmail
+                });
+
+                await Swal.fire({
+                    icon: "success",
+                    title: "Kandidat Dipindahkan",
+                    text: (vm.name || "Kandidat") + " berhasil dipindahkan ke halaman Kandidat Nonaktif.",
+                    timer: 2200,
+                    showConfirmButton: false
+                });
+                window.location.href = "./kandidat-nonaktif.html?talentId=" + encodeURIComponent(talentId);
+            } catch (error) {
+                console.error("Gagal memindahkan kandidat ke nonaktif", error);
+                showError(error.message || "Gagal memindahkan kandidat ke Kandidat Nonaktif.");
             }
         }
 
@@ -5683,6 +5767,10 @@
             }
             if (markWithdrawnBtn) {
                 markWithdrawnBtn.addEventListener("click", () => markCandidateAsWithdrawn(vm));
+            }
+            const moveToInactiveBtn = document.getElementById("btnMoveToInactive");
+            if (moveToInactiveBtn) {
+                moveToInactiveBtn.addEventListener("click", () => moveDetailCandidateToInactive(vm));
             }
             if (downloadCvBtn) {
                 downloadCvBtn.addEventListener("click", async () => {
