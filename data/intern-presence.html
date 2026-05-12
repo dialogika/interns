@@ -30,8 +30,36 @@
         .scrollbar-hide::-webkit-scrollbar { display: none; }
         .badge-status { font-size: 11px; font-weight: 700; letter-spacing: 0.05em; padding: 6px 10px; border-radius: 999px; }
         .row-warning { background: #fff7f7; }
-        .table-scroll-area { max-height: 420px; overflow-y: auto; overflow-x: auto; }
-        .sticky-head th { position: sticky; top: 0; z-index: 5; background: #ffffff; }
+        .table-fixed-head {
+            width: 100%;
+            table-layout: fixed;
+            border-collapse: collapse;
+            border-spacing: 0;
+            background: #ffffff;
+        }
+        .table-fixed-head th {
+            background: #ffffff;
+            box-shadow: 0 1px 0 #e2e8f0;
+        }
+        .table-scroll-area {
+            max-height: 420px;
+            overflow-y: auto;
+            overflow-x: auto;
+            position: relative;
+            background: #ffffff;
+        }
+        .table-scroll-area table {
+            width: 100%;
+            table-layout: fixed;
+            border-collapse: collapse;
+            border-spacing: 0;
+        }
+        #attendanceBody td,
+        #internRecapBody td,
+        #internshipTotalBody td {
+            background: #ffffff;
+        }
+        .row-warning td { background: #fff7f7 !important; }
         .avatar-thumb { width: 36px; height: 36px; border-radius: 999px; background-size: cover; background-position: center; background-color: #e2e8f0; border: 2px solid #fff; box-shadow: 0 2px 10px rgba(15, 23, 42, 0.08); flex-shrink: 0; }
     </style>
 </head>
@@ -71,7 +99,7 @@
                         <p class="text-3xl font-extrabold text-emerald-600" id="presentCountDisplay">0</p>
                     </div>
                     <div class="glass p-6 rounded-3xl premium-shadow">
-                        <p class="text-slate-500 text-xs font-semibold tracking-wide uppercase mb-1">Belum Log Out</p>
+                        <p class="text-slate-500 text-xs font-semibold tracking-wide uppercase mb-1">Belum Clock Out</p>
                         <p class="text-3xl font-extrabold text-red-600" id="pendingLogoutDisplay">0</p>
                     </div>
                     <div class="glass p-6 rounded-3xl premium-shadow">
@@ -93,17 +121,35 @@
                                 <div id="loadingSpinner" class="w-5 h-5 border-2 border-[#0B2B6A] border-t-transparent rounded-full animate-spin"></div>
                             </div>
                         </div>
-                        <div class="p-4 table-scroll-area scrollbar-hide">
-                            <table class="w-full text-left min-w-[820px]">
-                                <thead class="sticky-head">
+                        <div class="px-4">
+                            <table class="table-fixed-head text-left min-w-[820px]">
+                                <colgroup>
+                                    <col style="width:36%">
+                                    <col style="width:13%">
+                                    <col style="width:14%">
+                                    <col style="width:19%">
+                                    <col style="width:18%">
+                                </colgroup>
+                                <thead>
                                     <tr class="text-slate-400 text-[11px] font-extrabold uppercase tracking-[0.2em] border-b border-slate-100">
                                         <th class="px-4 py-3">Nama Intern</th>
-                                        <th class="px-4 py-3">Log In</th>
-                                        <th class="px-4 py-3">Log Out</th>
+                                        <th class="px-4 py-3">Clock In</th>
+                                        <th class="px-4 py-3">Clock Out</th>
                                         <th class="px-4 py-3">Total Jam Kerja</th>
                                         <th class="px-4 py-3">Status</th>
                                     </tr>
                                 </thead>
+                            </table>
+                        </div>
+                        <div class="p-4 pt-0 table-scroll-area scrollbar-hide">
+                            <table class="text-left min-w-[820px]">
+                                <colgroup>
+                                    <col style="width:36%">
+                                    <col style="width:13%">
+                                    <col style="width:14%">
+                                    <col style="width:19%">
+                                    <col style="width:18%">
+                                </colgroup>
                                 <tbody id="attendanceBody" class="text-slate-700 text-sm"></tbody>
                             </table>
                             <p id="emptyState" class="text-xs text-slate-400 hidden py-4">Belum ada data intern/presensi pada tanggal ini.</p>
@@ -121,15 +167,29 @@
                                 <button id="btnExportMonthlyRecapXlsx" class="px-3 py-2 rounded-xl text-xs font-semibold text-white bg-[#0B2B6A] hover:bg-[#113981] transition"><i class="bi bi-download me-1"></i>Export XLSX</button>
                             </div>
                         </div>
-                        <div class="p-4 table-scroll-area scrollbar-hide">
-                            <table class="w-full text-left min-w-[640px]">
-                                <thead class="sticky-head">
+                        <div class="px-4">
+                            <table class="table-fixed-head text-left min-w-[640px]">
+                                <colgroup>
+                                    <col style="width:50%">
+                                    <col style="width:20%">
+                                    <col style="width:30%">
+                                </colgroup>
+                                <thead>
                                     <tr class="text-slate-400 text-[11px] font-extrabold uppercase tracking-[0.2em] border-b border-slate-100">
                                         <th class="px-4 py-3">Nama Intern</th>
                                         <th class="px-4 py-3">Hari Hadir</th>
                                         <th class="px-4 py-3">Total Jam Kerja</th>
                                     </tr>
                                 </thead>
+                            </table>
+                        </div>
+                        <div class="p-4 pt-0 table-scroll-area scrollbar-hide">
+                            <table class="text-left min-w-[640px]">
+                                <colgroup>
+                                    <col style="width:50%">
+                                    <col style="width:20%">
+                                    <col style="width:30%">
+                                </colgroup>
                                 <tbody id="internRecapBody" class="text-slate-700 text-sm"></tbody>
                             </table>
                             <p id="internRecapEmpty" class="text-xs text-slate-400 hidden py-4">Belum ada data rekap bulanan.</p>
@@ -145,9 +205,15 @@
                                 <button id="btnExportInternshipTotalXlsx" class="px-3 py-2 rounded-xl text-xs font-semibold text-white bg-[#0B2B6A] hover:bg-[#113981] transition"><i class="bi bi-download me-1"></i>Export XLSX</button>
                             </div>
                         </div>
-                        <div class="p-4 table-scroll-area scrollbar-hide">
-                            <table class="w-full text-left min-w-[720px]">
-                                <thead class="sticky-head">
+                        <div class="px-4">
+                            <table class="table-fixed-head text-left min-w-[720px]">
+                                <colgroup>
+                                    <col style="width:40%">
+                                    <col style="width:22%">
+                                    <col style="width:18%">
+                                    <col style="width:20%">
+                                </colgroup>
+                                <thead>
                                     <tr class="text-slate-400 text-[11px] font-extrabold uppercase tracking-[0.2em] border-b border-slate-100">
                                         <th class="px-4 py-3">Nama Intern</th>
                                         <th class="px-4 py-3">Total Jam Internship</th>
@@ -155,6 +221,16 @@
                                         <th class="px-4 py-3">Rata-rata per Hari</th>
                                     </tr>
                                 </thead>
+                            </table>
+                        </div>
+                        <div class="p-4 pt-0 table-scroll-area scrollbar-hide">
+                            <table class="text-left min-w-[720px]">
+                                <colgroup>
+                                    <col style="width:40%">
+                                    <col style="width:22%">
+                                    <col style="width:18%">
+                                    <col style="width:20%">
+                                </colgroup>
                                 <tbody id="internshipTotalBody" class="text-slate-700 text-sm"></tbody>
                             </table>
                             <p id="internshipTotalEmpty" class="text-xs text-slate-400 hidden py-4">Belum ada data total jam internship.</p>
@@ -318,6 +394,7 @@
                 let totalSeconds = null;
                 let loginLabel = '-';
                 let logoutLabel = '-';
+                let isValidPair = false;
 
                 if (hit && hit.loginTime) {
                     loginLabel = hit.loginTime;
@@ -325,10 +402,13 @@
                         logoutLabel = hit.logoutTime;
                         if (hit.logoutSec != null && hit.loginSec != null && hit.logoutSec >= hit.loginSec) {
                             totalSeconds = hit.logoutSec - hit.loginSec;
+                            isValidPair = true;
+                            status = 'Present';
+                        } else {
+                            status = 'Tidak Valid';
                         }
-                        status = 'Present';
                     } else {
-                        status = 'Belum Log Out';
+                        status = 'Tidak Valid (Belum Clock Out)';
                     }
                 }
 
@@ -340,6 +420,7 @@
                     totalSeconds,
                     totalLabel: totalSeconds != null ? formatMinutes(totalSeconds) : '-',
                     status,
+                    isValidPair,
                     sortValue: hit?.loginSec ?? -1
                 };
             });
@@ -352,8 +433,8 @@
             if (status === 'Present') {
                 return '<span class="badge-status bg-emerald-100 text-emerald-700">Present</span>';
             }
-            if (status === 'Belum Log Out') {
-                return '<span class="badge-status bg-red-100 text-red-700">Belum Log Out</span>';
+            if (status === 'Tidak Valid' || status === 'Tidak Valid (Belum Clock Out)') {
+                return '<span class="badge-status bg-red-100 text-red-700">Belum Clock Out</span>';
             }
             return '<span class="badge-status bg-slate-100 text-slate-600">Tidak Hadir</span>';
         }
@@ -368,7 +449,7 @@
 
             rows.forEach(r => {
                 const tr = document.createElement('tr');
-                tr.className = `border-b border-slate-100 ${r.status === 'Belum Log Out' ? 'row-warning' : ''}`;
+                tr.className = `border-b border-slate-100 ${(r.status === 'Tidak Valid' || r.status === 'Tidak Valid (Belum Clock Out)') ? 'row-warning' : ''}`;
                 tr.innerHTML = `
                     <td class="px-4 py-3">
                         <div class="flex items-center gap-3">
@@ -388,7 +469,7 @@
         function updateKpi(rows, dateKey) {
             const total = rows.length;
             const present = rows.filter(r => r.status === 'Present').length;
-            const pending = rows.filter(r => r.status === 'Belum Log Out').length;
+            const pending = rows.filter(r => r.status === 'Tidak Valid' || r.status === 'Tidak Valid (Belum Clock Out)').length;
             const absent = rows.filter(r => r.status === 'Tidak Hadir').length;
 
             totalInternDisplay.textContent = String(total);
@@ -397,7 +478,7 @@
             absentCountDisplay.textContent = String(absent);
 
             subtitleText.textContent = `Rekap ${dateKey}`;
-            summaryText.textContent = `${present} present, ${pending} belum log out, ${absent} tidak hadir.`;
+            summaryText.textContent = `${present} present, ${pending} tidak valid/belum clock out, ${absent} tidak hadir.`;
         }
 
         async function loadMonthlyRecap(monthKey) {
@@ -508,7 +589,6 @@
                             <div class="avatar-thumb" style="background-image:url('${r.photo || ''}')"></div>
                             <div>
                                 <p class="mb-0 font-semibold text-slate-800">${r.name}</p>
-                                <p class="mb-0 text-xs text-slate-400">ID: ${r.userId}</p>
                             </div>
                         </div>
                     </td>
@@ -603,11 +683,11 @@
         function exportPresenceXlsx() {
             const dateKey = filterDateInput.value || getTodayKey();
             const rows = aggregateSelectedDateRows(dateKey);
-            const exportRows = rows.map(r => ({
+            const exportRows = rows.filter(r => r.isValidPair).map(r => ({
                 Tanggal: dateKey,
                 Nama_Intern: r.name,
-                Log_In: r.loginTime,
-                Log_Out: r.logoutTime,
+                Clock_In: r.loginTime,
+                Clock_Out: r.logoutTime,
                 Total_Jam_Kerja: r.totalLabel,
                 Status: r.status
             }));

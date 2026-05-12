@@ -301,9 +301,10 @@
         </div>
 
         <div id="statusBadgeContainer" style="min-height: 28px;"></div>
+        <p id="validationMessage" class="mt-2 mb-0 text-xs text-red-500" style="min-height: 18px;"></p>
 
         <div class="slider-wrapper" id="sliderWrapper">
-            <div class="slider-text" id="sliderText">Geser untuk Log In</div>
+            <div class="slider-text" id="sliderText">Geser untuk Clock In</div>
             <div class="slider-handle gold-gradient" id="sliderHandle">
                 <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 5l7 7-7 7M5 5l7 7-7 7"></path>
@@ -367,6 +368,7 @@
         const nameSelectEl = document.getElementById('nameSelect');
         let currentPresenceMode = 'login'; // 'login' or 'logout'
         let unsubscribeUsersListener = null;
+        const validationMessageEl = document.getElementById('validationMessage');
 
         function getLocalDateString(date = new Date()) {
             const year = date.getFullYear();
@@ -395,6 +397,66 @@
             const minutes = Math.floor((safe % 3600) / 60);
             const seconds = safe % 60;
             return `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+        }
+
+        function formatClockHHMM(seconds) {
+            const h = Math.floor(seconds / 3600);
+            const m = Math.floor((seconds % 3600) / 60);
+            return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`;
+        }
+
+        function getDayPresenceRule(date = new Date()) {
+            const day = date.getDay();
+            const logoutDeadlineSec = (18 * 3600);
+
+            if (day === 2 || day === 4) { // Selasa, Kamis
+                return {
+                    loginStartSec: (9 * 3600) + (45 * 60),
+                    logoutDeadlineSec
+                };
+            }
+
+            if (day === 6 || day === 0) { // Sabtu, Minggu
+                return {
+                    loginStartSec: (8 * 3600) + (45 * 60),
+                    logoutDeadlineSec
+                };
+            }
+
+            return null;
+        }
+
+        function getNowSeconds(date = new Date()) {
+            return (date.getHours() * 3600) + (date.getMinutes() * 60) + date.getSeconds();
+        }
+
+        function validatePresenceTime(mode, date = new Date()) {
+            const rule = getDayPresenceRule(date);
+            if (!rule) {
+                return { valid: false, message: "Presensi tidak tersedia pada hari ini." };
+            }
+
+            const nowSec = getNowSeconds(date);
+
+            if (mode === 'login' && nowSec < rule.loginStartSec) {
+                return {
+                    valid: false,
+                    message: `Clock In dibuka mulai ${formatClockHHMM(rule.loginStartSec)}.`
+                };
+            }
+
+            if (mode === 'logout' && nowSec > rule.logoutDeadlineSec) {
+                return {
+                    valid: false,
+                    message: `Clock Out sudah ditutup. Batas maksimal ${formatClockHHMM(rule.logoutDeadlineSec)}.`
+                };
+            }
+
+            return { valid: true, message: "" };
+        }
+
+        function setValidationMessage(message = "") {
+            validationMessageEl.textContent = message;
         }
 
         function loadUsers() {
@@ -516,18 +578,22 @@
             sliderWrapper.classList.remove('logout-mode', 'disabled-slider');
 
             if (mode === 'login') {
-                sliderText.textContent = 'Geser untuk Log In';
+                sliderText.textContent = 'Geser untuk Clock In';
                 sliderHandle.className = 'slider-handle gold-gradient';
-                badgeContainer.innerHTML = '<span class="status-badge login"><i class="bi bi-box-arrow-in-right"></i> Mode: LOG IN</span>';
+                badgeContainer.innerHTML = '<span class="status-badge login"><i class="bi bi-box-arrow-in-right"></i> Mode: CLOCK IN</span>';
             } else if (mode === 'logout') {
-                sliderText.textContent = 'Geser untuk Log Out';
+                sliderText.textContent = 'Geser untuk Clock Out';
                 sliderWrapper.classList.add('logout-mode');
                 sliderHandle.className = 'slider-handle';
-                badgeContainer.innerHTML = '<span class="status-badge logout"><i class="bi bi-box-arrow-right"></i> Mode: LOG OUT</span>';
+                badgeContainer.innerHTML = '<span class="status-badge logout"><i class="bi bi-box-arrow-right"></i> Mode: CLOCK OUT</span>';
+            } else if (mode === 'locked-logout') {
+                sliderText.textContent = 'Clock Out ditutup (maks. 18:00)';
+                sliderWrapper.classList.add('disabled-slider');
+                badgeContainer.innerHTML = '<span class="status-badge logout"><i class="bi bi-lock-fill"></i> Clock Out Ditutup</span>';
             } else if (mode === 'done') {
                 sliderText.textContent = 'Presensi hari ini selesai';
                 sliderWrapper.classList.add('disabled-slider');
-                badgeContainer.innerHTML = '<span class="status-badge done"><i class="bi bi-check-circle-fill"></i> Sudah Log In & Log Out</span>';
+                badgeContainer.innerHTML = '<span class="status-badge done"><i class="bi bi-check-circle-fill"></i> Sudah Clock In & Clock Out</span>';
             }
         }
 
@@ -540,11 +606,18 @@
             }
             const userId = option.value;
             const { hasLogin, hasLogout } = await checkTodayAttendance(userId);
+            const timeValidation = validatePresenceTime('logout');
+            setValidationMessage('');
 
             if (!hasLogin) {
                 updateSliderMode('login');
             } else if (hasLogin && !hasLogout) {
-                updateSliderMode('logout');
+                if (!timeValidation.valid) {
+                    updateSliderMode('locked-logout');
+                    setValidationMessage(timeValidation.message);
+                } else {
+                    updateSliderMode('logout');
+                }
             } else {
                 updateSliderMode('done');
             }
@@ -567,15 +640,20 @@
             const timeStr = getLocalTimeString(now);
             let workDurationSeconds = null;
             const { hasLogin, hasLogout } = await checkTodayAttendance(uid);
+            const timeValidation = validatePresenceTime(currentPresenceMode, now);
+
+            if (!timeValidation.valid) {
+                return { error: timeValidation.message };
+            }
 
             if (currentPresenceMode === 'login' && hasLogin && !hasLogout) {
-                return { error: "Anda sudah log in hari ini. Silakan log out terlebih dahulu." };
+                return { error: "Anda sudah clock in hari ini. Silakan clock out terlebih dahulu." };
             }
             if (currentPresenceMode === 'logout' && !hasLogin) {
-                return { error: "Tidak bisa log out karena belum ada log in hari ini." };
+                return { error: "Tidak bisa clock out karena belum ada clock in hari ini." };
             }
             if (currentPresenceMode === 'logout' && hasLogout) {
-                return { error: "Anda sudah log out hari ini." };
+                return { error: "Anda sudah clock out hari ini." };
             }
 
             if (currentPresenceMode === 'logout') {
@@ -651,6 +729,17 @@
                 setTimeout(() => nameSelect.classList.remove('border-red-400'), 1000);
                 return;
             }
+            if (currentPresenceMode === 'done' || currentPresenceMode === 'locked-logout') {
+                return;
+            }
+
+            const validation = validatePresenceTime(currentPresenceMode);
+            if (!validation.valid) {
+                setValidationMessage(validation.message);
+                return;
+            }
+            setValidationMessage('');
+
             isDragging = true;
             startX = (e.type === 'touchstart') ? e.touches[0].clientX : e.clientX;
             handle.style.transition = "none";
@@ -688,7 +777,7 @@
         }
 
         async function completeAttendance() {
-            if (currentPresenceMode === 'done') return;
+            if (currentPresenceMode === 'done' || currentPresenceMode === 'locked-logout') return;
 
             const selectedOption = nameSelect.options[nameSelect.selectedIndex];
             if (selectedOption && selectedOption.textContent) {
@@ -697,11 +786,11 @@
 
             const confirmedType = document.getElementById('confirmedType');
             if (currentPresenceMode === 'login') {
-                confirmedType.textContent = '✅ Log In Berhasil';
+                confirmedType.textContent = '✅ Clock In Berhasil';
                 confirmedType.style.color = '#1e40af';
                 workDurationInfo.textContent = '';
             } else {
-                confirmedType.textContent = '✅ Log Out Berhasil';
+                confirmedType.textContent = '✅ Clock Out Berhasil';
                 confirmedType.style.color = '#92400e';
                 workDurationInfo.textContent = '';
             }
