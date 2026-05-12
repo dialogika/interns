@@ -125,6 +125,46 @@
             z-index: 1;
         }
 
+        .slider-wrapper.logout-mode {
+            border-color: #fbbf24;
+        }
+
+        .slider-wrapper.logout-mode .slider-handle {
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 50%, #92400e 100%);
+        }
+
+        .slider-wrapper.disabled-slider {
+            opacity: 0.5;
+            pointer-events: none;
+        }
+
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 14px;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            margin-top: 0.75rem;
+        }
+
+        .status-badge.login {
+            background: #dbeafe;
+            color: #1e40af;
+        }
+
+        .status-badge.logout {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .status-badge.done {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
         .slider-handle {
             position: absolute;
             left: 5px;
@@ -260,8 +300,10 @@
             </div>
         </div>
 
+        <div id="statusBadgeContainer" style="min-height: 28px;"></div>
+
         <div class="slider-wrapper" id="sliderWrapper">
-            <div class="slider-text" id="sliderText">Geser untuk presensi</div>
+            <div class="slider-text" id="sliderText">Geser untuk Log In</div>
             <div class="slider-handle gold-gradient" id="sliderHandle">
                 <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 5l7 7-7 7M5 5l7 7-7 7"></path>
@@ -281,7 +323,9 @@
             </svg>
         </div>
         <h2 class="text-2xl font-semibold text-gray-800">Presensi Berhasil</h2>
+        <p id="confirmedType" class="text-sm font-semibold mt-1" style="color:#0B2B6A;"></p>
         <p id="confirmedUser" class="text-gray-500 mt-2 font-light"></p>
+        <p id="workDurationInfo" class="text-gray-500 mt-1 text-sm"></p>
         <button onclick="location.reload()" class="mt-12 px-8 py-3 rounded-full border border-gray-200 text-sm font-medium hover:bg-gray-50 transition-all">Selesai</button>
     </div>
 
@@ -306,7 +350,7 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getFirestore, collection, getDocs, query, where, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+        import { getFirestore, collection, getDocs, query, where, addDoc, serverTimestamp, orderBy, limit, onSnapshot } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyDyzzEYbJkkl-N8snrQf14qvj8De4YliV0",
@@ -321,16 +365,52 @@
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
         const nameSelectEl = document.getElementById('nameSelect');
+        let currentPresenceMode = 'login'; // 'login' or 'logout'
+        let unsubscribeUsersListener = null;
 
-        async function loadUsers() {
+        function getLocalDateString(date = new Date()) {
+            const year = date.getFullYear();
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const day = String(date.getDate()).padStart(2, '0');
+            return `${year}-${month}-${day}`;
+        }
+
+        function getLocalTimeString(date = new Date()) {
+            const hh = String(date.getHours()).padStart(2, '0');
+            const mm = String(date.getMinutes()).padStart(2, '0');
+            const ss = String(date.getSeconds()).padStart(2, '0');
+            return `${hh}:${mm}:${ss}`;
+        }
+
+        function parseTimeToSeconds(timeStr) {
+            if (!timeStr || typeof timeStr !== "string") return null;
+            const [hh, mm, ss] = timeStr.split(':').map(Number);
+            if ([hh, mm, ss].some(n => Number.isNaN(n))) return null;
+            return (hh * 3600) + (mm * 60) + ss;
+        }
+
+        function formatDuration(totalSeconds) {
+            const safe = Math.max(0, Number(totalSeconds) || 0);
+            const hours = Math.floor(safe / 3600);
+            const minutes = Math.floor((safe % 3600) / 60);
+            const seconds = safe % 60;
+            return `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+        }
+
+        function loadUsers() {
             const select = nameSelectEl;
             select.innerHTML = '<option value="" disabled selected>Memuat daftar nama...</option>';
-            try {
-                const q = query(
-                    collection(db, "users"),
-                    where("access.role_id", "==", "internship")
-                );
-                const snap = await getDocs(q);
+            if (unsubscribeUsersListener) {
+                unsubscribeUsersListener();
+                unsubscribeUsersListener = null;
+            }
+            const q = query(
+                collection(db, "users"),
+                where("access.role_id", "==", "internship"),
+                // where("status", "!=", "inactive")
+            );
+            unsubscribeUsersListener = onSnapshot(q, (snap) => {
+                const selectedUserId = select.value;
                 const users = [];
                 snap.forEach(docSnap => {
                     const d = docSnap.data() || {};
@@ -341,6 +421,7 @@
                     });
                 });
                 users.sort((a, b) => a.name.localeCompare(b.name));
+
                 select.innerHTML = '<option value="" disabled selected>Pilih nama...</option>';
                 users.forEach(u => {
                     const opt = document.createElement('option');
@@ -349,12 +430,22 @@
                     if (u.photo) {
                         opt.dataset.photo = u.photo;
                     }
+                    if (selectedUserId && selectedUserId === u.id) {
+                        opt.selected = true;
+                    }
                     select.appendChild(opt);
                 });
-            } catch (e) {
-                console.error("Gagal memuat users", e);
+
+                if (selectedUserId && users.some(u => u.id === selectedUserId)) {
+                    onUserSelected();
+                } else {
+                    applySelectedPhoto();
+                    updateSliderMode('login');
+                }
+            }, (e) => {
+                console.error("Gagal memuat users realtime", e);
                 select.innerHTML = '<option value="" disabled selected>Gagal memuat data</option>';
-            }
+            });
         }
 
         function applySelectedPhoto() {
@@ -372,32 +463,159 @@
             }
         }
 
+        async function checkTodayAttendance(userId) {
+            const dateStr = getLocalDateString();
+            try {
+                const q = query(
+                    collection(db, "user_attendance"),
+                    where("user_id", "==", userId),
+                    where("date", "==", dateStr)
+                );
+                const snap = await getDocs(q);
+                let hasLogin = false;
+                let hasLogout = false;
+                snap.forEach(docSnap => {
+                    const d = docSnap.data();
+                    if (d.type === 'login') hasLogin = true;
+                    if (d.type === 'logout') hasLogout = true;
+                });
+                return { hasLogin, hasLogout };
+            } catch (e) {
+                console.error("Gagal cek presensi hari ini", e);
+                return { hasLogin: false, hasLogout: false };
+            }
+        }
+
+        async function getTodayLatestLoginTime(userId, dateStr) {
+            try {
+                const q = query(
+                    collection(db, "user_attendance"),
+                    where("user_id", "==", userId),
+                    where("date", "==", dateStr),
+                    where("type", "==", "login"),
+                    orderBy("time", "desc"),
+                    limit(1)
+                );
+                const snap = await getDocs(q);
+                if (snap.empty) return null;
+                const docData = snap.docs[0].data() || {};
+                return docData.time || null;
+            } catch (e) {
+                console.error("Gagal mengambil login terakhir hari ini", e);
+                return null;
+            }
+        }
+
+        function updateSliderMode(mode) {
+            currentPresenceMode = mode;
+            const sliderWrapper = document.getElementById('sliderWrapper');
+            const sliderText = document.getElementById('sliderText');
+            const sliderHandle = document.getElementById('sliderHandle');
+            const badgeContainer = document.getElementById('statusBadgeContainer');
+
+            sliderWrapper.classList.remove('logout-mode', 'disabled-slider');
+
+            if (mode === 'login') {
+                sliderText.textContent = 'Geser untuk Log In';
+                sliderHandle.className = 'slider-handle gold-gradient';
+                badgeContainer.innerHTML = '<span class="status-badge login"><i class="bi bi-box-arrow-in-right"></i> Mode: LOG IN</span>';
+            } else if (mode === 'logout') {
+                sliderText.textContent = 'Geser untuk Log Out';
+                sliderWrapper.classList.add('logout-mode');
+                sliderHandle.className = 'slider-handle';
+                badgeContainer.innerHTML = '<span class="status-badge logout"><i class="bi bi-box-arrow-right"></i> Mode: LOG OUT</span>';
+            } else if (mode === 'done') {
+                sliderText.textContent = 'Presensi hari ini selesai';
+                sliderWrapper.classList.add('disabled-slider');
+                badgeContainer.innerHTML = '<span class="status-badge done"><i class="bi bi-check-circle-fill"></i> Sudah Log In & Log Out</span>';
+            }
+        }
+
+        async function onUserSelected() {
+            applySelectedPhoto();
+            const option = nameSelectEl.options[nameSelectEl.selectedIndex];
+            if (!option || !option.value) {
+                updateSliderMode('login');
+                return;
+            }
+            const userId = option.value;
+            const { hasLogin, hasLogout } = await checkTodayAttendance(userId);
+
+            if (!hasLogin) {
+                updateSliderMode('login');
+            } else if (hasLogin && !hasLogout) {
+                updateSliderMode('logout');
+            } else {
+                updateSliderMode('done');
+            }
+
+            // Reset slider handle position
+            const handle = document.getElementById('sliderHandle');
+            handle.style.transition = 'all 0.3s ease';
+            handle.style.left = '5px';
+            document.getElementById('sliderText').style.opacity = 1;
+        }
+
         async function recordAttendance() {
             const option = nameSelectEl.options[nameSelectEl.selectedIndex];
-            if (!option || !option.value) return;
+            if (!option || !option.value) return { workDurationText: "", workDurationSeconds: null };
             const uid = option.value;
             const name = option.textContent;
             const photo = option.dataset.photo || "";
             const now = new Date();
-            const dateStr = now.toISOString().slice(0, 10);
-            const timeStr = now.toTimeString().slice(0, 8);
+            const dateStr = getLocalDateString(now);
+            const timeStr = getLocalTimeString(now);
+            let workDurationSeconds = null;
+            const { hasLogin, hasLogout } = await checkTodayAttendance(uid);
+
+            if (currentPresenceMode === 'login' && hasLogin && !hasLogout) {
+                return { error: "Anda sudah log in hari ini. Silakan log out terlebih dahulu." };
+            }
+            if (currentPresenceMode === 'logout' && !hasLogin) {
+                return { error: "Tidak bisa log out karena belum ada log in hari ini." };
+            }
+            if (currentPresenceMode === 'logout' && hasLogout) {
+                return { error: "Anda sudah log out hari ini." };
+            }
+
+            if (currentPresenceMode === 'logout') {
+                const loginTime = await getTodayLatestLoginTime(uid, dateStr);
+                const loginSec = parseTimeToSeconds(loginTime);
+                const logoutSec = parseTimeToSeconds(timeStr);
+                if (loginSec !== null && logoutSec !== null && logoutSec >= loginSec) {
+                    workDurationSeconds = logoutSec - loginSec;
+                }
+            }
+
             try {
-                await addDoc(collection(db, "user_attendance"), {
+                const payload = {
                     user_id: uid,
                     name: name,
                     photo: photo,
                     date: dateStr,
                     time: timeStr,
+                    type: currentPresenceMode,
                     created_at: serverTimestamp()
-                });
+                };
+
+                if (currentPresenceMode === 'logout' && workDurationSeconds !== null) {
+                    payload.work_duration_seconds = workDurationSeconds;
+                    payload.work_duration = formatDuration(workDurationSeconds);
+                }
+
+                await addDoc(collection(db, "user_attendance"), payload);
+                return {
+                    workDurationText: workDurationSeconds !== null ? formatDuration(workDurationSeconds) : "",
+                    workDurationSeconds
+                };
             } catch (e) {
                 console.error("Gagal menyimpan presensi", e);
+                return { workDurationText: "", workDurationSeconds: null };
             }
         }
 
-        loadUsers().then(() => {
-            nameSelectEl.addEventListener('change', applySelectedPhoto);
-        });
+        loadUsers();
+        nameSelectEl.addEventListener('change', onUserSelected);
 
         function updateClock() {
             const now = new Date();
@@ -412,6 +630,7 @@
         const nameSelect = document.getElementById('nameSelect');
         const successOverlay = document.getElementById('successOverlay');
         const confirmedUser = document.getElementById('confirmedUser');
+        const workDurationInfo = document.getElementById('workDurationInfo');
 
         let isDragging = false;
         let startX = 0;
@@ -469,12 +688,40 @@
         }
 
         async function completeAttendance() {
+            if (currentPresenceMode === 'done') return;
+
             const selectedOption = nameSelect.options[nameSelect.selectedIndex];
             if (selectedOption && selectedOption.textContent) {
                 confirmedUser.innerText = selectedOption.textContent;
             }
+
+            const confirmedType = document.getElementById('confirmedType');
+            if (currentPresenceMode === 'login') {
+                confirmedType.textContent = '✅ Log In Berhasil';
+                confirmedType.style.color = '#1e40af';
+                workDurationInfo.textContent = '';
+            } else {
+                confirmedType.textContent = '✅ Log Out Berhasil';
+                confirmedType.style.color = '#92400e';
+                workDurationInfo.textContent = '';
+            }
+
             successOverlay.style.display = 'flex';
-            recordAttendance();
+            const attendanceResult = await recordAttendance();
+            if (attendanceResult && attendanceResult.error) {
+                successOverlay.style.display = 'none';
+                alert(attendanceResult.error);
+                const handle = document.getElementById('sliderHandle');
+                const sliderText = document.getElementById('sliderText');
+                handle.style.transition = "all 0.3s ease";
+                handle.style.left = '5px';
+                sliderText.style.opacity = 1;
+                await onUserSelected();
+                return;
+            }
+            if (currentPresenceMode === 'logout' && attendanceResult.workDurationText) {
+                workDurationInfo.textContent = `Durasi kerja hari ini: ${attendanceResult.workDurationText}`;
+            }
             if (window.navigator.vibrate) window.navigator.vibrate(40);
         }
 
