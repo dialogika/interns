@@ -314,7 +314,7 @@
             </div>
 
             <div id="statusBadgeContainer" style="min-height: 28px;"></div>
-            <p id="validationMessage" class="mt-2 mb-0 text-xs text-red-500" style="min-height: 18px;"></p>
+            <p id="validationMessage" class="mt-2 mb-0 text-xs text-slate-500" style="min-height: 18px;"></p>
 
             <div class="slider-wrapper" id="sliderWrapper">
                 <div class="slider-text" id="sliderText">Geser untuk Clock In</div>
@@ -384,6 +384,18 @@
         let currentPresenceMode = 'login'; // 'login' or 'logout'
         let unsubscribeUsersListener = null;
         const validationMessageEl = document.getElementById('validationMessage');
+        const OFFICE_LOCATION = {
+            lat: -7.752773871518239,
+            lng: 110.38220611055455,
+            label: "Kantor Dialogika"
+        };
+        const GEOFENCE_RADIUS_METERS = 50;
+        const LOCATION_TIMEOUT_MS = 15000;
+        const LOCATION_MAX_AGE_MS = 10000;
+        const LOCATION_CACHE_TTL_MS = 2 * 60 * 1000;
+        let latestLocationValidation = null;
+        let isLocationChecking = false;
+        let isLocationValid = false;
 
         function getLocalDateString(date = new Date()) {
             const year = date.getFullYear();
@@ -470,8 +482,125 @@
             return { valid: true, message: "" };
         }
 
-        function setValidationMessage(message = "") {
+        function setValidationMessage(message = "", tone = "error") {
+            validationMessageEl.classList.remove('text-red-500', 'text-emerald-600', 'text-slate-500');
+            if (tone === "success") {
+                validationMessageEl.classList.add('text-emerald-600');
+            } else if (tone === "info") {
+                validationMessageEl.classList.add('text-slate-500');
+            } else {
+                validationMessageEl.classList.add('text-red-500');
+            }
             validationMessageEl.textContent = message;
+        }
+
+        function toRadians(degrees) {
+            return degrees * (Math.PI / 180);
+        }
+
+        function haversineDistanceMeters(lat1, lng1, lat2, lng2) {
+            const earthRadiusMeters = 6371000;
+            const dLat = toRadians(lat2 - lat1);
+            const dLng = toRadians(lng2 - lng1);
+            const a = Math.sin(dLat / 2) * Math.sin(dLat / 2)
+                + Math.cos(toRadians(lat1)) * Math.cos(toRadians(lat2))
+                * Math.sin(dLng / 2) * Math.sin(dLng / 2);
+            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+            return earthRadiusMeters * c;
+        }
+
+        function formatMeters(meters) {
+            return `${Math.round(Number(meters) || 0)}m`;
+        }
+
+        function getCurrentPositionOnce(options = {}) {
+            return new Promise((resolve, reject) => {
+                if (!navigator.geolocation) {
+                    reject(new Error("Browser tidak mendukung Geolocation."));
+                    return;
+                }
+                navigator.geolocation.getCurrentPosition(resolve, reject, options);
+            });
+        }
+
+        async function collectBestLocationSample() {
+            const geolocationOptions = {
+                enableHighAccuracy: true,
+                timeout: LOCATION_TIMEOUT_MS,
+                maximumAge: LOCATION_MAX_AGE_MS
+            };
+
+            const samples = [];
+            for (let i = 0; i < 2; i += 1) {
+                try {
+                    const pos = await getCurrentPositionOnce(geolocationOptions);
+                    samples.push(pos);
+                    if ((pos.coords?.accuracy || Infinity) <= 20) break;
+                } catch (e) {
+                    if (samples.length === 0) throw e;
+                }
+            }
+
+            if (!samples.length) {
+                throw new Error("Lokasi tidak terbaca.");
+            }
+
+            samples.sort((a, b) => (a.coords?.accuracy || Infinity) - (b.coords?.accuracy || Infinity));
+            return samples[0];
+        }
+
+        async function validatePresenceLocation(forceRefresh = false) {
+            const now = Date.now();
+            if (!forceRefresh && latestLocationValidation && (now - latestLocationValidation.checkedAt) <= LOCATION_CACHE_TTL_MS) {
+                return latestLocationValidation;
+            }
+
+            try {
+                const pos = await collectBestLocationSample();
+                const userLat = pos.coords.latitude;
+                const userLng = pos.coords.longitude;
+                const distanceMeters = haversineDistanceMeters(
+                    userLat,
+                    userLng,
+                    OFFICE_LOCATION.lat,
+                    OFFICE_LOCATION.lng
+                );
+
+                if (distanceMeters > GEOFENCE_RADIUS_METERS) {
+                    latestLocationValidation = {
+                        ok: false,
+                        message: "Anda tidak berada di wilayah kantor.",
+                        checkedAt: now,
+                        distanceMeters,
+                        latitude: userLat,
+                        longitude: userLng
+                    };
+                    return latestLocationValidation;
+                }
+
+                latestLocationValidation = {
+                    ok: true,
+                    message: "Lokasi sesuai! silahkan presensi.",
+                    checkedAt: now,
+                    distanceMeters,
+                    latitude: userLat,
+                    longitude: userLng
+                };
+                return latestLocationValidation;
+            } catch (error) {
+                const isPermissionError = error && (error.code === 1);
+                const isTimeoutError = error && (error.code === 3);
+                latestLocationValidation = {
+                    ok: false,
+                    message: isPermissionError
+                        ? "Izin lokasi ditolak. Aktifkan lokasi perangkat untuk presensi."
+                        : isTimeoutError
+                            ? "Permintaan lokasi timeout. Pastikan GPS aktif lalu coba lagi."
+                            : "Gagal membaca lokasi. Pastikan GPS aktif dan koneksi stabil.",
+                    checkedAt: now
+                };
+                return latestLocationValidation;
+            }
         }
 
         function loadUsers() {
@@ -537,6 +666,15 @@
             } else {
                 nameSelectEl.style.backgroundImage = "none";
                 nameSelectEl.style.paddingLeft = "";
+            }
+        }
+
+        function setSliderEnabled(enabled) {
+            const sliderWrapper = document.getElementById('sliderWrapper');
+            if (enabled) {
+                sliderWrapper.classList.remove('disabled-slider');
+            } else {
+                sliderWrapper.classList.add('disabled-slider');
             }
         }
 
@@ -614,15 +752,19 @@
 
         async function onUserSelected() {
             applySelectedPhoto();
+            latestLocationValidation = null;
             const option = nameSelectEl.options[nameSelectEl.selectedIndex];
             if (!option || !option.value) {
                 updateSliderMode('login');
+                setSliderEnabled(false);
+                setValidationMessage('', 'info');
                 return;
             }
             const userId = option.value;
             const { hasLogin, hasLogout } = await checkTodayAttendance(userId);
             const timeValidation = validatePresenceTime('logout');
-            setValidationMessage('');
+            setValidationMessage('Memeriksa lokasi perangkat...', 'info');
+            setSliderEnabled(false);
 
             if (!hasLogin) {
                 updateSliderMode('login');
@@ -630,11 +772,25 @@
                 if (!timeValidation.valid) {
                     updateSliderMode('locked-logout');
                     setValidationMessage(timeValidation.message);
+                    return;
                 } else {
                     updateSliderMode('logout');
                 }
             } else {
                 updateSliderMode('done');
+                setValidationMessage('', 'info');
+                return;
+            }
+
+            const locationValidation = await validatePresenceLocation(true);
+            if (locationValidation.ok) {
+                isLocationValid = true;
+                setValidationMessage(locationValidation.message, 'success');
+                setSliderEnabled(true);
+            } else {
+                isLocationValid = false;
+                setValidationMessage(locationValidation.message, 'error');
+                setSliderEnabled(false);
             }
 
             // Reset slider handle position
@@ -644,7 +800,7 @@
             document.getElementById('sliderText').style.opacity = 1;
         }
 
-        async function recordAttendance() {
+        async function recordAttendance(locationValidation) {
             const option = nameSelectEl.options[nameSelectEl.selectedIndex];
             if (!option || !option.value) return { workDurationText: "", workDurationSeconds: null };
             const uid = option.value;
@@ -695,6 +851,15 @@
                     payload.work_duration_seconds = workDurationSeconds;
                     payload.work_duration = formatDuration(workDurationSeconds);
                 }
+                if (locationValidation && locationValidation.ok) {
+                    payload.location = {
+                        latitude: locationValidation.latitude,
+                        longitude: locationValidation.longitude,
+                        distance_meters: Math.round(locationValidation.distanceMeters || 0),
+                        office_latitude: OFFICE_LOCATION.lat,
+                        office_longitude: OFFICE_LOCATION.lng
+                    };
+                }
 
                 await addDoc(collection(db, "user_attendance"), payload);
                 return {
@@ -708,6 +873,7 @@
         }
 
         loadUsers();
+        setSliderEnabled(false);
         nameSelectEl.addEventListener('change', onUserSelected);
 
         function updateClock() {
@@ -738,7 +904,11 @@
         window.addEventListener('mouseup', endDrag);
         window.addEventListener('touchend', endDrag);
 
-        function startDrag(e) {
+        async function startDrag(e) {
+            const sliderWrapper = document.getElementById('sliderWrapper');
+            if (sliderWrapper.classList.contains('disabled-slider')) {
+                return;
+            }
             if (nameSelect.value === "") {
                 nameSelect.classList.add('border-red-400');
                 setTimeout(() => nameSelect.classList.remove('border-red-400'), 1000);
@@ -753,8 +923,7 @@
                 setValidationMessage(validation.message);
                 return;
             }
-            setValidationMessage('');
-
+            if (isLocationChecking) return;
             isDragging = true;
             startX = (e.type === 'touchstart') ? e.touches[0].clientX : e.clientX;
             handle.style.transition = "none";
@@ -794,6 +963,19 @@
         async function completeAttendance() {
             if (currentPresenceMode === 'done' || currentPresenceMode === 'locked-logout') return;
 
+            setValidationMessage('Memvalidasi lokasi sebelum menyimpan presensi...', 'info');
+            const locationValidation = await validatePresenceLocation(false);
+            if (!locationValidation.ok) {
+                alert(locationValidation.message);
+                setValidationMessage(locationValidation.message, 'error');
+                const handle = document.getElementById('sliderHandle');
+                const sliderText = document.getElementById('sliderText');
+                handle.style.transition = "all 0.3s ease";
+                handle.style.left = '5px';
+                sliderText.style.opacity = 1;
+                return;
+            }
+
             const selectedOption = nameSelect.options[nameSelect.selectedIndex];
             if (selectedOption && selectedOption.textContent) {
                 confirmedUser.innerText = selectedOption.textContent;
@@ -810,10 +992,8 @@
                 workDurationInfo.textContent = '';
             }
 
-            successOverlay.style.display = 'flex';
-            const attendanceResult = await recordAttendance();
+            const attendanceResult = await recordAttendance(locationValidation);
             if (attendanceResult && attendanceResult.error) {
-                successOverlay.style.display = 'none';
                 alert(attendanceResult.error);
                 const handle = document.getElementById('sliderHandle');
                 const sliderText = document.getElementById('sliderText');
@@ -823,6 +1003,8 @@
                 await onUserSelected();
                 return;
             }
+            setValidationMessage('', 'info');
+            successOverlay.style.display = 'flex';
             if (currentPresenceMode === 'logout' && attendanceResult.workDurationText) {
                 workDurationInfo.textContent = `Durasi kerja hari ini: ${attendanceResult.workDurationText}`;
             }
