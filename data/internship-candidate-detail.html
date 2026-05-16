@@ -163,6 +163,79 @@
             overflow: hidden;
         }
 
+        /* Dropdown 3 titik custom */
+        .card-menu-dropdown {
+            position: relative;
+        }
+
+        .card-menu-dropdown .dropdown-toggle::after {
+            display: none;
+        }
+
+        .card-menu-dropdown .dropdown-menu {
+            border-radius: 16px;
+            border: 1px solid rgba(226, 232, 240, 0.8);
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+            padding: 0.5rem;
+            min-width: 200px;
+        }
+
+        .card-menu-dropdown .dropdown-item {
+            border-radius: 10px;
+            padding: 0.6rem 1rem;
+            font-size: 0.88rem;
+            font-weight: 600;
+            color: #475569;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: all 0.2s ease;
+        }
+
+        .card-menu-dropdown .dropdown-item:hover {
+            background-color: #f1f5f9;
+            color: #1e293b;
+        }
+
+        .card-menu-dropdown .dropdown-item i {
+            font-size: 1rem;
+            width: 20px;
+            text-align: center;
+        }
+
+        .card-menu-dropdown .dropdown-item.text-primary:hover {
+            background-color: #eff6ff;
+        }
+
+        .card-menu-dropdown .dropdown-item.text-secondary:hover {
+            background-color: #f8fafc;
+        }
+
+        /* Status Badge for Offered Position */
+        .status-offered-other {
+            background: #fdf4ff;
+            color: #a21caf;
+            border-color: #f5d0fe;
+        }
+
+        .status-offered-other::before {
+            background: #a21caf;
+        }
+
+        .offered-position-info {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: #701a75;
+            margin-top: 4px;
+            padding: 4px 10px;
+            background: #fae8ff;
+            border-radius: 8px;
+            width: fit-content;
+        }
+
         .detail-name {
             margin: 0;
             font-size: clamp(1.5rem, 2vw, 2.1rem);
@@ -1776,6 +1849,44 @@
                 padding: 6px 10px;
             }
         }
+    
+        /* Scrollable fix for Offer Position Modal */
+        #offerPositionModal .modal-dialog {
+            max-height: calc(100vh - 3.5rem);
+        }
+
+        #offerPositionModal .interview-modal-content {
+            max-height: 100%;
+        }
+
+        /* Bootstrap scrollable modal usually scrolls .modal-body */
+        #offerPositionModal .modal-body {
+            flex: 1 1 auto;
+            min-height: 0; /* important for flex children scroll */
+            overflow-x: hidden;
+            overflow-y: auto;
+        }
+
+        /* Ensure form doesn't block scroll */
+        #offerPositionModal #offerPositionForm {
+            display: flex;
+            flex-direction: column;
+            min-height: 0;
+            flex: 1 1 auto;
+        }
+
+        /* Keep existing class behavior too */
+        #offerPositionModal .interview-modal-body {
+            flex: 1 1 auto;
+            min-height: 0;
+            overflow-x: hidden;
+            overflow-y: auto;
+        }
+
+        #offerPositionModal .whatsapp-preview-message {
+            max-height: 280px;
+            overflow-y: auto;
+        }
     </style>
 </head>
 <body class="p-8 page-shell">
@@ -1806,7 +1917,7 @@
     </div>
 
     <div class="modal fade" id="interviewModal" tabindex="-1" aria-labelledby="interviewModalLabel" aria-hidden="true">
-        <div class="modal-dialog interview-modal-dialog modal-dialog-centered">
+        <div class="modal-dialog interview-modal-dialog modal-dialog-centered modal-dialog-scrollable">
             <div class="modal-content interview-modal-content border-0">
                 <div class="modal-header interview-modal-header">
                     <div>
@@ -1949,7 +2060,7 @@
     </div>
 
     <div class="modal fade" id="decisionModal" tabindex="-1" aria-labelledby="decisionModalLabel" aria-hidden="true">
-        <div class="modal-dialog interview-modal-dialog modal-dialog-centered">
+        <div class="modal-dialog interview-modal-dialog modal-dialog-centered modal-dialog-scrollable">
             <div class="modal-content interview-modal-content border-0">
                 <div class="modal-header interview-modal-header">
                     <div>
@@ -2159,6 +2270,102 @@
         </div>
     </div>
 
+    <!-- Modal Tawarkan Posisi Lain -->
+    <div class="modal fade" id="offerPositionModal" tabindex="-1" aria-labelledby="offerPositionModalLabel" aria-hidden="true">
+        <div class="modal-dialog interview-modal-dialog modal-dialog-centered modal-dialog-scrollable">
+            <div class="modal-content interview-modal-content border-0">
+                <div class="modal-header interview-modal-header">
+                    <div>
+                        <div class="interview-modal-kicker"><i class="fa-solid fa-handshake-angle"></i><span>Offer Alternative Position</span></div>
+                        <h5 class="modal-title interview-modal-title" id="offerPositionModalLabel">Tawarkan Posisi Lain</h5>
+                        <div class="interview-modal-subtitle">Berikan penawaran posisi alternatif yang lebih sesuai dengan background kandidat.</div>
+                    </div>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form id="offerPositionForm" novalidate>
+                    <div class="modal-body interview-modal-body">
+                        <div class="modal-section-card mb-3">
+                            <div class="modal-section-header">
+                                <div>
+                                    <h6 class="modal-section-title">Pilih Posisi Baru</h6>
+                                </div>
+                                <div class="modal-section-icon"><i class="fa-solid fa-briefcase"></i></div>
+                            </div>
+                            <div class="modal-field-shell mt-2">
+                                <label for="recommendedPositionSelect" class="form-label form-label-soft">Posisi yang Direkomendasikan</label>
+                                <select class="form-select" id="recommendedPositionSelect" required>
+                                    <option value="">Pilih posisi baru...</option>
+                                    <!-- Options will be populated via JS -->
+                                </select>
+                                <div class="invalid-feedback">Pilih posisi yang akan ditawarkan.</div>
+                            </div>
+                        </div>
+
+                        <div class="modal-section-card">
+                            <div class="modal-section-header">
+                                <div>
+                                    <h6 class="modal-section-title">Preview WhatsApp Offer</h6>
+                                </div>
+                                <div class="modal-section-icon"><i class="fa-brands fa-whatsapp"></i></div>
+                            </div>
+                            <div class="status-empty-note mt-3" id="offerWhatsappStatusHint">
+                                Pilih posisi baru terlebih dahulu untuk men-generate pesan penawaran.
+                            </div>
+                            <div class="whatsapp-preview-shell d-none mt-3" id="offerWhatsappShell">
+                                <div class="whatsapp-preview-header">
+                                    <div>
+                                        <div class="whatsapp-preview-title">Offer Message WhatsApp</div>
+                                        <div class="whatsapp-preview-subtitle" id="offerWhatsappTargetInfo">Nomor kandidat belum tersedia.</div>
+                                    </div>
+                                    <span class="interview-summary-chip" id="offerWhatsappSendState">Belum dikirim</span>
+                                </div>
+                                <label for="offerWhatsappText" class="form-label form-label-soft mt-3">Template Pesan</label>
+                                <textarea class="form-control" id="offerWhatsappText" rows="12" placeholder="Template pesan penawaran akan muncul di sini..."></textarea>
+                                <div class="action-helper mt-2">Pesan di atas akan otomatis dikirim ke WhatsApp kandidat.</div>
+                                <div class="action-cta mt-3">
+                                    <button type="button" class="btn btn-success w-100" id="btnSendOfferWhatsapp"><i class="fa-brands fa-whatsapp me-2"></i>Kirim Penawaran WA</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer interview-modal-footer">
+                        <button type="button" class="btn btn-light" data-bs-dismiss="modal">Batal</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Edit Posisi Manual -->
+    <div class="modal fade" id="editPositionModal" tabindex="-1" aria-labelledby="editPositionModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" style="max-width: 400px;">
+            <div class="modal-content border-0 shadow-lg" style="border-radius: 24px;">
+                <div class="modal-header border-0 pb-0 pt-4 px-4">
+                    <h5 class="modal-title fw-800" id="editPositionModalLabel" style="color: #0f172a; font-size: 1.25rem;">Edit Posisi Kandidat</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form id="editPositionForm">
+                    <div class="modal-body p-4">
+                        <div class="modal-field-shell">
+                            <label for="editPositionSelect" class="form-label form-label-soft">Ganti Posisi Ke</label>
+                            <select class="form-select" id="editPositionSelect" required>
+                                <option value="">Pilih posisi...</option>
+                                <!-- Options will be populated via JS -->
+                            </select>
+                        </div>
+                        <div class="alert alert-info mt-3 mb-0 py-2 px-3 border-0" style="border-radius: 12px; font-size: 0.8rem;">
+                            <i class="fa-solid fa-circle-info me-2"></i> Mengubah posisi akan langsung memperbarui database kandidat.
+                        </div>
+                    </div>
+                    <div class="modal-footer border-0 pt-0 pb-4 px-4">
+                        <button type="button" class="btn btn-light rounded-3 px-4" data-bs-dismiss="modal">Batal</button>
+                        <button type="submit" class="btn btn-primary rounded-3 px-4 fw-bold" id="btnSubmitEditPosition">Simpan Perubahan</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
@@ -2225,6 +2432,17 @@
         const API_BASE_URL = (window.__INTERNSHIP_RECRUITMENT_API_BASE__ || document.documentElement.dataset.internshipApiBase || "").toString().trim().replace(/\/$/, "");
         const INTERVIEW_LOCATION_URL = "https://maps.app.goo.gl/aGKfqEzzVbhnHsdq6?g_st=com.google.maps.preview.copy";
         const ONBOARDING_LOCATION_URL = "https://maps.app.goo.gl/HuoK9xxp2Ji54v9k9";
+        const POSITIONS_LIST = [
+            "Admin Kelas",
+            "Admin Marketing/ Telemarketing",
+            "Recruiter Spesialist",
+            "People Development",
+            "Content Creator",
+            "Content Writer",
+            "HTML Writer",
+            "Design Specialist",
+            "Video Editor"
+        ];
         const detailRoot = document.getElementById("detailRoot");
         const usersMap = {};
         const departmentsMap = {};
@@ -2233,6 +2451,8 @@
         let unsubscribeCandidate = null;
         let interviewModal = null;
         let decisionModal = null;
+        let offerPositionModal = null;
+        let editPositionModal = null;
         let onboardingPicker = null;
         let activeDecisionAction = "";
         let decisionModalContext = "interview";
@@ -2255,9 +2475,16 @@
         let positionLabelsCache = null;
         let photoViewerEventsBound = false;
 
-        renderTopBar(document.getElementById("topbarContainer"));
-        renderSidebar(document.getElementById("sidebarContainer"));
-        renderRightbarRecruit();
+        try {
+            const topbarTarget = document.getElementById("topbarContainer");
+            const sidebarTarget = document.getElementById("sidebarContainer");
+
+            if (topbarTarget) renderTopBar(topbarTarget);
+            if (sidebarTarget) renderSidebar(sidebarTarget);
+            renderRightbarRecruit();
+        } catch (e) {
+            console.error("Early rendering crash", e);
+        }
 
         window.db = db;
         window.getDocs = getDocs;
@@ -2582,15 +2809,19 @@
 
         async function ensurePositionLabelsLoaded() {
             if (positionLabelsCache) return positionLabelsCache;
-            let snap = await getDocs(collection(db, "position"));
-            if (snap.empty) {
-                snap = await getDocs(collection(db, "positions"));
-            }
             const map = {};
-            snap.forEach(docSnap => {
-                const data = docSnap.data() || {};
-                map[docSnap.id] = data.name || data.label || data.title || data.position || docSnap.id;
-            });
+            try {
+                let snap = await getDocs(collection(db, "position"));
+                if (snap.empty) {
+                    snap = await getDocs(collection(db, "positions"));
+                }
+                snap.forEach(docSnap => {
+                    const data = docSnap.data() || {};
+                    map[docSnap.id] = data.name || data.label || data.title || data.position || docSnap.id;
+                });
+            } catch (error) {
+                console.warn("Gagal memuat label posisi dari Firestore", error);
+            }
             positionLabelsCache = map;
             return map;
         }
@@ -3116,11 +3347,15 @@
         async function ensureUsersLoaded() {
             await ensurePositionLabelsLoaded();
             if (Object.keys(usersMap).length > 0) return usersMap;
-            const snap = await getDocs(collection(db, "users"));
-            snap.forEach(docSnap => {
-                const data = docSnap.data() || {};
-                usersMap[docSnap.id] = buildUserViewModel(docSnap.id, data);
-            });
+            try {
+                const snap = await getDocs(collection(db, "users"));
+                snap.forEach(docSnap => {
+                    const data = docSnap.data() || {};
+                    usersMap[docSnap.id] = buildUserViewModel(docSnap.id, data);
+                });
+            } catch (error) {
+                console.warn("Gagal memuat data user dari Firestore", error);
+            }
             return usersMap;
         }
 
@@ -3175,14 +3410,18 @@
 
         async function ensureDepartmentsLoaded() {
             if (Object.keys(departmentsMap).length > 0) return departmentsMap;
-            let snap = await getDocs(collection(db, "department"));
-            if (snap.empty) {
-                snap = await getDocs(collection(db, "departments"));
+            try {
+                let snap = await getDocs(collection(db, "department"));
+                if (snap.empty) {
+                    snap = await getDocs(collection(db, "departments"));
+                }
+                snap.forEach(docSnap => {
+                    const data = docSnap.data() || {};
+                    departmentsMap[docSnap.id] = data.name || data.label || data.title || data.department || docSnap.id;
+                });
+            } catch (error) {
+                console.warn("Gagal memuat data departemen dari Firestore", error);
             }
-            snap.forEach(docSnap => {
-                const data = docSnap.data() || {};
-                departmentsMap[docSnap.id] = data.name || data.label || data.title || data.department || docSnap.id;
-            });
             return departmentsMap;
         }
 
@@ -3295,6 +3534,15 @@
                 finalDecisionAt,
                 interviewerIds,
                 history,
+                onboardingStartDate,
+                departmentId,
+                mentorId,
+                rejectionReason,
+                rejectionNotes,
+                offerStatus: recruitment.offer_status || "",
+                offeredPosition: recruitment.offered_position || "",
+                offeredAt: recruitment.offered_at || null,
+                offeredBy: recruitment.offered_by || "",
                 screeningByName: screeningByResolvedName || "",
                 screeningByEmail,
                 screeningByUid,
@@ -3303,11 +3551,6 @@
                 withdrawalReason,
                 withdrawalAt,
                 withdrawalByName,
-                onboardingStartDate,
-                departmentId,
-                mentorId,
-                rejectionReason,
-                rejectionNotes,
                 isInactive: inactiveRecord,
                 raw: data
             };
@@ -3628,6 +3871,13 @@
                         '</div>';
                 }
             }
+            const offerBadge = vm.offerStatus === "offered_other_position"
+                ? '<span class="status-badge-modern status-offered-other">Offered Other Position</span>'
+                : "";
+            const offeredPositionInfo = (vm.offerStatus === "offered_other_position" && vm.offeredPosition)
+                ? '<div class="offered-position-info"><i class="fa-solid fa-share-from-square"></i> Ditawarkan ke: ' + escapeHtml(vm.offeredPosition) + '</div>'
+                : "";
+
             detailRoot.innerHTML =
                 '<div class="section-stack">' +
                     '<div class="detail-hero">' +
@@ -3651,7 +3901,9 @@
                                             statusBadge +
                                             workModeBadge +
                                             decisionBadge +
+                                            offerBadge +
                                         '</div>' +
+                                        offeredPositionInfo +
                                         '<div class="detail-chip-row">' +
                                             '<span class="detail-meta-chip"><i class="fa-regular fa-envelope"></i>' + escapeHtml(vm.email || "-") + '</span>' +
                                             '<span class="detail-meta-chip"><i class="fa-solid fa-phone"></i>' + escapeHtml(vm.whatsapp || "-") + '</span>' +
@@ -3669,6 +3921,15 @@
                                         (vm.linkedin ? '<a class="icon-link-btn" href="' + escapeHtml(vm.linkedin) + '" target="_blank" rel="noopener noreferrer" aria-label="Buka LinkedIn kandidat"><i class="fa-brands fa-linkedin-in"></i></a>' : '') +
                                         (vm.instagram ? '<a class="icon-link-btn" href="' + escapeHtml(vm.instagram) + '" target="_blank" rel="noopener noreferrer" aria-label="Buka Instagram kandidat"><i class="fa-brands fa-instagram"></i></a>' : '') +
                                         (!vm.isInactive ? '<button type="button" class="icon-link-btn" id="btnMoveToInactive" style="border-color: #fca5a5; color: #dc2626;" title="Pindahkan ke Kandidat Nonaktif" aria-label="Pindahkan kandidat ke nonaktif"><i class="fa-solid fa-trash-can"></i></button>' : '') +
+                                        '<div class="dropdown card-menu-dropdown">' +
+                                            '<button class="icon-link-btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" title="Menu Opsi Lainnya">' +
+                                                '<i class="fa-solid fa-ellipsis-vertical"></i>' +
+                                            '</button>' +
+                                            '<ul class="dropdown-menu dropdown-menu-end shadow-lg">' +
+                                                '<li><button class="dropdown-item text-primary" type="button" id="btnOpenOfferModal"><i class="fa-solid fa-handshake-angle"></i>Tawarkan posisi lain</button></li>' +
+                                                '<li><button class="dropdown-item text-secondary" type="button" id="btnOpenEditPositionModal"><i class="fa-solid fa-pen-to-square"></i>Edit posisi</button></li>' +
+                                            '</ul>' +
+                                        '</div>' +
                                     '</div>' +
                                 '</div>' +
                             '</div>' +
@@ -3957,8 +4218,9 @@
             }
 
             try {
-                await Promise.all([ensureUsersLoaded(), ensureDepartmentsLoaded(), ensureAuthorizedInterviewersLoaded()]);
+                // Load candidate first as it's the primary content
                 const snap = await getDoc(doc(db, INTERNSHIP_CANDIDATES_COLLECTION, talentId));
+                
                 if (!snap.exists()) {
                     detailRoot.innerHTML =
                         '<div class="empty-state-card">' +
@@ -3968,8 +4230,24 @@
                         '</div>';
                     return;
                 }
+                
                 currentCandidate = { id: snap.id, ...(snap.data() || {}) };
+                
+                // Initial render with whatever data we have
                 renderCandidateDetail();
+                
+                // Load metadata in background or in parallel, but don't let them block the initial render if they fail
+                Promise.all([
+                    ensureUsersLoaded().catch(err => console.warn("Users metadata load failed", err)),
+                    ensureDepartmentsLoaded().catch(err => console.warn("Departments metadata load failed", err)),
+                    ensureAuthorizedInterviewersLoaded().catch(err => console.warn("Interviewers metadata load failed", err))
+                ]).finally(() => {
+                    // Re-render once metadata is (potentially) loaded to resolve names
+                    if (currentCandidate) {
+                        renderCandidateDetail();
+                    }
+                });
+
                 subscribeToCandidate(talentId);
             } catch (error) {
                 console.error("Gagal memuat detail kandidat", error);
@@ -3977,6 +4255,7 @@
                     '<div class="empty-state-card">' +
                         '<div class="fw-bold text-dark mb-2">Terjadi kesalahan saat memuat data</div>' +
                         '<div class="mb-4">Silakan refresh halaman atau coba lagi beberapa saat.</div>' +
+                        '<div class="text-muted small mb-4">' + escapeHtml(error.message || "Unknown Error") + '</div>' +
                         '<a href="./candidate-internship.html" class="btn btn-primary">Kembali ke daftar kandidat</a>' +
                     '</div>';
             }
@@ -5229,6 +5508,189 @@
             decisionModal.show();
         }
 
+        function generateOfferTemplate(candidateName, currentPosition, recommendedPosition) {
+            const user = auth.currentUser;
+            const recruiterName = user ? (usersMap[user.uid]?.name || user.displayName || "HR") : "HR";
+            const tomorrow = new Date();
+            tomorrow.setDate(tomorrow.getDate() + 1);
+                        const tomorrowStr = (() => {
+                const d = tomorrow.getDate().toString().padStart(2, '0');
+                const m = (tomorrow.getMonth() + 1).toString().padStart(2, '0');
+                const y = tomorrow.getFullYear();
+                return `${d}/${m}/${y}`;
+            })();
+
+            return `[DIALOGIKA INTERNSHIP OPPORTUNITY]\n\nHalo Kak ${candidateName} \nPerkenalkan saya ${recruiterName} dari Recruiter Specialist Dialogika.\n\nTerima kasih telah apply internship di Dialogika pada posisi ${currentPosition} Intern. Setelah screening CV yang kakak kirimkan melalui Web Dialogika, kami melihat bahwa background pengalaman kakak lebih sesuai untuk posisi ${recommendedPosition}. Oleh karena itu, kami ingin menawarkan kakak untuk berpindah ke posisi tersebut.\n\nJika kakak bersedia, mohon konfirmasi agar dapat kami lanjutkan ke tahap recruitment berikutnya.\nKonfirmasi dapat diberikan maksimal H+1 dari hari ini, yaitu ${tomorrowStr}\n\nTerima kasih\n\nSalam,\nHR Dialogika`;
+        }
+
+        function openOfferPositionModal(vm) {
+            const select = document.getElementById("recommendedPositionSelect");
+            select.innerHTML = '<option value="">Pilih posisi baru...</option>';
+            POSITIONS_LIST.forEach(pos => {
+                if (pos !== vm.position) {
+                    const opt = document.createElement("option");
+                    opt.value = pos;
+                    opt.textContent = pos;
+                    select.appendChild(opt);
+                }
+            });
+
+            document.getElementById("offerWhatsappShell").classList.add("d-none");
+            document.getElementById("offerWhatsappStatusHint").classList.remove("d-none");
+            
+            offerPositionModal.show();
+        }
+
+        function handleOfferPositionChange() {
+            const pos = document.getElementById("recommendedPositionSelect").value;
+            const vm = getCandidateViewModel(currentCandidate);
+            if (!pos) {
+                document.getElementById("offerWhatsappShell").classList.add("d-none");
+                document.getElementById("offerWhatsappStatusHint").classList.remove("d-none");
+                return;
+            }
+
+            const template = generateOfferTemplate(vm.name, vm.position, pos);
+            document.getElementById("offerWhatsappText").value = template;
+            document.getElementById("offerWhatsappTargetInfo").textContent = `Kirim ke: ${vm.name} (${vm.whatsapp})`;
+            
+            document.getElementById("offerWhatsappShell").classList.remove("d-none");
+            document.getElementById("offerWhatsappStatusHint").classList.add("d-none");
+        }
+
+        async function sendOfferWhatsApp() {
+            const btn = document.getElementById("btnSendOfferWhatsapp");
+            const pos = document.getElementById("recommendedPositionSelect").value;
+            const messageRaw = document.getElementById("offerWhatsappText").value;
+            const vm = getCandidateViewModel(currentCandidate);
+            const user = auth.currentUser;
+
+            if (!pos || !messageRaw) return;
+
+            const message = normalizeWhatsappMessage(messageRaw);
+
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin me-2"></i>Mengirim...';
+
+            try {
+                const ref = doc(db, INTERNSHIP_CANDIDATES_COLLECTION, vm.id);
+                const updateData = {
+                    "recruitment_status.offer_status": "offered_other_position",
+                    "recruitment_status.offered_position": pos,
+                    "recruitment_status.offered_at": serverTimestamp(),
+                    "recruitment_status.offered_by": user ? user.uid : "system",
+                    "recruitment_status.offered_by_name": user ? (usersMap[user.uid]?.name || user.displayName || "HR") : "HR",
+                    "recruitment_status.old_position": vm.position,
+                    updated_at: serverTimestamp()
+                };
+
+                updateData["recruitment_status.history"] = arrayUnion({
+                    date: new Date().toISOString(),
+                    status: vm.displayStatus,
+                    previousStatus: vm.displayStatus,
+                    by: user ? (usersMap[user.uid]?.name || user.displayName || "HR") : "HR",
+                    action: "offer_other_position",
+                    offeredPosition: pos
+                });
+
+                await updateDoc(ref, updateData);
+
+                const waLink = buildWhatsappDeepLink(vm.whatsapp, message);
+                window.open(waLink, "_blank");
+
+                offerPositionModal.hide();
+                Swal.fire({
+                    icon: "success",
+                    title: "Berhasil",
+                    text: "Penawaran posisi berhasil dikirim",
+                    timer: 2000,
+                    showConfirmButton: false
+                });
+            } catch (error) {
+                console.error("Failed to send offer", error);
+                Swal.fire("Error", "Gagal menyimpan data penawaran.", "error");
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fa-brands fa-whatsapp me-2"></i>Kirim Penawaran WA';
+            }
+        }
+
+        function openEditPositionModal(vm) {
+            const select = document.getElementById("editPositionSelect");
+            select.innerHTML = '<option value="">Pilih posisi...</option>';
+            POSITIONS_LIST.forEach(pos => {
+                const opt = document.createElement("option");
+                opt.value = pos;
+                opt.textContent = pos;
+                if (pos === vm.position) opt.selected = true;
+                select.appendChild(opt);
+            });
+            editPositionModal.show();
+        }
+
+        async function submitEditPositionForm(e) {
+            e.preventDefault();
+            const btn = document.getElementById("btnSubmitEditPosition");
+            const pos = document.getElementById("editPositionSelect").value;
+            const vm = getCandidateViewModel(currentCandidate);
+            const user = auth.currentUser;
+
+            if (!pos) return;
+            if (pos === vm.position) {
+                editPositionModal.hide();
+                return;
+            }
+
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin me-2"></i>Menyimpan...';
+
+            try {
+                const ref = doc(db, INTERNSHIP_CANDIDATES_COLLECTION, vm.id);
+                const updateData = {
+                    "scouting_info.position_name": pos,
+                    "internship.position": pos,
+                    "internship_info.position": pos,
+                    "position": pos,
+                    // Clear offer alternative position state when candidate position is manually edited
+                    "recruitment_status.offer_status": "",
+                    "recruitment_status.offered_position": "",
+                    "recruitment_status.offered_at": null,
+                    updated_at: serverTimestamp()
+                };
+
+                updateData["recruitment_status.history"] = arrayUnion({
+                    date: new Date().toISOString(),
+                    status: vm.displayStatus,
+                    previousStatus: vm.displayStatus,
+                    by: user ? (usersMap[user.uid]?.name || user.displayName || "HR") : "HR",
+                    action: "edit_position",
+                    oldPosition: vm.position,
+                    newPosition: pos
+                });
+
+                await updateDoc(ref, updateData);
+
+                editPositionModal.hide();
+
+                // Re-render immediately (onSnapshot will also re-render, but this makes UI feel instant)
+                renderCandidateDetail();
+
+                Swal.fire({
+                    icon: "success",
+                    title: "Berhasil",
+                    text: "Posisi kandidat berhasil diperbarui",
+                    timer: 2000,
+                    showConfirmButton: false
+                });
+            } catch (error) {
+                console.error("Failed to update position", error);
+                Swal.fire("Error", "Gagal memperbarui posisi kandidat.", "error");
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = "Simpan Perubahan";
+            }
+        }
+
         function getAuditBase(actor, previousStatus, newStatus, reason, note) {
             return {
                 timestamp: new Date().toISOString(),
@@ -5740,6 +6202,8 @@
             const markWithdrawnBtn = document.getElementById("btnMarkWithdrawn");
             const downloadCvBtn = document.getElementById("btnDownloadCv");
             const downloadPortfolioBtn = document.getElementById("btnDownloadPortfolio");
+            const openOfferBtn = document.getElementById("btnOpenOfferModal");
+            const openEditPositionBtn = document.getElementById("btnOpenEditPositionModal");
 
             if (openInterviewBtn) {
                 openInterviewBtn.addEventListener("click", () => openInterviewModal("schedule"));
@@ -5788,11 +6252,19 @@
                     openCandidatePhotoViewer(vm.avatarUrl, vm.name);
                 });
             }
+            if (openOfferBtn) {
+                openOfferBtn.addEventListener("click", () => openOfferPositionModal(vm));
+            }
+            if (openEditPositionBtn) {
+                openEditPositionBtn.addEventListener("click", () => openEditPositionModal(vm));
+            }
         }
 
         function initializeModalBindings() {
             interviewModal = new bootstrap.Modal(document.getElementById("interviewModal"));
             decisionModal = new bootstrap.Modal(document.getElementById("decisionModal"));
+            offerPositionModal = new bootstrap.Modal(document.getElementById("offerPositionModal"));
+            editPositionModal = new bootstrap.Modal(document.getElementById("editPositionModal"));
             bindCandidatePhotoViewerEvents();
             syncInterviewModalViewportHeight();
             initializePickers();
@@ -5803,6 +6275,9 @@
 
             document.getElementById("interviewForm").addEventListener("submit", submitInterviewForm);
             document.getElementById("decisionForm").addEventListener("submit", submitDecisionForm);
+            document.getElementById("recommendedPositionSelect").addEventListener("change", handleOfferPositionChange);
+            document.getElementById("btnSendOfferWhatsapp").addEventListener("click", sendOfferWhatsApp);
+            document.getElementById("editPositionForm").addEventListener("submit", submitEditPositionForm);
             document.getElementById("interviewerSearchInput").addEventListener("input", handleInterviewerSearchInput);
             document.getElementById("interviewDateTimeInput").addEventListener("input", () => {
                 const adjusted = enforceInterviewWorkingHourRange();

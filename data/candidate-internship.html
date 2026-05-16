@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="id">
 <head>
     <meta charset="UTF-8">
@@ -1574,6 +1574,18 @@
             border-color: #86efac;
         }
 
+        .status-onboarding {
+            background: #f0fdf4;
+            color: #166534;
+            border-color: #dcfce7;
+        }
+
+        .status-offered-other {
+            background: #fdf4ff;
+            color: #a21caf;
+            border-color: #f5d0fe;
+        }
+
         .interview-schedule-badge.badge-today {
             background: #dbeafe;
             color: #1d4ed8;
@@ -2255,22 +2267,22 @@
                         <div class="pipeline-stat-card pipeline-stat-total">
                             <div class="pipeline-stat-label">Total Kandidat</div>
                             <div class="pipeline-stat-value">0</div>
-                            <div class="pipeline-stat-note">Belum ada data yang dimuat.</div>
+                            <!-- <div class="pipeline-stat-note">Belum ada data yang dimuat.</div> -->
                         </div>
                         <div class="pipeline-stat-card pipeline-stat-screening">
                             <div class="pipeline-stat-label">Screening</div>
                             <div class="pipeline-stat-value">0</div>
-                            <div class="pipeline-stat-note">Tahap seleksi awal kandidat.</div>
+                            <!-- <div class="pipeline-stat-note">Tahap seleksi awal kandidat.</div> -->
                         </div>
                         <div class="pipeline-stat-card pipeline-stat-interview">
                             <div class="pipeline-stat-label">Interview</div>
                             <div class="pipeline-stat-value">0</div>
-                            <div class="pipeline-stat-note">Kandidat sedang dijadwalkan atau diwawancara.</div>
+                            <!-- <div class="pipeline-stat-note">Kandidat sedang dijadwalkan atau diwawancara.</div> -->
                         </div>
                         <div class="pipeline-stat-card pipeline-stat-accepted">
                             <div class="pipeline-stat-label">Accepted</div>
                             <div class="pipeline-stat-value">0</div>
-                            <div class="pipeline-stat-note">Kandidat lolos seleksi dan menunggu onboarding.</div>
+                            <!-- <div class="pipeline-stat-note">Kandidat lolos seleksi dan menunggu onboarding.</div> -->
                         </div>
                         <div class="pipeline-stat-card pipeline-stat-onboarding">
                             <div class="pipeline-stat-label">Onboarding</div>
@@ -4163,6 +4175,7 @@
             const interviewScheduleRaw = params.interviewScheduleRaw || "";
             const interviewerIds = Array.isArray(params.interviewerIds) ? params.interviewerIds : [];
             const createdSortValue = Number(params.createdSortValue || 0);
+            const offerStatus = params.offerStatus || "";
 
             const gridContainer = document.getElementById('gridView');
             const listTbody = document.querySelector('#listView tbody');
@@ -4183,6 +4196,7 @@
                 '<div class="candidate-header-chips">' +
                     positionHtml +
                     '<span class="' + statusBadgeClasses + '">' + statusLabel + '</span>' +
+                    (offerStatus === "offered_other_position" ? '<span class="status-badge-modern status-offered-other">Offered Other Position</span>' : '') +
                     (isWithdrawn ? '<span class="status-badge-modern status-withdrawn">Mengundurkan Diri</span>' : '') +
                 '</div>';
             const detailListHtml =
@@ -4368,7 +4382,7 @@
                     const roleNameValue = (roleNameRaw || "").toString().toLowerCase();
                     const normalizedRoleId = roleIdValue.replace(/\s/g, "");
                     const normalizedRoleName = roleNameValue.replace(/\s/g, "");
-                    const isInternshipRole = normalizedRoleId === "internship" && normalizedRoleName === "internship";
+                    const isInternshipRole = normalizedRoleId === "internship" || normalizedRoleName === "internship";
                     if (!isInternshipRole) {
                         return;
                     }
@@ -4457,7 +4471,8 @@
                         createdSortValue,
                         dueDateInputValue,
                         interviewScheduleRaw,
-                        interviewerIds
+                        interviewerIds,
+                        offerStatus: recruitment.offer_status || ""
                     });
                     found += 1;
                 });
