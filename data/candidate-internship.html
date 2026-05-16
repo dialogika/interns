@@ -2668,13 +2668,58 @@
             }
         }
 
+        const CANDIDATE_LIST_STATE_KEY = "dialogika_candidate_list_state_v1";
+
+        function getCandidateListUiState() {
+            const viewMode = (btnGrid && btnGrid.classList.contains("active")) ? "grid"
+                : (btnList && btnList.classList.contains("active")) ? "list"
+                    : (gridView && gridView.style.display === "grid") ? "grid"
+                        : "list";
+
+            return {
+                viewMode,
+                search: (searchInput && typeof searchInput.value === "string") ? searchInput.value : "",
+                status: (statusFilter && typeof statusFilter.value === "string") ? statusFilter.value : "",
+                sort: (sortSelect && typeof sortSelect.value === "string") ? sortSelect.value : "none"
+            };
+        }
+
+        function saveCandidateListState() {
+            try {
+                window.sessionStorage.setItem(CANDIDATE_LIST_STATE_KEY, JSON.stringify(getCandidateListUiState()));
+            } catch (e) {
+                // ignore quota / privacy errors
+            }
+        }
+
+        function restoreCandidateListState() {
+            try {
+                const raw = window.sessionStorage.getItem(CANDIDATE_LIST_STATE_KEY);
+                if (!raw) return;
+
+                const state = JSON.parse(raw);
+                if (!state || typeof state !== "object") return;
+
+                if (searchInput && typeof state.search === "string") searchInput.value = state.search;
+                if (statusFilter && typeof state.status === "string") statusFilter.value = state.status;
+                if (sortSelect && typeof state.sort === "string") sortSelect.value = state.sort;
+
+                const desiredView = state.viewMode === "grid" ? "grid" : "list";
+                setCandidateViewMode(desiredView);
+            } catch (e) {
+                // ignore
+            }
+        }
+
         if (btnGrid && btnList && gridView && listView) {
             btnGrid.addEventListener('click', () => {
                 setCandidateViewMode("grid");
+                saveCandidateListState();
             });
 
             btnList.addEventListener('click', () => {
                 setCandidateViewMode("list");
+                saveCandidateListState();
             });
         }
 
@@ -2682,20 +2727,34 @@
             toggleViewModeBtn.addEventListener("click", () => {
                 const nextMode = btnGrid.classList.contains("active") ? "list" : "grid";
                 setCandidateViewMode(nextMode);
+                saveCandidateListState();
             });
         }
 
         if (searchInput) {
-            searchInput.addEventListener('input', applyCandidateFilters);
+            searchInput.addEventListener('input', () => {
+                applyCandidateFilters();
+                saveCandidateListState();
+            });
         }
 
         if (statusFilter) {
-            statusFilter.addEventListener('change', applyCandidateFilters);
+            statusFilter.addEventListener('change', () => {
+                applyCandidateFilters();
+                saveCandidateListState();
+            });
         }
 
         if (sortSelect) {
-            sortSelect.addEventListener('change', applyCandidateFilters);
+            sortSelect.addEventListener('change', () => {
+                applyCandidateFilters();
+                saveCandidateListState();
+            });
         }
+
+        // Restore persisted UI state (so when user comes back from detail, filter/search/sort/view are intact)
+        restoreCandidateListState();
+        applyCandidateFilters();
 
         if (window.bootstrap && typeof window.bootstrap.Tooltip === 'function') {
             window.refreshTooltips = function () {
