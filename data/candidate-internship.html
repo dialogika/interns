@@ -456,11 +456,11 @@
         }
 
         .candidate-toolbar {
-            background: rgba(255, 255, 255, 0.88);
-            backdrop-filter: blur(16px);
-            border: 1px solid rgba(148, 163, 184, 0.14);
-            border-radius: 24px;
-            padding: 1.25rem;
+            background: rgba(255, 255, 255, 0.92);
+            backdrop-filter: blur(14px);
+            border: 1px solid rgba(148, 163, 184, 0.18);
+            border-radius: 20px;
+            padding: 0.85rem 1rem;
             box-shadow: 0 16px 40px rgba(15, 23, 42, 0.06);
             margin-top: -2rem;
             position: relative;
@@ -468,36 +468,52 @@
         }
 
         .toolbar-label {
-            font-size: 0.7rem;
-            font-weight: 700;
+            font-size: 0.64rem;
+            font-weight: 800;
             letter-spacing: 0.12em;
             text-transform: uppercase;
             color: #64748b;
-            margin-bottom: 0.45rem;
+            margin-bottom: 0.3rem;
             display: block;
         }
 
         .toolbar-input,
         .toolbar-select {
-            min-height: 50px;
-            border-radius: 16px;
-            border: 1px solid rgba(203, 213, 225, 0.9);
+            height: 38px;
+            min-height: 38px;
+            border-radius: 12px;
+            border: 1px solid rgba(203, 213, 225, 0.95);
             background: #ffffff;
             box-shadow: none;
             font-size: 0.95rem;
+            padding-top: 0;
+            padding-bottom: 0;
         }
 
         .toolbar-input:focus,
         .toolbar-select:focus {
-            border-color: rgba(59, 130, 246, 0.5);
-            box-shadow: 0 0 0 0.2rem rgba(59, 130, 246, 0.12);
+            border-color: rgba(37, 99, 235, 0.55);
+            box-shadow: 0 0 0 0.18rem rgba(37, 99, 235, 0.12);
         }
 
         .toolbar-search {
             background: #ffffff;
-            border: 1px solid rgba(203, 213, 225, 0.85);
-            border-radius: 18px;
-            padding: 0.15rem 0.55rem;
+            border: 1px solid rgba(203, 213, 225, 0.95);
+            border-radius: 12px;
+            padding: 0.08rem 0.5rem;
+            height: 38px;
+        }
+
+        .toolbar-search .input-group-text {
+            width: 34px;
+            height: 100%;
+            border: 0 !important;
+            padding: 0;
+            margin: 0;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            color: #94a3b8;
         }
 
         .toolbar-search .input-group-text {
@@ -2233,7 +2249,7 @@
                                 <label class="toolbar-label" for="candidateSearchInput">Cari Kandidat</label>
                                 <div class="input-group toolbar-search">
                                     <span class="input-group-text bg-transparent border-0"><i class="fas fa-search"></i></span>
-                                    <input type="text" id="candidateSearchInput" class="form-control toolbar-input bg-transparent border-0 shadow-none" placeholder="Cari nama, kampus, posisi, atau kontak...">
+                                    <input type="text" id="candidateSearchInput" class="form-control toolbar-input bg-transparent border-0 shadow-none" placeholder="Nama, kampus, posisi, atau kontak...">
                                 </div>
                             </div>
                             <div class="col-md-4 col-lg-3">
@@ -2250,12 +2266,12 @@
                             <div class="col-md-4 col-lg-2">
                                 <label class="toolbar-label" for="candidateSortSelect">Urutkan</label>
                                 <select id="candidateSortSelect" class="form-select toolbar-select w-100">
-                                    <option value="none">Urutkan</option>
-                                    <option value="status">Status</option>
-                                    <option value="created_desc">Tanggal input (terbaru)</option>
-                                    <option value="created_asc">Tanggal input (terlama)</option>
-                                    <option value="interview_asc">Tanggal interview (terdekat)</option>
-                                    <option value="interview_desc">Tanggal interview (terjauh)</option>
+                                    <option value="none">None</option>
+                                    <!-- <option value="status">Status</option> -->
+                                    <option value="created_desc">Paling Baru</option>
+                                    <option value="created_asc">Paling Lama</option>
+                                    <!-- <option value="interview_asc">Interview (terdekat)</option>
+                                    <option value="interview_desc">Interview (terjauh)</option> -->
                                     <option value="name_asc">Nama A-Z</option>
                                     <option value="name_desc">Nama Z-A</option>
                                 </select>
@@ -2492,7 +2508,7 @@
                             </div>
                             <div class="col-6 col-lg-2">
                                 <select id="interviewScheduleModalStatusFilter" class="form-select" aria-label="Filter status interview">
-                                    <option value="">Semua Status</option>
+                                    <option value="">None</option>
                                     <option value="upcoming">Upcoming</option>
                                     <option value="today">Today</option>
                                 </select>
