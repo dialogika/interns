@@ -91,11 +91,41 @@
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.02);
         }
 
+        .custom-select.has-avatar {
+            padding-left: 56px;
+        }
+
         .custom-select:focus {
             outline: none;
             border-color: #d4af37;
             box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.1);
         }
+
+        .select-avatar-mask {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            overflow: hidden;
+            background: #f1f5f9;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            pointer-events: none;
+            box-shadow: 0 0 0 2px #ffffff;
+        }
+
+        .select-avatar-img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 50%;
+            display: block;
+        }
+
 
         .slider-wrapper {
             position: relative;
@@ -301,6 +331,9 @@
                 <label class="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1 mb-2 block">Pilih Nama
                     Anggota</label>
                 <div class="relative">
+                    <span id="selectAvatarMask" class="select-avatar-mask" aria-hidden="true">
+                        <img id="selectAvatarImg" class="select-avatar-img" alt="">
+                    </span>
                     <select id="nameSelect" class="custom-select">
                         <option value="" disabled selected>Silahkan pilih nama...</option>
                     </select>
@@ -657,15 +690,19 @@
         function applySelectedPhoto() {
             const option = nameSelectEl.options[nameSelectEl.selectedIndex];
             const photo = option ? option.dataset.photo : "";
-            if (photo) {
-                nameSelectEl.style.backgroundImage = `url(${photo})`;
-                nameSelectEl.style.backgroundRepeat = "no-repeat";
-                nameSelectEl.style.backgroundPosition = "12px center";
-                nameSelectEl.style.backgroundSize = "32px 32px";
-                nameSelectEl.style.paddingLeft = "56px";
-            } else {
-                nameSelectEl.style.backgroundImage = "none";
-                nameSelectEl.style.paddingLeft = "";
+            const name = option ? option.textContent : "";
+            const selectAvatarMask = document.getElementById('selectAvatarMask');
+            const selectAvatarImg = document.getElementById('selectAvatarImg');
+            if (selectAvatarMask && selectAvatarImg && option && option.value && photo) {
+                selectAvatarImg.src = photo;
+                selectAvatarImg.alt = name || 'Foto intern';
+                selectAvatarMask.style.display = 'flex';
+                nameSelectEl.classList.add('has-avatar');
+            } else if (selectAvatarMask && selectAvatarImg) {
+                selectAvatarImg.removeAttribute('src');
+                selectAvatarImg.alt = '';
+                selectAvatarMask.style.display = 'none';
+                nameSelectEl.classList.remove('has-avatar');
             }
         }
 
