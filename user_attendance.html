@@ -213,7 +213,7 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getFirestore, collection, getDocs, query, orderBy } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+        import { getFirestore, collection, getDocs, query, orderBy, where, limit } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyDyzzEYbJkkl-N8snrQf14qvj8De4YliV0",
@@ -235,7 +235,8 @@
         const filterDateInput = document.getElementById('filterDate');
         const btnClearFilter = document.getElementById('btnClearFilter');
 
-        let allRecords = [];
+        let currentRecords = [];
+        const DEFAULT_LIMIT = 300;
 
         function renderTable(records) {
             tbody.innerHTML = "";
@@ -278,26 +279,25 @@
                 tr.appendChild(tdTime);
                 tbody.appendChild(tr);
             });
-            summaryText.textContent = "Total presensi: " + records.length;
         }
 
-        function applyDateFilter() {
-            const value = filterDateInput.value;
-            if (!value) {
-                renderTable(allRecords);
-                return;
-            }
-            const filtered = allRecords.filter(r => r.date === value);
-            renderTable(filtered);
-        }
-
-        async function loadAttendance() {
+        async function loadAttendance(dateKey) {
             loadingSpinner.classList.remove('d-none');
+            summaryText.textContent = "Memuat data presensi...";
             try {
-                const q = query(
-                    collection(db, "user_attendance"),
-                    orderBy("created_at", "desc")
-                );
+                let q;
+                if (dateKey) {
+                    q = query(
+                        collection(db, "user_attendance"),
+                        where("date", "==", dateKey)
+                    );
+                } else {
+                    q = query(
+                        collection(db, "user_attendance"),
+                        orderBy("created_at", "desc"),
+                        limit(DEFAULT_LIMIT)
+                    );
+                }
                 const snap = await getDocs(q);
                 const rows = [];
                 snap.forEach(docSnap => {
@@ -311,8 +311,16 @@
                         time: d.time || ""
                     });
                 });
-                allRecords = rows;
+                if (dateKey) {
+                    rows.sort((a, b) => String(a.time || '').localeCompare(String(b.time || '')));
+                }
+                currentRecords = rows;
                 renderTable(rows);
+                if (dateKey) {
+                    summaryText.textContent = `Total presensi (${dateKey}): ${rows.length}`;
+                } else {
+                    summaryText.textContent = `Menampilkan ${rows.length} data terakhir. Gunakan filter tanggal untuk data lengkap.`;
+                }
             } catch (e) {
                 console.error("Gagal memuat data presensi", e);
                 summaryText.textContent = "Gagal memuat data presensi.";
@@ -321,13 +329,16 @@
             }
         }
 
-        filterDateInput.addEventListener('change', applyDateFilter);
+        filterDateInput.addEventListener('change', () => {
+            const value = filterDateInput.value || "";
+            loadAttendance(value);
+        });
         btnClearFilter.addEventListener('click', () => {
             filterDateInput.value = "";
-            renderTable(allRecords);
+            loadAttendance("");
         });
 
-        loadAttendance();
+        loadAttendance("");
     </script>
 </body>
 </html>

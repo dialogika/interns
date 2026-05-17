@@ -5,11 +5,48 @@ export function renderSidebar(target) {
     if (typeof window !== 'undefined') {
         if (!window.questTasksById) window.questTasksById = {};
         if (!window.questUsersById) window.questUsersById = {};
+
+        var USERS_CACHE_KEY = 'questUsersCache_v1';
+        var USERS_CACHE_TTL_MS = 10 * 60 * 1000;
+
+        function readUsersCache() {
+            try {
+                var raw = window.sessionStorage.getItem(USERS_CACHE_KEY);
+                if (!raw) return null;
+                var parsed = JSON.parse(raw);
+                if (!parsed || typeof parsed !== 'object') return null;
+                if (!parsed.ts || !parsed.users) return null;
+                if ((Date.now() - parsed.ts) > USERS_CACHE_TTL_MS) return null;
+                return parsed.users;
+            } catch (e) {
+                return null;
+            }
+        }
+
+        function writeUsersCache(usersMap) {
+            try {
+                window.sessionStorage.setItem(USERS_CACHE_KEY, JSON.stringify({
+                    ts: Date.now(),
+                    users: usersMap
+                }));
+            } catch (e) {}
+        }
         
         // Expose helper to fetch users once and share it
         window.initGlobalUsers = async function() {
             var w = window.parent && window.parent.db ? window.parent : window;
             if (!w.db || !w.getDocs || !w.collection) return;
+            if (window.questUsersById && Object.keys(window.questUsersById).length) {
+                return window.questUsersById;
+            }
+            var cached = readUsersCache();
+            if (cached && Object.keys(cached).length) {
+                window.questUsersById = cached;
+                if (window.parent && window.parent !== window) {
+                    window.parent.questUsersById = cached;
+                }
+                return cached;
+            }
             try {
                 const snap = await w.getDocs(w.collection(w.db, 'users'));
                 var usersMap = {};
@@ -26,6 +63,7 @@ export function renderSidebar(target) {
                 if (window.parent && window.parent !== window) {
                     window.parent.questUsersById = usersMap;
                 }
+                writeUsersCache(usersMap);
                 console.log('Global users initialized:', Object.keys(usersMap).length);
             } catch (e) {
                 console.error('Failed to init global users:', e);

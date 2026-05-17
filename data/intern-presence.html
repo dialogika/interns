@@ -200,8 +200,12 @@
                         <div class="px-6 py-5 border-b border-slate-100/80 flex flex-col md:flex-row gap-3 md:items-center md:justify-between">
                             <div>
                                 <h3 class="text-lg font-bold text-[#0B2B6A]">Tabel Total Jam Internship</h3>
+                                <p id="internshipTotalRangeText" class="text-xs text-slate-400 mt-1">Rentang: -</p>
                             </div>
                             <div class="flex flex-wrap items-center gap-2">
+                                <input type="month" id="internshipTotalStart" class="px-3 py-2 rounded-xl text-xs border border-slate-200 bg-white focus:outline-none focus:ring-2 focus:ring-[#0B2B6A]" aria-label="Bulan mulai">
+                                <input type="month" id="internshipTotalEnd" class="px-3 py-2 rounded-xl text-xs border border-slate-200 bg-white focus:outline-none focus:ring-2 focus:ring-[#0B2B6A]" aria-label="Bulan selesai">
+                                <button id="btnLoadInternshipTotal" class="px-3 py-2 rounded-xl text-xs font-semibold text-[#0B2B6A] border border-[#0B2B6A] hover:bg-[#0B2B6A]/10 transition">Muat</button>
                                 <button id="btnExportInternshipTotalXlsx" class="px-3 py-2 rounded-xl text-xs font-semibold text-white bg-[#0B2B6A] hover:bg-[#113981] transition"><i class="bi bi-download me-1"></i>Export XLSX</button>
                             </div>
                         </div>
@@ -280,7 +284,11 @@
         const absentCountDisplay = document.getElementById('absentCountDisplay');
         const recapMonthFilter = document.getElementById('recapMonthFilter');
         const btnExportMonthlyRecapXlsx = document.getElementById('btnExportMonthlyRecapXlsx');
+        const internshipTotalStart = document.getElementById('internshipTotalStart');
+        const internshipTotalEnd = document.getElementById('internshipTotalEnd');
+        const btnLoadInternshipTotal = document.getElementById('btnLoadInternshipTotal');
         const btnExportInternshipTotalXlsx = document.getElementById('btnExportInternshipTotalXlsx');
+        const internshipTotalRangeText = document.getElementById('internshipTotalRangeText');
         const internRecapBody = document.getElementById('internRecapBody');
         const internRecapEmpty = document.getElementById('internRecapEmpty');
         const internshipTotalBody = document.getElementById('internshipTotalBody');
@@ -289,9 +297,9 @@
         let allInterns = [];
         let selectedDateRecords = [];
         let unsubscribeAttendance = null;
-        let unsubscribeInternshipTotal = null;
         let internshipTotalCache = [];
         let monthlyRecapCache = [];
+        let internshipTotalLoading = false;
 
         function getTodayKey() {
             const now = new Date();
@@ -344,7 +352,7 @@
         }
 
         async function loadInterns() {
-            const qIntern = query(collection(db, 'users'), where('access.role_id', '==', 'internship'));
+            const qIntern = query(collection(db, 'users'), where('access.role_id', '==', 'internship'), where("status", "==", "Active"));
             const snap = await getDocs(qIntern);
             const users = [];
             snap.forEach(docSnap => {
@@ -601,13 +609,59 @@
             internshipTotalBody.appendChild(fragment);
         }
 
-        function setupInternshipTotalRealtime() {
-            if (unsubscribeInternshipTotal) {
-                unsubscribeInternshipTotal();
-                unsubscribeInternshipTotal = null;
+        function normalizeMonthRange(startMonth, endMonth) {
+            let start = startMonth || '';
+            let end = endMonth || '';
+            if (start && end && end < start) {
+                const tmp = start;
+                start = end;
+                end = tmp;
             }
-            const qAll = collection(db, 'user_attendance');
-            unsubscribeInternshipTotal = onSnapshot(qAll, (snap) => {
+            return { start, end };
+        }
+
+        function getInternshipTotalMonthRange() {
+            const now = new Date();
+            const currentMonthKey = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+            const defaultStart = `${now.getFullYear()}-01`;
+            const rawStart = internshipTotalStart && internshipTotalStart.value ? internshipTotalStart.value : defaultStart;
+            const rawEnd = internshipTotalEnd && internshipTotalEnd.value ? internshipTotalEnd.value : currentMonthKey;
+            const normalized = normalizeMonthRange(rawStart, rawEnd);
+            const startRange = getMonthRangeFromMonthKey(normalized.start);
+            const endRange = getMonthRangeFromMonthKey(normalized.end);
+            return {
+                startMonth: normalized.start,
+                endMonth: normalized.end,
+                startKey: startRange.startKey,
+                endKey: endRange.endKey
+            };
+        }
+
+        function updateInternshipTotalRangeText(range) {
+            if (!internshipTotalRangeText) return;
+            if (!range || !range.startMonth || !range.endMonth) {
+                internshipTotalRangeText.textContent = 'Rentang: -';
+                return;
+            }
+            internshipTotalRangeText.textContent = `Rentang: ${range.startMonth} s/d ${range.endMonth}`;
+        }
+
+        async function loadInternshipTotalRange() {
+            if (internshipTotalLoading) return;
+            internshipTotalLoading = true;
+            internshipTotalCache = [];
+            const range = getInternshipTotalMonthRange();
+            updateInternshipTotalRangeText(range);
+            internshipTotalEmpty.textContent = 'Memuat total jam internship...';
+            internshipTotalEmpty.classList.remove('hidden');
+
+            try {
+                const qRange = query(
+                    collection(db, 'user_attendance'),
+                    where('date', '>=', range.startKey),
+                    where('date', '<=', range.endKey)
+                );
+                const snap = await getDocs(qRange);
                 const rows = [];
                 snap.forEach(docSnap => {
                     const d = docSnap.data() || {};
@@ -621,9 +675,14 @@
                 });
                 buildInternshipTotalFromRecords(rows);
                 renderInternshipTotalTable();
-            }, () => {
+            } catch (e) {
+                console.error('Gagal memuat total jam internship:', e);
+                internshipTotalCache = [];
+                internshipTotalEmpty.textContent = 'Gagal memuat total jam internship.';
                 internshipTotalEmpty.classList.remove('hidden');
-            });
+            } finally {
+                internshipTotalLoading = false;
+            }
         }
 
         function exportInternshipTotalXlsx() {
@@ -701,11 +760,14 @@
         async function init() {
             const todayKey = getTodayKey();
             filterDateInput.value = todayKey;
-            recapMonthFilter.value = getMonthKeyFromDate(todayKey);
+            const monthKey = getMonthKeyFromDate(todayKey);
+            recapMonthFilter.value = monthKey;
+            if (internshipTotalStart) internshipTotalStart.value = `${new Date().getFullYear()}-01`;
+            if (internshipTotalEnd) internshipTotalEnd.value = monthKey;
             await loadInterns();
             await refreshByDate(todayKey);
             await loadMonthlyRecap(recapMonthFilter.value);
-            setupInternshipTotalRealtime();
+            await loadInternshipTotalRange();
         }
 
         filterDateInput.addEventListener('change', async () => {
@@ -720,7 +782,19 @@
 
         btnExportXlsx.addEventListener('click', exportPresenceXlsx);
         btnExportMonthlyRecapXlsx.addEventListener('click', exportMonthlyRecapXlsx);
-        btnExportInternshipTotalXlsx.addEventListener('click', exportInternshipTotalXlsx);
+        if (btnLoadInternshipTotal) {
+            btnLoadInternshipTotal.addEventListener('click', async () => {
+                await loadInternshipTotalRange();
+            });
+        }
+        btnExportInternshipTotalXlsx.addEventListener('click', async () => {
+            if (!internshipTotalCache.length) {
+                await loadInternshipTotalRange();
+            }
+            if (internshipTotalCache.length) {
+                exportInternshipTotalXlsx();
+            }
+        });
 
         init().catch((e) => {
             console.error('Init gagal:', e);
