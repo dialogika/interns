@@ -1,0 +1,570 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Import Data Users ke Firestore</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            padding: 40px;
+            background-color: #f8f9fa;
+            font-family: sans-serif;
+        }
+
+        .card {
+            max-width: 800px;
+            margin: 0 auto;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+    </style>
+</head>
+
+<body>
+    <div class="card p-4">
+        <h2 class="mb-3 text-primary">Tool Import Data Users</h2>
+        <p class="text-secondary">Pastikan Anda sudah menyalin data JSON Anda ke dalam array <code>dataUsers</code> di
+            dalam <i>source code</i> file ini sebelum menekan tombol import.</p>
+
+        <div class="alert alert-warning">
+            <strong>Perhatian:</strong> Fungsi batch write Firestore maksimal memproses <strong>500 dokumen</strong>
+            sekaligus. Jika data Anda lebih dari 500, jalankan dalam beberapa tahap.
+        </div>
+
+        <button id="importBtn" class="btn btn-primary btn-lg mb-3">Mulai Import Data</button>
+
+        <div id="statusContainer" class="d-none alert alert-info">
+            <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"
+                id="loadingSpinner"></span>
+            <span id="statusText">Menunggu...</span>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getFirestore, collection, doc, writeBatch, Timestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+        // Konfigurasi Firebase dari project Anda
+        const firebaseConfig = {
+            apiKey: "AIzaSyDyzzEYbJkkl-N8snrQf14qvj8De4YliV0",
+            authDomain: "pre-dialogika.firebaseapp.com",
+            projectId: "pre-dialogika",
+            storageBucket: "pre-dialogika.firebasestorage.app",
+            messagingSenderId: "343771410480",
+            appId: "1:343771410480:web:32881c9868522090237df5",
+            measurementId: "G-SXN811P3N0"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        // ====================================================================
+        // SILAHKAN MASUKKAN DATA ANDA DI SINI
+        // Format array of objects yang disesuaikan dengan struktur koleksi users
+        // ====================================================================
+        const dataUsers = [
+            {
+                id: "Yr2eFhgyrYXNGu0KoZKOwclEAHk1",
+                access: {
+                    level_order: 4,
+                    role_id: "internship"
+                },
+                birth: "2003-01-09",
+                email: "rika.ra03@gmail.com",
+                employment: {
+                    department: "rebuy",
+                    joined_at: "February 26, 2026 at 11:29:00 AM UTC+7",
+                    position: "Admin Kelas"
+                },
+                name: "Aisah Rika Rodiyah",
+                nickname: "Rika",
+                // password_length: 8,
+                phone: "081359509134",
+                photo: "https://firebasestorage.googleapis.com/v0/b/pre-dialogika.firebasestorage.app/o/users%2FYr2eFhgyrYXNGu0KoZKOwclEAHk1%2Fprofile_photo?alt=media&token=3479730f-c97b-405f-934e-9f2f9c132d79",
+                position: "FPvfisqjaMWczX8Aan9H",
+                role: "internship",
+                socials: {
+                    instagram: "Syaaa_rk",
+                    linkedin: "https://www.linkedin.com/in/aisyah-rika-29b68731a/"
+                },
+                status: "Active"
+            },
+            {
+                id: "a9ysPDQPLleTbQWEF8Lqy5geWWk1",
+                access: {
+                    level_order: 3,
+                    role_id: "staff"
+                },
+                birth: "1990-11-22",
+                email: "ashrovy@dialogika.co",
+                employment: {
+                    department: "",
+                    joined_at: "December 25, 2025 at 10:00:07 AM UTC+7",
+                    position: "Chief of Executive Officer"
+                },
+                name: "Ron Ashrovy",
+                nickname: "Ron",
+                // password_length: 8,
+                phone: "085550002211",
+                photo: "https://firebasestorage.googleapis.com/v0/b/pre-dialogika.firebasestorage.app/o/users%2Fa9ysPDQPLleTbQWEF8Lqy5geWWk1%2Fprofile_photo?alt=media&token=46e5560a-968c-4ce7-bae8-d471a6ecc0b6",
+                position: "z3uhvFRy2t67uT1CP1da",
+                role: "super_team",
+                socials: {
+                    instagram: "instagram.com/ashrovy",
+                    linkedin: "linkedin.com/ashrovy"
+                },
+                status: "Active"
+            },
+            {
+                id: "YosUBjYwTXSTIo7COwup4FCytQA2",
+                access: {
+                    level_order: 3,
+                    role_id: "staff"
+                },
+                birth: "2004-07-13",
+                email: "andinifasya13@gmail.com",
+                employment: {
+                    department: "rebuy",
+                    joined_at: "December 27, 2025 at 1:42:48 PM UTC+7",
+                    position: "Client Manager"
+                },
+                name: "Andini Fasya",
+                nickname: "Fasya",
+                // password_length: 8,
+                phone: "08812726880",
+                photo: "https://firebasestorage.googleapis.com/v0/b/pre-dialogika.firebasestorage.app/o/users%2FYosUBjYwTXSTIo7COwup4FCytQA2%2Fprofile_photo?alt=media&token=cb0c0eef-324c-4d6b-a59a-77e96d967b74",
+                position: "pcudQvW5NmeUzb6pZip2",
+                role: "staff",
+                socials: {
+                    instagram: "andinifasyaa",
+                    linkedin: "https://www.linkedin.com/in/andini-fasya-610387331/"
+                },
+                status: "Active"
+            },
+            {
+                id: "Tqn72vMS9RU9Tr5d8nmrGtyjHRv2",
+                access: {
+                    level_order: 4,
+                    role_id: "internship"
+                },
+                birth: "2005-06-04",
+                email: "jeniceangelicaa@gmail.com",
+                employment: {
+                    department: "happy",
+                    joined_at: "March 1, 2026 at 2:44:56 PM UTC+7",
+                    position: "Recruitment Specialist"
+                },
+                name: "Angelica Jenice Clarrie Willem",
+                nickname: "Clarrie",
+                // password_length: 8,
+                phone: "082242585858",
+                photo: "https://firebasestorage.googleapis.com/v0/b/pre-dialogika.firebasestorage.app/o/users%2FTqn72vMS9RU9Tr5d8nmrGtyjHRv2%2Fprofile_photo?alt=media&token=c9828532-25b2-464e-96cd-61dd02d4382b",
+                position: "16kV158dsLNJg5JnHwZD",
+                role: "internship",
+                socials: {
+                    instagram: "https://www.instagram.com/angelicaclarrie",
+                    linkedin: "https://www.linkedin.com/in/angelicaclarrie"
+                },
+                status: "Active"
+            },
+            {
+                id: "zCOFtLlEJ1eILl6kwW1hJ78G0633",
+                access: {
+                    level_order: 4,
+                    role_id: "internship"
+                },
+                birth: "2005-10-04",
+                email: "apfiasabrina.work@gmail.com",
+                employment: {
+                    department: "happy",
+                    joined_at: "March 1, 2026 at 2:44:27 PM UTC+7",
+                    position: "People Development"
+                },
+                name: "Apfia Sabrina Veronica Sianipar",
+                nickname: "Sabrina",
+                // password_length: 8,
+                phone: "082213881314",
+                photo: "https://firebasestorage.googleapis.com/v0/b/pre-dialogika.firebasestorage.app/o/users%2FzCOFtLlEJ1eILl6kwW1hJ78G0633%2Fprofile_photo?alt=media&token=db3b316e-dc67-4d4f-981d-c4796ce7a650",
+                position: "3jlfwya0KQuAk5Twkike",
+                role: "internship",
+                socials: {
+                    instagram: "https://www.instagram.com/apfiasabrina",
+                    linkedin: "https://www.linkedin.com/in/apfiasabrina"
+                },
+                status: "Active"
+            },
+            {
+                id: "kanO7WUyXybyDoXqYr0tf76IEO62",
+                access: {
+                    level_order: 4,
+                    role_id: "internship"
+                },
+                birth: "2004-12-22",
+                email: "davidchristianok@gmail.com",
+                employment: {
+                    department: "branding",
+                    joined_at: "March 1, 2026 at 2:46:02 PM UTC+7",
+                    position: "Website Development"
+                },
+                name: "David Christiano Kurniadi",
+                nickname: "David",
+                // password_length: 8,
+                phone: "085875179866",
+                photo: "https://firebasestorage.googleapis.com/v0/b/pre-dialogika.firebasestorage.app/o/users%2FkanO7WUyXybyDoXqYr0tf76IEO62%2Fprofile_photo?alt=media&token=af569c41-1264-48dc-a2da-db11c255cace",
+                position: "gtebWhJ7db4xxHQxI67t",
+                role: "internship",
+                socials: {
+                    instagram: "instagram.com/@dvdchrstn_",
+                    linkedin: "linkedIn/in/david-christiano"
+                },
+                status: "Active"
+            },
+            {
+                id: "LbVNnxfFWtayXWrEoViPOIG8EkM2",
+                access: {
+                    level_order: 4,
+                    role_id: "internship"
+                },
+                birth: "2006-12-22",
+                email: "deantiwi22@gmail.com",
+                employment: {
+                    department: "closing",
+                    joined_at: "March 28, 2026 at 10:07:00 AM UTC+7",
+                    position: "Admin Marketing"
+                },
+                name: "Deandra Githa Pertiwi",
+                nickname: "Dean",
+                // password_length: 8,
+                phone: "089608195574",
+                photo: "https://firebasestorage.googleapis.com/v0/b/pre-dialogika.firebasestorage.app/o/users%2FLbVNnxfFWtayXWrEoViPOIG8EkM2%2Fprofile_photo.jpeg?alt=media&token=9d3102d2-fee9-4cdf-93ce-e684d41acbc6",
+                position: "CqxyyFA91L9PQgWcVXS7",
+                role: "internship",
+                socials: {
+                    instagram: "instagram.com/degithandra",
+                    linkedin: "linkedin.com/in/deandrapertiwi"
+                },
+                status: "Active"
+            },
+            {
+                id: "Suvd3RUPvuQvHJhPXGd0KuOOXsm1",
+                access: {
+                    level_order: 3,
+                    role_id: "staff"
+                },
+                birth: "2001-07-05",
+                email: "elsa@dialogika.co",
+                employment: {
+                    department: "happy",
+                    joined_at: "December 27, 2025 at 11:04:25 AM UTC+7",
+                    position: "Head of Department of Happy Team"
+                },
+                name: "Dwiya Elsa Yulianti",
+                nickname: "Dwiya Elsa",
+                // password_length: 8,
+                phone: "08976896855",
+                photo: "https://firebasestorage.googleapis.com/v0/b/pre-dialogika.firebasestorage.app/o/users%2FSuvd3RUPvuQvHJhPXGd0KuOOXsm1%2Fprofile_photo?alt=media&token=98b80524-7c6e-440c-b7ab-360be54463fe",
+                position: "GBdVvXoZLeTZV8xbEKN6",
+                role: "super_team",
+                socials: {
+                    instagram: "dwyelsa",
+                    linkedin: "www.linkedin.com/in/dwiya-elsa-yulianti-6a7160143"
+                },
+                status: "Active"
+            },
+            {
+                id: "TeMbPaoE8ah0G21CPq0uFb7AOHx2",
+                access: {
+                    level_order: 4,
+                    role_id: "internship"
+                },
+                birth: "2004-05-31",
+                email: "edwardkevin778@gmail.com",
+                employment: {
+                    department: "closing",
+                    joined_at: "March 1, 2026 at 2:44:46 PM UTC+7",
+                    position: "Admin Marketing"
+                },
+                name: "Edward Kevin Susanto",
+                nickname: "Kevin",
+                // password_length: 8,
+                phone: "081336765653",
+                photo: "https://firebasestorage.googleapis.com/v0/b/pre-dialogika.firebasestorage.app/o/users%2FTeMbPaoE8ah0G21CPq0uFb7AOHx2%2Fprofile_photo?alt=media&token=34fd70f3-73a8-4fb7-b851-6a523ae39e84",
+                position: "CqxyyFA91L9PQgWcVXS7",
+                role: "internship",
+                socials: {
+                    instagram: "instagram.com/edwardkevin_",
+                    linkedin: "linkedin.com/in/edwardkevinsusanto"
+                },
+                status: "Active"
+            },
+            {
+                id: "XKoO9jwuwBPvpX5XeregsNeRalv1",
+                access: {
+                    level_order: 4,
+                    role_id: "internship"
+                },
+                birth: "2003-10-26",
+                email: "farrasanggana26@gmail.com",
+                employment: {
+                    department: "branding",
+                    joined_at: "April 9, 2026 at 1:05:25 PM UTC+7",
+                    position: "Design Specialist"
+                },
+                name: "Farras Anggana Fathurohman",
+                nickname: "Angga",
+                // password_length: 8,
+                phone: "081276348244",
+                photo: "https://firebasestorage.googleapis.com/v0/b/pre-dialogika.firebasestorage.app/o/users%2FXKoO9jwuwBPvpX5XeregsNeRalv1%2Fprofile_photo?alt=media&token=f48188df-85e0-42d3-9a63-3d2d4a264d00",
+                position: "V6EAEGpKTrdcZWBQPBRh",
+                role: "internship",
+                socials: {
+                    instagram: "@far_angga",
+                    linkedin: "https://www.linkedin.com/in/farras-anggana-fathurohman-28a5a12a0/"
+                },
+                status: "Active"
+            },
+            {
+                id: "bKwfBF7ptWQ10v79slLm0YXqI7m2",
+                access: {
+                    level_order: 4,
+                    role_id: "internship"
+                },
+                birth: "2004-02-14",
+                email: "fathin14127@gmail.com",
+                employment: {
+                    department: "branding",
+                    joined_at: "March 1, 2026 at 2:43:55 PM UTC+7",
+                    position: "Design Specialist"
+                },
+                name: "Fathin Mafaza",
+                nickname: "Fathin",
+                // password_length: 8,
+                phone: "081317582996",
+                photo: "https://firebasestorage.googleapis.com/v0/b/pre-dialogika.firebasestorage.app/o/users%2FbKwfBF7ptWQ10v79slLm0YXqI7m2%2Fprofile_photo?alt=media&token=b4dfb7a1-f5bc-4962-9b76-f12c0b920b3d",
+                position: "V6EAEGpKTrdcZWBQPBRh",
+                role: "internship",
+                socials: {
+                    instagram: "instagram.com/fathinmfz",
+                    linkedin: "linkedin.com/in/fathinmafaza"
+                },
+                status: "Active"
+            },
+            {
+                id: "Sc35sM6RSZYNGx0C3RhSbXlaMU83",
+                access: {
+                    level_order: 4,
+                    role_id: "internship"
+                },
+                birth: "2004-05-11",
+                email: "fatihahnuramaliapurnomo@gmail.com",
+                employment: {
+                    department: "branding",
+                    joined_at: "March 1, 2026 at 2:44:40 PM UTC+7",
+                    position: "Design Specialist"
+                },
+                name: "Fatihah Nur Amalia Purnomo",
+                nickname: "Lia",
+                // password_length: 8,
+                phone: "085643241529",
+                photo: "https://firebasestorage.googleapis.com/v0/b/pre-dialogika.firebasestorage.app/o/users%2FSc35sM6RSZYNGx0C3RhSbXlaMU83%2Fprofile_photo?alt=media&token=4f4cdc50-efbd-4fc4-a72b-9a42a00bc869",
+                position: "V6EAEGpKTrdcZWBQPBRh",
+                role: "internship",
+                socials: {
+                    instagram: "@liafnap_a",
+                    linkedin: "https://www.linkedin.com/in/fatihah-nur-amalia-purnomo-9b9509305/"
+                },
+                status: "Active"
+            },
+            {
+                id: "aYYwdGA3ZCMh6Ov1Gp3WcQEwApB3",
+                access: {
+                    level_order: 3,
+                    role_id: "staff"
+                },
+                birth: "2004-10-05",
+                email: "hananurrofiah05@gmail.com",
+                employment: {
+                    department: "closing",
+                    joined_at: "December 28, 2025 at 4:56:09 PM UTC+7",
+                    position: "Deal Maker"
+                },
+                name: "Hana Nur Rofiah",
+                nickname: "Hana",
+                // password_length: 8,
+                phone: "083112759119",
+                photo: "https://firebasestorage.googleapis.com/v0/b/pre-dialogika.firebasestorage.app/o/users%2FaYYwdGA3ZCMh6Ov1Gp3WcQEwApB3%2Fprofile_photo?alt=media&token=adee7e2b-e357-4fc6-ae65-08b80192cbcc",
+                position: "pJjGsbjUNXIdseGCheHi",
+                role: "sub_team",
+                socials: {
+                    instagram: "",
+                    linkedin: ""
+                },
+                status: "Active"
+            },
+            {
+                id: "FpUiSxRLX9VIeHLEnrXs7kH6NCF3",
+                access: {
+                    level_order: 4,
+                    role_id: "internship"
+                },
+                birth: "2003-08-20",
+                email: "loraambis@gmail.com",
+                employment: {
+                    department: "happy",
+                    joined_at: "March 1, 2026 at 2:45:07 PM UTC+7",
+                    position: "Recruitment Specialist"
+                },
+                name: "Laura Helzi Situmorang",
+                nickname: "Laura",
+                // password_length: 8,
+                phone: "081271996508",
+                photo: "https://firebasestorage.googleapis.com/v0/b/pre-dialogika.firebasestorage.app/o/users%2FFpUiSxRLX9VIeHLEnrXs7kH6NCF3%2Fprofile_photo?alt=media&token=7b290fcc-4767-4664-b92d-0a7abc41270e",
+                position: "16kV158dsLNJg5JnHwZD",
+                role: "internship",
+                socials: {
+                    instagram: "www.instagram.com/laurahelzi",
+                    linkedin: "linkedin/in/laurahelzi"
+                },
+                status: "Active"
+            },
+            {
+                id: "OkBISbaiQbaqrRj31BuQTD8xKh63",
+                access: {
+                    level_order: 4,
+                    role_id: "internship"
+                },
+                birth: "2005-04-06",
+                email: "salsabil.lulu5@gmail.com",
+                employment: {
+                    department: "branding",
+                    joined_at: "April 28, 2026 at 1:11:55 PM UTC+7",
+                    position: "Content Writer"
+                },
+                name: "Lutfiyah Salsabil",
+                nickname: "Lutfi",
+                // password_length: 8,
+                phone: "081391156656",
+                photo: "https://firebasestorage.googleapis.com/v0/b/pre-dialogika.firebasestorage.app/o/users%2FOkBISbaiQbaqrRj31BuQTD8xKh63%2Fprofile_photo?alt=media&token=6a05aab8-be74-45e9-9f41-9174e4fbbb80",
+                position: "lExlOx6BNP6TGK2PZPUi",
+                role: "internship",
+                socials: {
+                    instagram: "@lutfsals",
+                    linkedin: "https://www.linkedin.com/in/lutfiyah-salsabil-b3aa34222/"
+                },
+                status: "Active"
+            },
+            // Tambahkan (copy-paste) data user lainnya di bawah ini...
+            // Gunakan format string tanggal standar (YYYY-MM-DDTHH:mm:ss) 
+            // agar mudah dikonversi oleh script di bawah
+
+        ];
+
+        document.getElementById('importBtn').addEventListener('click', async () => {
+            const btn = document.getElementById('importBtn');
+            const statusContainer = document.getElementById('statusContainer');
+            const statusText = document.getElementById('statusText');
+            const spinner = document.getElementById('loadingSpinner');
+
+            btn.disabled = true;
+            statusContainer.classList.remove('d-none', 'alert-success', 'alert-danger', 'alert-warning');
+            statusContainer.classList.add('alert-info');
+            spinner.classList.remove('d-none');
+            statusText.innerText = `Memproses import ${dataUsers.length} data...`;
+
+            if (dataUsers.length === 0) {
+                statusContainer.classList.replace('alert-info', 'alert-warning');
+                statusText.innerText = "Data kosong! Silahkan isi array dataUsers di source code terlebih dahulu.";
+                spinner.classList.add('d-none');
+                btn.disabled = false;
+                return;
+            }
+
+            if (dataUsers.length > 500) {
+                statusContainer.classList.replace('alert-info', 'alert-danger');
+                statusText.innerText = "Error: Batch write Firestore maksimal 500 dokumen. Harap kurangi jumlah data Anda dan jalankan bertahap.";
+                spinner.classList.add('d-none');
+                btn.disabled = false;
+                return;
+            }
+
+            try {
+                const batch = writeBatch(db);
+                const usersRef = collection(db, "users");
+
+                dataUsers.forEach((user) => {
+                    // Membuat referensi dokumen. 
+                    // Jika properti 'id' diisi di JSON Anda, Firestore akan menggunakan ID tersebut.
+                    // Jika properti 'id' tidak ada, Firestore akan membuatkan ID acak otomatis.
+                    const newDocRef = user.id ? doc(usersRef, String(user.id)) : doc(usersRef);
+
+                    // Konversi joined_at (string) menjadi Firestore Timestamp
+                    let joinedTimestamp = null;
+                    if (user.employment && user.employment.joined_at) {
+                        let dateStr = String(user.employment.joined_at);
+                        // Membersihkan format string dari console seperti "February 26, 2026 at 11:29:00 AM UTC+7"
+                        dateStr = dateStr.replace(" at ", " ");
+                        dateStr = dateStr.replace(/UTC([+-])(\d+)/, (match, sign, hour) => "GMT" + sign + hour.padStart(2, '0') + "00");
+                        dateStr = dateStr.replace(/[\u202F\u00A0]/g, ' '); // Bersihkan spasi khusus (narrow no-break space)
+
+                        const parsedDate = new Date(dateStr);
+                        if (!isNaN(parsedDate)) {
+                            joinedTimestamp = Timestamp.fromDate(parsedDate);
+                        } else {
+                            console.warn("Format tanggal tidak dikenali, menggunakan waktu saat ini:", user.employment.joined_at);
+                            joinedTimestamp = Timestamp.now();
+                        }
+                    } else {
+                        // Default ke waktu saat ini jika dikosongkan
+                        joinedTimestamp = Timestamp.now();
+                    }
+
+                    // Mapping untuk memastikan format field data selalu konsisten sesuai struktur
+                    const firestoreData = {
+                        access: {
+                            level_order: Number(user.access?.level_order || 0),
+                            role_id: user.access?.role_id || ""
+                        },
+                        birth: user.birth || "",
+                        email: user.email || "",
+                        employment: {
+                            department: user.employment?.department || "",
+                            joined_at: joinedTimestamp, // Disimpan sebagai tipe Timestamp
+                            position: user.employment?.position || ""
+                        },
+                        name: user.name || "",
+                        nickname: user.nickname || "",
+                        password_length: Number(user.password_length || 0),
+                        phone: user.phone || "",
+                        photo: user.photo || "",
+                        position: user.position || "",
+                        role: user.role || "",
+                        socials: {
+                            instagram: user.socials?.instagram || "",
+                            linkedin: user.socials?.linkedin || ""
+                        },
+                        status: user.status || ""
+                    };
+
+                    // Memasukkan dokumen ini ke dalam antrean (batch)
+                    batch.set(newDocRef, firestoreData);
+                });
+
+                // Mengeksekusi/Commit seluruh antrean (batch) ke database Firestore
+                await batch.commit();
+
+                statusContainer.classList.replace('alert-info', 'alert-success');
+                statusText.innerText = `Sukses menambahkan ${dataUsers.length} dokumen baru ke koleksi users!`;
+            } catch (error) {
+                console.error("Gagal melakukan import:", error);
+                statusContainer.classList.replace('alert-info', 'alert-danger');
+                statusText.innerText = "Terjadi kesalahan sistem: " + error.message;
+            } finally {
+                spinner.classList.add('d-none');
+                btn.disabled = false;
+            }
+        });
+    </script>
+</body>
+
+</html>

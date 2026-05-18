@@ -1,0 +1,209 @@
+
+{
+    id: "",
+    access: {
+        level_order: ,
+        role_id: ""
+    },
+    birth: "",
+    email: "",
+    employment: {
+        department: "",
+        joined_at: "",
+        position: ""
+    },
+    name: "",
+    nickname: "",
+    // password_length: 8,
+    phone: "",
+    photo: "",
+    position: "",
+    role: "",
+    socials: {
+        instagram: "",
+        linkedin: ""
+    },
+    status: "Active"
+},
+{
+    id: "",
+    access: {
+        level_order: ,
+        role_id: ""
+    },
+    birth: "",
+    email: "",
+    employment: {
+        department: "",
+        joined_at: "",
+        position: ""
+    },
+    name: "",
+    nickname: "",
+    // password_length: 8,
+    phone: "",
+    photo: "",
+    position: "",
+    role: "",
+    socials: {
+        instagram: "",
+        linkedin: ""
+    },
+    status: "Active"
+},
+{
+    id: "",
+    access: {
+        level_order: ,
+        role_id: ""
+    },
+    birth: "",
+    email: "",
+    employment: {
+        department: "",
+        joined_at: "",
+        position: ""
+    },
+    name: "",
+    nickname: "",
+    // password_length: 8,
+    phone: "",
+    photo: "",
+    position: "",
+    role: "",
+    socials: {
+        instagram: "",
+        linkedin: ""
+    },
+    status: "Active"
+},
+{
+    id: "",
+    access: {
+        level_order: ,
+        role_id: ""
+    },
+    birth: "",
+    email: "",
+    employment: {
+        department: "",
+        joined_at: "",
+        position: ""
+    },
+    name: "",
+    nickname: "",
+    // password_length: 8,
+    phone: "",
+    photo: "",
+    position: "",
+    role: "",
+    socials: {
+        instagram: "",
+        linkedin: ""
+    },
+    status: "Active"
+},
+{
+    id: "",
+    access: {
+        level_order: ,
+        role_id: ""
+    },
+    birth: "",
+    email: "",
+    employment: {
+        department: "",
+        joined_at: "",
+        position: ""
+    },
+    name: "",
+    nickname: "",
+    // password_length: 8,
+    phone: "",
+    photo: "",
+    position: "",
+    role: "",
+    socials: {
+        instagram: "",
+        linkedin: ""
+    },
+    status: "Active"
+},
+{
+    id: "",
+    access: {
+        level_order: ,
+        role_id: ""
+    },
+    birth: "",
+    email: "",
+    employment: {
+        department: "",
+        joined_at: "",
+        position: ""
+    },
+    name: "",
+    nickname: "",
+    // password_length: 8,
+    phone: "",
+    photo: "",
+    position: "",
+    role: "",
+    socials: {
+        instagram: "",
+        linkedin: ""
+    },
+    status: "Active"
+},
+{
+    id: "",
+    access: {
+        level_order: ,
+        role_id: ""
+    },
+    birth: "",
+    email: "",
+    employment: {
+        department: "",
+        joined_at: "",
+        position: ""
+    },
+    name: "",
+    nickname: "",
+    // password_length: 8,
+    phone: "",
+    photo: "",
+    position: "",
+    role: "",
+    socials: {
+        instagram: "",
+        linkedin: ""
+    },
+    status: "Active"
+},
+{
+    id: "",
+    access: {
+        level_order: ,
+        role_id: ""
+    },
+    birth: "",
+    email: "",
+    employment: {
+        department: "",
+        joined_at: "",
+        position: ""
+    },
+    name: "",
+    nickname: "",
+    // password_length: 8,
+    phone: "",
+    photo: "",
+    position: "",
+    role: "",
+    socials: {
+        instagram: "",
+        linkedin: ""
+    },
+    status: "Active"
+},
