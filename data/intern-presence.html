@@ -524,6 +524,7 @@
 
             const monthAgg = aggregateDuration(monthSnap);
             const recapRows = Array.from(monthAgg.perIntern.entries())
+                .filter(([userId]) => allInterns.some(u => u.id === userId))
                 .map(([userId, v]) => ({ userId, name: v.name, photo: getInternPhoto(userId), total: v.total, attendanceDays: v.days || 0 }))
                 .sort((a, b) => b.total - a.total);
             monthlyRecapCache = recapRows;
@@ -574,6 +575,7 @@
                 perIntern.set(v.user_id, ex);
             });
             internshipTotalCache = Array.from(perIntern.entries())
+                .filter(([userId]) => allInterns.some(u => u.id === userId))
                 .map(([userId, v]) => ({ userId, name: v.name, photo: getInternPhoto(userId), total: v.total, days: v.days }))
                 .sort((a, b) => b.total - a.total);
         }
