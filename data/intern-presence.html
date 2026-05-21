@@ -110,49 +110,96 @@
 
                 <div class="grid grid-cols-1 gap-8">
                     <section class="glass rounded-[28px] premium-shadow overflow-hidden">
-                        <div class="px-6 py-5 flex flex-col sm:flex-row gap-3 justify-between sm:items-center border-b border-slate-100/80">
-                            <div>
-                                <h2 class="text-lg font-bold text-slate-900">Tabel Presensi Intern</h2>
-                               
+                        <div class="px-6 py-5 flex flex-col gap-4 border-b border-slate-100/80">
+                            <div class="flex flex-col sm:flex-row gap-3 justify-between sm:items-center">
+                                <div>
+                                    <h2 class="text-lg font-bold text-slate-900">Tabel Presensi Intern</h2>
+                                </div>
+                                <div class="flex items-center gap-2 sm:ml-auto">
+                                    <input type="date" id="filterDate" class="min-w-[180px] px-3 py-2 rounded-xl text-xs border border-slate-200 bg-white focus:outline-none focus:ring-2 focus:ring-[#0B2B6A]">
+                                    <button id="btnExportXlsx" class="px-4 py-2 rounded-xl text-xs font-semibold text-white bg-[#0B2B6A] hover:bg-[#113981] transition"><i class="bi bi-download me-1"></i>Export XLSX</button>
+                                    <div id="loadingSpinner" class="w-5 h-5 border-2 border-[#0B2B6A] border-t-transparent rounded-full animate-spin"></div>
+                                </div>
                             </div>
-                            <div class="flex items-center gap-2 sm:ml-auto">
-                                <input type="date" id="filterDate" class="min-w-[180px] px-3 py-2 rounded-xl text-xs border border-slate-200 bg-white focus:outline-none focus:ring-2 focus:ring-[#0B2B6A]">
-                                <button id="btnExportXlsx" class="px-4 py-2 rounded-xl text-xs font-semibold text-white bg-[#0B2B6A] hover:bg-[#113981] transition"><i class="bi bi-download me-1"></i>Export XLSX</button>
-                                <div id="loadingSpinner" class="w-5 h-5 border-2 border-[#0B2B6A] border-t-transparent rounded-full animate-spin"></div>
+                            <div class="flex items-center gap-4 border-b border-slate-100">
+                                <button id="tabWfoBtn" class="px-4 py-2 text-sm font-semibold border-b-2 border-[#0B2B6A] text-[#0B2B6A] transition">WFO / Hybrid</button>
+                                <button id="tabWfhBtn" class="px-4 py-2 text-sm font-semibold border-b-2 border-transparent text-slate-400 hover:text-slate-600 transition">WFH</button>
                             </div>
                         </div>
-                        <div class="px-4">
-                            <table class="table-fixed-head text-left min-w-[820px]">
-                                <colgroup>
-                                    <col style="width:36%">
-                                    <col style="width:13%">
-                                    <col style="width:14%">
-                                    <col style="width:19%">
-                                    <col style="width:18%">
-                                </colgroup>
-                                <thead>
-                                    <tr class="text-slate-400 text-[11px] font-extrabold uppercase tracking-[0.2em] border-b border-slate-100">
-                                        <th class="px-4 py-3">Nama Intern</th>
-                                        <th class="px-4 py-3">Clock In</th>
-                                        <th class="px-4 py-3">Clock Out</th>
-                                        <th class="px-4 py-3">Total Jam Kerja</th>
-                                        <th class="px-4 py-3">Status</th>
-                                    </tr>
-                                </thead>
-                            </table>
+                        
+                        <div id="wfoTableSection">
+                            <div class="px-4">
+                                <table class="table-fixed-head text-left min-w-[820px]">
+                                    <colgroup>
+                                        <col style="width:36%">
+                                        <col style="width:13%">
+                                        <col style="width:14%">
+                                        <col style="width:19%">
+                                        <col style="width:18%">
+                                    </colgroup>
+                                    <thead>
+                                        <tr class="text-slate-400 text-[11px] font-extrabold uppercase tracking-[0.2em] border-b border-slate-100">
+                                            <th class="px-4 py-3">Nama Intern</th>
+                                            <th class="px-4 py-3">Clock In</th>
+                                            <th class="px-4 py-3">Clock Out</th>
+                                            <th class="px-4 py-3">Total Jam Kerja</th>
+                                            <th class="px-4 py-3">Status</th>
+                                        </tr>
+                                    </thead>
+                                </table>
+                            </div>
+                            <div class="p-4 pt-0 table-scroll-area scrollbar-hide">
+                                <table class="text-left min-w-[820px]">
+                                    <colgroup>
+                                        <col style="width:36%">
+                                        <col style="width:13%">
+                                        <col style="width:14%">
+                                        <col style="width:19%">
+                                        <col style="width:18%">
+                                    </colgroup>
+                                    <tbody id="attendanceWfoBody" class="text-slate-700 text-sm"></tbody>
+                                </table>
+                                <p id="emptyStateWfo" class="text-xs text-slate-400 hidden py-4">Belum ada data intern/presensi pada tanggal ini.</p>
+                            </div>
                         </div>
-                        <div class="p-4 pt-0 table-scroll-area scrollbar-hide">
-                            <table class="text-left min-w-[820px]">
-                                <colgroup>
-                                    <col style="width:36%">
-                                    <col style="width:13%">
-                                    <col style="width:14%">
-                                    <col style="width:19%">
-                                    <col style="width:18%">
-                                </colgroup>
-                                <tbody id="attendanceBody" class="text-slate-700 text-sm"></tbody>
-                            </table>
-                            <p id="emptyState" class="text-xs text-slate-400 hidden py-4">Belum ada data intern/presensi pada tanggal ini.</p>
+
+                        <div id="wfhTableSection" class="hidden">
+                            <div class="px-4">
+                                <table class="table-fixed-head text-left min-w-[900px]">
+                                    <colgroup>
+                                        <col style="width:25%">
+                                        <col style="width:15%">
+                                        <col style="width:15%">
+                                        <col style="width:20%">
+                                        <col style="width:15%">
+                                        <col style="width:10%">
+                                    </colgroup>
+                                    <thead>
+                                        <tr class="text-slate-400 text-[11px] font-extrabold uppercase tracking-[0.2em] border-b border-slate-100">
+                                            <th class="px-4 py-3">Nama Intern</th>
+                                            <th class="px-4 py-3">Clock In</th>
+                                            <th class="px-4 py-3">Clock Out</th>
+                                            <th class="px-4 py-3">Aktivitas & Evidence</th>
+                                            <th class="px-4 py-3">Total Jam Kerja</th>
+                                            <th class="px-4 py-3">Status</th>
+                                        </tr>
+                                    </thead>
+                                </table>
+                            </div>
+                            <div class="p-4 pt-0 table-scroll-area scrollbar-hide">
+                                <table class="text-left min-w-[900px]">
+                                    <colgroup>
+                                        <col style="width:25%">
+                                        <col style="width:15%">
+                                        <col style="width:15%">
+                                        <col style="width:20%">
+                                        <col style="width:15%">
+                                        <col style="width:10%">
+                                    </colgroup>
+                                    <tbody id="attendanceWfhBody" class="text-slate-700 text-sm"></tbody>
+                                </table>
+                                <p id="emptyStateWfh" class="text-xs text-slate-400 hidden py-4">Belum ada data intern WFH/presensi pada tanggal ini.</p>
+                            </div>
                         </div>
                     </section>
 
@@ -242,6 +289,38 @@
                     </section>
                 </div>
             </div>
+
+            <!-- WFH Activity Detail Modal -->
+            <div class="modal fade" id="wfhDetailModal" tabindex="-1" aria-labelledby="wfhDetailModalLabel" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered modal-lg modal-dialog-scrollable">
+                    <div class="modal-content border-0 rounded-[28px] overflow-hidden premium-shadow">
+                        <div class="modal-header border-b border-slate-100 px-6 py-4">
+                            <div>
+                                <h5 class="modal-title font-bold text-slate-900" id="wfhDetailModalLabel">Detail Aktivitas WFH</h5>
+                                <p id="modalInternName" class="text-xs text-slate-500 mb-0"></p>
+                            </div>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body px-6 py-5 bg-slate-50/50">
+                            <div class="mb-4">
+                                <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Shift</span>
+                                <p id="modalShift" class="text-sm font-semibold text-slate-800 mt-1">-</p>
+                            </div>
+                            <div class="mb-6">
+                                <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest block mb-2">Aktivitas Terjadwal & Evidence</span>
+                                <div id="modalPlannedActivities" class="flex flex-col gap-3"></div>
+                            </div>
+                            <div>
+                                <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest block mb-2">Aktivitas Tambahan & Evidence</span>
+                                <div id="modalAdditionalActivities" class="flex flex-col gap-3"></div>
+                            </div>
+                        </div>
+                        <div class="modal-footer border-t border-slate-100 px-6 py-4">
+                            <button type="button" class="px-5 py-2 rounded-xl text-sm font-semibold text-slate-600 bg-slate-100 hover:bg-slate-200 transition" data-bs-dismiss="modal">Tutup</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </main>
     </div>
 
@@ -275,8 +354,14 @@
         const btnExportXlsx = document.getElementById('btnExportXlsx');
         const summaryText = document.getElementById('summaryText');
         const subtitleText = document.getElementById('subtitleText');
-        const attendanceBody = document.getElementById('attendanceBody');
-        const emptyState = document.getElementById('emptyState');
+        const attendanceWfoBody = document.getElementById('attendanceWfoBody');
+        const emptyStateWfo = document.getElementById('emptyStateWfo');
+        const attendanceWfhBody = document.getElementById('attendanceWfhBody');
+        const emptyStateWfh = document.getElementById('emptyStateWfh');
+        const tabWfoBtn = document.getElementById('tabWfoBtn');
+        const tabWfhBtn = document.getElementById('tabWfhBtn');
+        const wfoTableSection = document.getElementById('wfoTableSection');
+        const wfhTableSection = document.getElementById('wfhTableSection');
         const loadingSpinner = document.getElementById('loadingSpinner');
         const totalInternDisplay = document.getElementById('totalInternDisplay');
         const presentCountDisplay = document.getElementById('presentCountDisplay');
@@ -360,7 +445,8 @@
                 users.push({
                     id: docSnap.id,
                     name: d.name || d.email || 'Tanpa Nama',
-                    photo: d.photo || ''
+                    photo: d.photo || '',
+                    mode: d.mode || 'WFO'
                 });
             });
             users.sort((a, b) => a.name.localeCompare(b.name));
@@ -386,12 +472,16 @@
                     if (row.loginSec == null || (sec != null && sec < row.loginSec)) {
                         row.loginSec = sec;
                         row.loginTime = r.time || '-';
+                        row.shift = r.shift || '';
+                        row.plannedActivities = r.activities?.planned || [];
                     }
                 }
                 if (r.type === 'logout') {
                     if (row.logoutSec == null || (sec != null && sec > row.logoutSec)) {
                         row.logoutSec = sec;
                         row.logoutTime = r.time || '-';
+                        row.plannedEvidence = r.activities?.planned || [];
+                        row.additionalActivities = r.activities?.additional || [];
                     }
                 }
             });
@@ -429,6 +519,10 @@
                     totalLabel: totalSeconds != null ? formatMinutes(totalSeconds) : '-',
                     status,
                     isValidPair,
+                    shift: hit?.shift || '-',
+                    plannedActivities: hit?.plannedActivities || [],
+                    plannedEvidence: hit?.plannedEvidence || [],
+                    additionalActivities: hit?.additionalActivities || [],
                     sortValue: hit?.loginSec ?? -1
                 };
             });
@@ -447,31 +541,139 @@
             return '<span class="badge-status bg-slate-100 text-slate-600">Tidak Hadir</span>';
         }
 
-        function renderAttendanceTable(rows) {
-            attendanceBody.innerHTML = '';
-            if (!rows.length) {
-                emptyState.classList.remove('hidden');
-                return;
+        function showWfhDetailModal(rowData) {
+            document.getElementById('wfhDetailModalLabel').textContent = 'Detail Aktivitas WFH';
+            document.getElementById('modalInternName').textContent = rowData.name + ' - ' + rowData.date;
+            document.getElementById('modalShift').textContent = rowData.shift || '-';
+            
+            const plannedEl = document.getElementById('modalPlannedActivities');
+            plannedEl.innerHTML = '';
+            if (rowData.plannedEvidence && rowData.plannedEvidence.length > 0) {
+                rowData.plannedEvidence.forEach((item, i) => {
+                    const text = item.text || `Aktivitas ${i+1}`;
+                    const imgUrl = item.evidence_url;
+                    let html = `<div class="bg-white border border-slate-200 rounded-xl p-3 flex flex-col gap-2">
+                        <span class="text-sm text-slate-700 font-semibold">${i+1}. ${text}</span>`;
+                    if (imgUrl) {
+                        html += `<a href="${imgUrl}" target="_blank"><img src="${imgUrl}" class="rounded-lg max-h-[150px] object-cover cursor-pointer hover:opacity-90 transition" alt="Evidence"></a>`;
+                    }
+                    html += `</div>`;
+                    plannedEl.innerHTML += html;
+                });
+            } else if (rowData.plannedActivities && rowData.plannedActivities.length > 0) {
+                rowData.plannedActivities.forEach((item, i) => {
+                    const text = typeof item === 'string' ? item : (item.text || `Aktivitas ${i+1}`);
+                    plannedEl.innerHTML += `<div class="bg-white border border-slate-200 rounded-xl p-3">
+                        <span class="text-sm text-slate-700 font-semibold">${i+1}. ${text}</span>
+                        <p class="text-[11px] font-medium text-orange-500 mt-1 mb-0"><i class="bi bi-clock-history me-1"></i>Belum ada evidence (Belum Clock Out)</p>
+                    </div>`;
+                });
+            } else {
+                plannedEl.innerHTML = `<p class="text-sm text-slate-500 italic">Tidak ada aktivitas terjadwal.</p>`;
             }
-            emptyState.classList.add('hidden');
+            
+            const additionalEl = document.getElementById('modalAdditionalActivities');
+            additionalEl.innerHTML = '';
+            if (rowData.additionalActivities && rowData.additionalActivities.length > 0) {
+                rowData.additionalActivities.forEach((item, i) => {
+                    const text = item.text || `Tambahan ${i+1}`;
+                    const imgUrl = item.evidence_url;
+                    let html = `<div class="bg-white border border-slate-200 rounded-xl p-3 flex flex-col gap-2">
+                        <span class="text-sm text-slate-700 font-semibold">${i+1}. ${text}</span>`;
+                    if (imgUrl) {
+                        html += `<a href="${imgUrl}" target="_blank"><img src="${imgUrl}" class="rounded-lg max-h-[150px] object-cover cursor-pointer hover:opacity-90 transition" alt="Evidence"></a>`;
+                    }
+                    html += `</div>`;
+                    additionalEl.innerHTML += html;
+                });
+            } else {
+                additionalEl.innerHTML = `<p class="text-sm text-slate-500 italic">Tidak ada aktivitas tambahan.</p>`;
+            }
+            
+            const modal = new bootstrap.Modal(document.getElementById('wfhDetailModal'));
+            modal.show();
+        }
 
-            rows.forEach(r => {
-                const tr = document.createElement('tr');
-                tr.className = `border-b border-slate-100 ${(r.status === 'Tidak Valid' || r.status === 'Tidak Valid (Belum Clock Out)') ? 'row-warning' : ''}`;
-                tr.innerHTML = `
-                    <td class="px-4 py-3">
-                        <div class="flex items-center gap-3">
-                            <div class="w-9 h-9 rounded-full bg-slate-200 bg-cover bg-center" style="background-image:url('${r.photo || ''}')"></div>
-                            <span class="font-semibold text-slate-800">${r.name}</span>
-                        </div>
-                    </td>
-                    <td class="px-4 py-3 font-medium">${r.loginTime}</td>
-                    <td class="px-4 py-3 font-medium">${r.logoutTime}</td>
-                    <td class="px-4 py-3">${r.totalLabel}</td>
-                    <td class="px-4 py-3">${statusBadge(r.status)}</td>
-                `;
-                attendanceBody.appendChild(tr);
-            });
+        function renderAttendanceTable(rows) {
+            const wfoRows = rows.filter(r => r.mode !== 'WFH');
+            const wfhRows = rows.filter(r => r.mode === 'WFH');
+            
+            attendanceWfoBody.innerHTML = '';
+            if (!wfoRows.length) {
+                emptyStateWfo.classList.remove('hidden');
+            } else {
+                emptyStateWfo.classList.add('hidden');
+                wfoRows.forEach(r => {
+                    const tr = document.createElement('tr');
+                    tr.className = `border-b border-slate-100 ${(r.status === 'Tidak Valid' || r.status === 'Tidak Valid (Belum Clock Out)') ? 'row-warning' : ''}`;
+                    tr.innerHTML = `
+                        <td class="px-4 py-3">
+                            <div class="flex items-center gap-3">
+                                <div class="w-9 h-9 rounded-full bg-slate-200 bg-cover bg-center" style="background-image:url('${r.photo || ''}')"></div>
+                                <span class="font-semibold text-slate-800">${r.name}</span>
+                            </div>
+                        </td>
+                        <td class="px-4 py-3 font-medium">${r.loginTime}</td>
+                        <td class="px-4 py-3 font-medium">${r.logoutTime}</td>
+                        <td class="px-4 py-3">${r.totalLabel}</td>
+                        <td class="px-4 py-3">${statusBadge(r.status)}</td>
+                    `;
+                    attendanceWfoBody.appendChild(tr);
+                });
+            }
+
+            attendanceWfhBody.innerHTML = '';
+            if (!wfhRows.length) {
+                emptyStateWfh.classList.remove('hidden');
+            } else {
+                emptyStateWfh.classList.add('hidden');
+                wfhRows.forEach((r, idx) => {
+                    const tr = document.createElement('tr');
+                    tr.className = `border-b border-slate-100 ${(r.status === 'Tidak Valid' || r.status === 'Tidak Valid (Belum Clock Out)') ? 'row-warning' : ''}`;
+                    
+                    let activitySummary = '-';
+                    let btnDisabled = 'disabled opacity-50 cursor-not-allowed';
+                    const hasPlanned = (r.plannedActivities && r.plannedActivities.length > 0) || (r.plannedEvidence && r.plannedEvidence.length > 0);
+                    const hasAdditional = r.additionalActivities && r.additionalActivities.length > 0;
+                    
+                    if (hasPlanned || hasAdditional) {
+                        btnDisabled = '';
+                        const totalPlanned = Math.max(r.plannedActivities?.length || 0, r.plannedEvidence?.length || 0);
+                        const totalAdditional = r.additionalActivities?.length || 0;
+                        activitySummary = `${totalPlanned} Rencana, ${totalAdditional} Tambahan`;
+                    }
+                    
+                    tr.innerHTML = `
+                        <td class="px-4 py-3">
+                            <div class="flex items-center gap-3">
+                                <div class="w-9 h-9 rounded-full bg-slate-200 bg-cover bg-center" style="background-image:url('${r.photo || ''}')"></div>
+                                <span class="font-semibold text-slate-800">${r.name}</span>
+                            </div>
+                        </td>
+                        <td class="px-4 py-3 font-medium">
+                            ${r.loginTime}
+                            ${r.shift && r.shift !== '-' ? `<br><span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">${r.shift}</span>` : ''}
+                        </td>
+                        <td class="px-4 py-3 font-medium">${r.logoutTime}</td>
+                        <td class="px-4 py-3">
+                            <div class="text-[11px] mb-1 font-medium text-slate-500">${activitySummary}</div>
+                            <button type="button" class="btn-detail-wfh px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-[#0B2B6A] border border-slate-200 rounded-lg text-[11px] font-semibold transition flex items-center gap-1 ${btnDisabled}" data-idx="${idx}">
+                                <i class="bi bi-card-list"></i> Lihat Detail
+                            </button>
+                        </td>
+                        <td class="px-4 py-3">${r.totalLabel}</td>
+                        <td class="px-4 py-3">${statusBadge(r.status)}</td>
+                    `;
+                    attendanceWfhBody.appendChild(tr);
+                });
+                
+                document.querySelectorAll('.btn-detail-wfh:not(.disabled)').forEach(btn => {
+                    btn.addEventListener('click', function() {
+                        const idx = this.getAttribute('data-idx');
+                        showWfhDetailModal(wfhRows[idx]);
+                    });
+                });
+            }
         }
 
         function updateKpi(rows, dateKey) {
@@ -726,7 +928,9 @@
                         photo: d.photo || '',
                         date: d.date || '',
                         time: d.time || '',
-                        type: d.type || ''
+                        type: d.type || '',
+                        shift: d.shift || '',
+                        activities: d.activities || null
                     });
                 });
                 selectedDateRecords = rows;
@@ -797,6 +1001,22 @@
                 exportInternshipTotalXlsx();
             }
         });
+
+        if (tabWfoBtn && tabWfhBtn) {
+            tabWfoBtn.addEventListener('click', () => {
+                tabWfoBtn.className = "px-4 py-2 text-sm font-semibold border-b-2 border-[#0B2B6A] text-[#0B2B6A] transition";
+                tabWfhBtn.className = "px-4 py-2 text-sm font-semibold border-b-2 border-transparent text-slate-400 hover:text-slate-600 transition";
+                wfoTableSection.classList.remove('hidden');
+                wfhTableSection.classList.add('hidden');
+            });
+
+            tabWfhBtn.addEventListener('click', () => {
+                tabWfhBtn.className = "px-4 py-2 text-sm font-semibold border-b-2 border-[#0B2B6A] text-[#0B2B6A] transition";
+                tabWfoBtn.className = "px-4 py-2 text-sm font-semibold border-b-2 border-transparent text-slate-400 hover:text-slate-600 transition";
+                wfhTableSection.classList.remove('hidden');
+                wfoTableSection.classList.add('hidden');
+            });
+        }
 
         init().catch((e) => {
             console.error('Init gagal:', e);
