@@ -548,18 +548,18 @@
                 </div>
 
                 <div class="row">
-                    <div class="col-md-6 mb-3">
+                    <div class="mb-3">
                         <label class="form-label">Campus</label>
                         <input type="text" class="form-control" id="inputCampus" placeholder="Nama kampus" required>
                     </div>
-                    <div class="col-md-6 mb-3">
+                    <!-- <div class="col-md-6 mb-3">
                         <label class="form-label">Role ID</label>
                         <select class="form-select" id="inputRoleId">
                             <option value="internship" selected>internship</option>
-                            <!-- <option value="intern">intern</option> -->
+                            <option value="intern">intern</option>
                             <option value="staff">staff</option>
                         </select>
-                    </div>
+                    </div> -->
                 </div>
 
                 <div class="row">
@@ -879,8 +879,8 @@
                     photoURL = await getDownloadURL(storageRef);
                 }
 
-                const selectedRoleId = (document.getElementById('inputRoleId').value || "internship").trim();
-                const roleTitle = selectedRoleId.toLowerCase() === "internship" ? "Internship" : selectedRoleId;
+                // const selectedRoleId = (document.getElementById('inputRoleId').value || "internship").trim();
+                // const roleTitle = selectedRoleId.toLowerCase() === "internship" ? "Internship" : selectedRoleId;
                 await setDoc(doc(db, "pending_users", user.uid), {
                     name: document.getElementById('inputName').value,
                     email: email,
@@ -889,7 +889,7 @@
                     campus: document.getElementById('inputCampus').value,
                     photo: photoURL,
                     candidatePhoto: photoURL,
-                    role: roleTitle,
+                    role: "internship",
                     internshipStatus: "Active",
                     status: "pending",
                     employment: {
