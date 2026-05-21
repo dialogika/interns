@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Internship Presence System</title>
+    <title>Internship WFH Presence System</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
@@ -124,6 +124,106 @@
             object-fit: cover;
             border-radius: 50%;
             display: block;
+        }
+
+        .activity-section {
+            margin-top: 1.25rem;
+        }
+
+        .activity-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .activity-row {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .activity-row.stack {
+            flex-direction: column;
+            align-items: stretch;
+        }
+
+        .activity-input {
+            flex: 1;
+            background: #ffffff;
+            border: 1px solid #e5e7eb;
+            padding: 10px 14px;
+            border-radius: 16px;
+            font-size: 0.9rem;
+            color: #1f2937;
+        }
+
+        .activity-input:focus {
+            outline: none;
+            border-color: #94a3b8;
+            box-shadow: 0 0 0 3px rgba(148, 163, 184, 0.2);
+        }
+
+        .activity-remove {
+            border: 1px solid #e2e8f0;
+            background: #ffffff;
+            color: #dc2626;
+            padding: 8px 12px;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .activity-remove:hover {
+            background: #fee2e2;
+            border-color: #fecaca;
+        }
+
+        .activity-add-button {
+            margin-top: 10px;
+            width: 100%;
+            border: 1px dashed #cbd5f5;
+            background: #f8fafc;
+            color: #0B2B6A;
+            padding: 10px 16px;
+            border-radius: 9999px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .activity-add-button:hover {
+            background: #eef2ff;
+        }
+
+        .activity-chip {
+            background: #f8fafc;
+            border: 1px dashed #e2e8f0;
+            padding: 8px 12px;
+            border-radius: 12px;
+            font-size: 0.85rem;
+            color: #475569;
+        }
+
+        .evidence-input {
+            width: 100%;
+            border: 1px solid #e5e7eb;
+            padding: 10px 12px;
+            border-radius: 14px;
+            background: #ffffff;
+            font-size: 0.85rem;
+        }
+
+        .activity-note {
+            font-size: 0.75rem;
+            color: #94a3b8;
+        }
+
+        .field-disabled {
+            opacity: 0.6;
+            pointer-events: none;
         }
 
 
@@ -322,7 +422,7 @@
     <main class="main-content-wrapper">
         <div class="glass-card">
             <header class="mb-10">
-                <h1 class="text-3xl gold-text tracking-tight">Internship Attendance</h1>
+                <h1 class="text-3xl gold-text tracking-tight">Internship Attendance WFH</h1>
                 <p class="text-xs text-gray-400 mt-1 uppercase tracking-[0.2em]">Thank You For Your <br /> Excellence &
                     Integrity</p>
             </header>
@@ -344,6 +444,40 @@
                         </svg>
                     </div>
                 </div>
+            </div>
+
+            <div class="text-left mb-3" id="shiftField">
+                <label class="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1 mb-2 block">Pilih Shift</label>
+                <div class="relative">
+                    <select id="shiftSelect" class="custom-select">
+                        <option value="" disabled selected>Pilih shift...</option>
+                        <option value="pagi">pagi</option>
+                        <option value="siang">siang</option>
+                        <option value="malam">malam</option>
+                    </select>
+                    <div class="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none">
+                        <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7">
+                            </path>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+
+            <div class="text-left mb-3 activity-section" id="loginActivitiesSection">
+                <label class="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1 mb-2 block">Aktivitas Clock In</label>
+                <div id="loginActivitiesList" class="activity-list"></div>
+                <button id="addLoginActivityBtn" type="button" class="activity-add-button">+ Tambah aktivitas</button>
+            </div>
+
+            <div class="text-left mb-3 activity-section" id="logoutActivitiesSection" style="display: none;">
+                <label class="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1 mb-2 block">Aktivitas Clock In (Wajib Evidence)</label>
+                <div id="plannedActivitiesEvidence" class="activity-list"></div>
+                <p id="plannedActivitiesEmpty" class="activity-note" style="display: none;">Tidak ada aktivitas clock in.</p>
+
+                <label class="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1 mb-2 block mt-4">Aktivitas Tambahan + Evidence</label>
+                <div id="additionalActivitiesList" class="activity-list"></div>
+                <button id="addAdditionalActivityBtn" type="button" class="activity-add-button">+ Tambah aktivitas tambahan</button>
             </div>
 
             <div id="statusBadgeContainer" style="min-height: 28px;"></div>
@@ -400,6 +534,7 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getFirestore, collection, getDocs, query, where, addDoc, serverTimestamp, orderBy, limit, onSnapshot } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+        import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyDyzzEYbJkkl-N8snrQf14qvj8De4YliV0",
@@ -413,7 +548,17 @@
 
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
+        const storage = getStorage(app);
         const nameSelectEl = document.getElementById('nameSelect');
+        const shiftSelectEl = document.getElementById('shiftSelect');
+        const loginActivitiesListEl = document.getElementById('loginActivitiesList');
+        const addLoginActivityBtn = document.getElementById('addLoginActivityBtn');
+        const loginActivitiesSection = document.getElementById('loginActivitiesSection');
+        const logoutActivitiesSection = document.getElementById('logoutActivitiesSection');
+        const plannedActivitiesEvidenceEl = document.getElementById('plannedActivitiesEvidence');
+        const plannedActivitiesEmptyEl = document.getElementById('plannedActivitiesEmpty');
+        const additionalActivitiesListEl = document.getElementById('additionalActivitiesList');
+        const addAdditionalActivityBtn = document.getElementById('addAdditionalActivityBtn');
         let currentPresenceMode = 'login'; // 'login' or 'logout'
         let unsubscribeUsersListener = null;
         const validationMessageEl = document.getElementById('validationMessage');
@@ -422,6 +567,7 @@
             lng: 110.38220611055455,
             label: "Kantor Dialogika"
         };
+        const REQUIRE_GEOFENCE = false;
         const GEOFENCE_RADIUS_METERS = 50;
         const LOCATION_TIMEOUT_MS = 15000;
         const LOCATION_MAX_AGE_MS = 10000;
@@ -429,6 +575,10 @@
         let latestLocationValidation = null;
         let isLocationChecking = false;
         let isLocationValid = false;
+        let cachedLoginActivities = [];
+        let cachedLoginShift = "";
+        let cachedLoginDocId = "";
+        let cachedLoginTime = "";
 
         function getLocalDateString(date = new Date()) {
             const year = date.getFullYear();
@@ -546,6 +696,219 @@
             return `${Math.round(Number(meters) || 0)}m`;
         }
 
+        function sanitizeFileName(name = "file") {
+            return String(name).replace(/[^a-zA-Z0-9._-]/g, "_");
+        }
+
+        function buildEvidencePath(uid, dateStr, group, index, originalName) {
+            const safeName = sanitizeFileName(originalName || "evidence.jpg");
+            const stamp = Date.now();
+            return `attendance_evidence/${uid}/${dateStr}/${group}/${index}-${stamp}-${safeName}`;
+        }
+
+        async function uploadEvidenceFile(file, path) {
+            const storageRef = ref(storage, path);
+            await uploadBytes(storageRef, file);
+            const url = await getDownloadURL(storageRef);
+            return { url, path };
+        }
+
+        function normalizePlannedActivities(raw) {
+            if (!Array.isArray(raw)) return [];
+            return raw.map(item => {
+                if (typeof item === 'string') return item.trim();
+                if (item && typeof item.text === 'string') return item.text.trim();
+                return "";
+            }).filter(Boolean);
+        }
+
+        function resetSliderHandle() {
+            const handle = document.getElementById('sliderHandle');
+            const sliderText = document.getElementById('sliderText');
+            if (!handle || !sliderText) return;
+            handle.style.transition = "all 0.3s ease";
+            handle.style.left = '5px';
+            sliderText.style.opacity = 1;
+        }
+
+        function setShiftEnabled(enabled) {
+            if (!shiftSelectEl) return;
+            shiftSelectEl.disabled = !enabled;
+            if (enabled) {
+                shiftSelectEl.classList.remove('field-disabled');
+            } else {
+                shiftSelectEl.classList.add('field-disabled');
+            }
+        }
+
+        function addLoginActivityRow(value = "") {
+            if (!loginActivitiesListEl) return;
+            const row = document.createElement('div');
+            row.className = 'activity-row';
+
+            const input = document.createElement('input');
+            input.type = 'text';
+            input.className = 'activity-input';
+            input.placeholder = 'Contoh: Review materi sesi mentoring';
+            input.value = value;
+
+            const removeBtn = document.createElement('button');
+            removeBtn.type = 'button';
+            removeBtn.className = 'activity-remove';
+            removeBtn.textContent = 'Hapus';
+            removeBtn.addEventListener('click', () => {
+                row.remove();
+                if (loginActivitiesListEl.children.length === 0) {
+                    addLoginActivityRow();
+                }
+            });
+
+            row.append(input, removeBtn);
+            loginActivitiesListEl.append(row);
+        }
+
+        function resetLoginActivities() {
+            if (!loginActivitiesListEl) return;
+            loginActivitiesListEl.innerHTML = '';
+            addLoginActivityRow();
+        }
+
+        function getLoginActivitiesFromInputs() {
+            if (!loginActivitiesListEl) return [];
+            const inputs = loginActivitiesListEl.querySelectorAll('input.activity-input');
+            return Array.from(inputs)
+                .map(input => String(input.value || '').trim())
+                .filter(Boolean);
+        }
+
+        function renderPlannedActivitiesEvidence(activities = []) {
+            if (!plannedActivitiesEvidenceEl) return;
+            plannedActivitiesEvidenceEl.innerHTML = '';
+            if (plannedActivitiesEmptyEl) {
+                plannedActivitiesEmptyEl.style.display = activities.length ? 'none' : 'block';
+            }
+
+            activities.forEach((activity, index) => {
+                const row = document.createElement('div');
+                row.className = 'activity-row stack';
+
+                const chip = document.createElement('div');
+                chip.className = 'activity-chip';
+                chip.textContent = `${index + 1}. ${activity}`;
+
+                const input = document.createElement('input');
+                input.type = 'file';
+                input.accept = 'image/*';
+                input.className = 'evidence-input';
+                input.dataset.activityIndex = String(index);
+                input.dataset.activityText = activity;
+
+                row.append(chip, input);
+                plannedActivitiesEvidenceEl.append(row);
+            });
+        }
+
+        function addAdditionalActivityRow(value = "") {
+            if (!additionalActivitiesListEl) return;
+            const row = document.createElement('div');
+            row.className = 'activity-row stack additional-activity-row';
+
+            const input = document.createElement('input');
+            input.type = 'text';
+            input.className = 'activity-input';
+            input.placeholder = 'Aktivitas tambahan...';
+            input.value = value;
+
+            const fileInput = document.createElement('input');
+            fileInput.type = 'file';
+            fileInput.accept = 'image/*';
+            fileInput.className = 'evidence-input';
+
+            const removeBtn = document.createElement('button');
+            removeBtn.type = 'button';
+            removeBtn.className = 'activity-remove';
+            removeBtn.textContent = 'Hapus';
+            removeBtn.addEventListener('click', () => {
+                row.remove();
+            });
+
+            row.append(input, fileInput, removeBtn);
+            additionalActivitiesListEl.append(row);
+        }
+
+        function resetAdditionalActivities() {
+            if (!additionalActivitiesListEl) return;
+            additionalActivitiesListEl.innerHTML = '';
+        }
+
+        function updateActivitySectionsForMode(mode) {
+            if (!loginActivitiesSection || !logoutActivitiesSection) return;
+            if (mode === 'login') {
+                loginActivitiesSection.style.display = 'block';
+                logoutActivitiesSection.style.display = 'none';
+                setShiftEnabled(true);
+            } else if (mode === 'logout') {
+                loginActivitiesSection.style.display = 'none';
+                logoutActivitiesSection.style.display = 'block';
+                setShiftEnabled(false);
+            } else {
+                loginActivitiesSection.style.display = 'none';
+                logoutActivitiesSection.style.display = 'none';
+                setShiftEnabled(false);
+            }
+        }
+
+        async function collectLogoutEvidenceUploads(uid, dateStr) {
+            const plannedItems = [];
+            const plannedInputs = plannedActivitiesEvidenceEl
+                ? plannedActivitiesEvidenceEl.querySelectorAll('input[type="file"]')
+                : [];
+
+            for (const input of plannedInputs) {
+                const activityText = input.dataset.activityText || "";
+                const file = input.files && input.files[0];
+                if (!file) {
+                    return { error: `Evidence wajib diunggah untuk aktivitas: ${activityText || 'Aktivitas Clock In'}.` };
+                }
+                const path = buildEvidencePath(uid, dateStr, 'planned', input.dataset.activityIndex || '0', file.name);
+                const uploadResult = await uploadEvidenceFile(file, path);
+                plannedItems.push({
+                    text: activityText,
+                    evidence_url: uploadResult.url,
+                    evidence_path: uploadResult.path
+                });
+            }
+
+            const additionalItems = [];
+            const additionalRows = additionalActivitiesListEl
+                ? additionalActivitiesListEl.querySelectorAll('.additional-activity-row')
+                : [];
+            let additionalIndex = 0;
+            for (const row of additionalRows) {
+                const textInput = row.querySelector('input[type="text"]');
+                const fileInput = row.querySelector('input[type="file"]');
+                const text = String(textInput?.value || '').trim();
+                const file = fileInput?.files && fileInput.files[0];
+
+                if (!text && !file) {
+                    continue;
+                }
+                if (!text || !file) {
+                    return { error: 'Lengkapi aktivitas tambahan beserta evidence.' };
+                }
+                const path = buildEvidencePath(uid, dateStr, 'additional', additionalIndex, file.name);
+                const uploadResult = await uploadEvidenceFile(file, path);
+                additionalItems.push({
+                    text,
+                    evidence_url: uploadResult.url,
+                    evidence_path: uploadResult.path
+                });
+                additionalIndex += 1;
+            }
+
+            return { plannedItems, additionalItems };
+        }
+
         function getCurrentPositionOnce(options = {}) {
             return new Promise((resolve, reject) => {
                 if (!navigator.geolocation) {
@@ -584,6 +947,14 @@
 
         async function validatePresenceLocation(forceRefresh = false) {
             const now = Date.now();
+            if (!REQUIRE_GEOFENCE) {
+                latestLocationValidation = {
+                    ok: true,
+                    message: "Lokasi WFH tidak perlu divalidasi.",
+                    checkedAt: now
+                };
+                return latestLocationValidation;
+            }
             if (!forceRefresh && latestLocationValidation && (now - latestLocationValidation.checkedAt) <= LOCATION_CACHE_TTL_MS) {
                 return latestLocationValidation;
             }
@@ -647,7 +1018,7 @@
                 collection(db, "users"),
                 where("role", "in", ["internship", "Internship"]),
                 where("status", "==", "Active"),
-                where("mode", "in", ["Hybrid", "WFO"])
+                where("mode", "==", "WFH")
             );
             unsubscribeUsersListener = onSnapshot(q, (snap) => {
                 const selectedUserId = select.value;
@@ -745,14 +1116,40 @@
                     collection(db, "user_attendance"),
                     where("user_id", "==", userId),
                     where("date", "==", dateStr),
-                    where("type", "==", "login"),
-                    orderBy("time", "desc"),
-                    limit(1)
+                    where("type", "==", "login")
                 );
                 const snap = await getDocs(q);
                 if (snap.empty) return null;
-                const docData = snap.docs[0].data() || {};
+                const docs = snap.docs.sort((a, b) => {
+                    const timeA = a.data().time || "";
+                    const timeB = b.data().time || "";
+                    return timeB.localeCompare(timeA);
+                });
+                const docData = docs[0].data() || {};
                 return docData.time || null;
+            } catch (e) {
+                console.error("Gagal mengambil login terakhir hari ini", e);
+                return null;
+            }
+        }
+
+        async function getTodayLatestLoginRecord(userId, dateStr) {
+            try {
+                const q = query(
+                    collection(db, "user_attendance"),
+                    where("user_id", "==", userId),
+                    where("date", "==", dateStr),
+                    where("type", "==", "login")
+                );
+                const snap = await getDocs(q);
+                if (snap.empty) return null;
+                const docs = snap.docs.sort((a, b) => {
+                    const timeA = a.data().time || "";
+                    const timeB = b.data().time || "";
+                    return timeB.localeCompare(timeA);
+                });
+                const docSnap = docs[0];
+                return { id: docSnap.id, data: docSnap.data() || {} };
             } catch (e) {
                 console.error("Gagal mengambil login terakhir hari ini", e);
                 return null;
@@ -786,26 +1183,37 @@
                 sliderWrapper.classList.add('disabled-slider');
                 badgeContainer.innerHTML = '<span class="status-badge done"><i class="bi bi-check-circle-fill"></i> Sudah Clock In & Clock Out</span>';
             }
+
+            updateActivitySectionsForMode(mode);
         }
 
         async function onUserSelected() {
             applySelectedPhoto();
             latestLocationValidation = null;
+            cachedLoginActivities = [];
+            cachedLoginShift = "";
+            cachedLoginDocId = "";
+            cachedLoginTime = "";
+            resetAdditionalActivities();
             const option = nameSelectEl.options[nameSelectEl.selectedIndex];
             if (!option || !option.value) {
                 updateSliderMode('login');
                 setSliderEnabled(false);
                 setValidationMessage('', 'info');
+                if (shiftSelectEl) shiftSelectEl.value = '';
+                resetLoginActivities();
                 return;
             }
             const userId = option.value;
             const { hasLogin, hasLogout } = await checkTodayAttendance(userId);
             const timeValidation = validatePresenceTime('logout');
-            setValidationMessage('Memeriksa lokasi perangkat...', 'info');
+            setValidationMessage(REQUIRE_GEOFENCE ? 'Memeriksa lokasi perangkat...' : 'Silakan lengkapi data presensi.', 'info');
             setSliderEnabled(false);
 
             if (!hasLogin) {
                 updateSliderMode('login');
+                resetLoginActivities();
+                if (shiftSelectEl) shiftSelectEl.value = '';
             } else if (hasLogin && !hasLogout) {
                 if (!timeValidation.valid) {
                     updateSliderMode('locked-logout');
@@ -813,6 +1221,18 @@
                     return;
                 } else {
                     updateSliderMode('logout');
+                }
+
+                const loginRecord = await getTodayLatestLoginRecord(userId, getLocalDateString());
+                if (loginRecord && loginRecord.data) {
+                    cachedLoginDocId = loginRecord.id || "";
+                    cachedLoginTime = loginRecord.data.time || "";
+                    cachedLoginShift = loginRecord.data.shift || "";
+                    cachedLoginActivities = normalizePlannedActivities(loginRecord.data?.activities?.planned);
+                }
+                renderPlannedActivitiesEvidence(cachedLoginActivities);
+                if (shiftSelectEl && cachedLoginShift) {
+                    shiftSelectEl.value = cachedLoginShift;
                 }
             } else {
                 updateSliderMode('done');
@@ -832,13 +1252,10 @@
             }
 
             // Reset slider handle position
-            const handle = document.getElementById('sliderHandle');
-            handle.style.transition = 'all 0.3s ease';
-            handle.style.left = '5px';
-            document.getElementById('sliderText').style.opacity = 1;
+            resetSliderHandle();
         }
 
-        async function recordAttendance(locationValidation) {
+        async function recordAttendance({ locationValidation, shift, plannedActivities = [], plannedEvidence = [], additionalActivities = [] }) {
             const option = nameSelectEl.options[nameSelectEl.selectedIndex];
             if (!option || !option.value) return { workDurationText: "", workDurationSeconds: null };
             const uid = option.value;
@@ -866,7 +1283,7 @@
             }
 
             if (currentPresenceMode === 'logout') {
-                const loginTime = await getTodayLatestLoginTime(uid, dateStr);
+                const loginTime = cachedLoginTime || await getTodayLatestLoginTime(uid, dateStr);
                 const loginSec = parseTimeToSeconds(loginTime);
                 const logoutSec = parseTimeToSeconds(timeStr);
                 if (loginSec !== null && logoutSec !== null && logoutSec >= loginSec) {
@@ -885,11 +1302,28 @@
                     created_at: serverTimestamp()
                 };
 
+                if (currentPresenceMode === 'login') {
+                    payload.shift = shift || "";
+                    payload.activities = {
+                        planned: plannedActivities.map(text => ({ text }))
+                    };
+                }
+                if (currentPresenceMode === 'logout') {
+                    payload.shift = shift || cachedLoginShift || "";
+                    if (cachedLoginDocId) {
+                        payload.login_doc_id = cachedLoginDocId;
+                    }
+                    payload.activities = {
+                        planned: plannedEvidence,
+                        additional: additionalActivities
+                    };
+                }
+
                 if (currentPresenceMode === 'logout' && workDurationSeconds !== null) {
                     payload.work_duration_seconds = workDurationSeconds;
                     payload.work_duration = formatDuration(workDurationSeconds);
                 }
-                if (locationValidation && locationValidation.ok) {
+                if (locationValidation && locationValidation.ok && locationValidation.latitude != null) {
                     payload.location = {
                         latitude: locationValidation.latitude,
                         longitude: locationValidation.longitude,
@@ -913,6 +1347,20 @@
         loadUsers();
         setSliderEnabled(false);
         nameSelectEl.addEventListener('change', onUserSelected);
+        if (shiftSelectEl) {
+            shiftSelectEl.addEventListener('change', () => {
+                if (currentPresenceMode === 'login') {
+                    setValidationMessage('', 'info');
+                }
+            });
+        }
+        if (addLoginActivityBtn) {
+            addLoginActivityBtn.addEventListener('click', () => addLoginActivityRow());
+        }
+        if (addAdditionalActivityBtn) {
+            addAdditionalActivityBtn.addEventListener('click', () => addAdditionalActivityRow());
+        }
+        resetLoginActivities();
 
         function updateClock() {
             const now = new Date();
@@ -954,6 +1402,23 @@
             }
             if (currentPresenceMode === 'done' || currentPresenceMode === 'locked-logout') {
                 return;
+            }
+
+            if (currentPresenceMode === 'login') {
+                if (!shiftSelectEl || !shiftSelectEl.value) {
+                    setValidationMessage('Shift wajib dipilih sebelum clock in.', 'error');
+                    if (shiftSelectEl) {
+                        shiftSelectEl.classList.add('border-red-400');
+                        setTimeout(() => shiftSelectEl.classList.remove('border-red-400'), 1000);
+                    }
+                    return;
+                }
+
+                const plannedActivities = getLoginActivitiesFromInputs();
+                if (!plannedActivities.length) {
+                    setValidationMessage('Tambahkan minimal 1 aktivitas sebelum clock in.', 'error');
+                    return;
+                }
             }
 
             const validation = validatePresenceTime(currentPresenceMode);
@@ -1001,20 +1466,55 @@
         async function completeAttendance() {
             if (currentPresenceMode === 'done' || currentPresenceMode === 'locked-logout') return;
 
+            const selectedOption = nameSelect.options[nameSelect.selectedIndex];
+            if (!selectedOption || !selectedOption.value) {
+                setValidationMessage('Pilih nama terlebih dahulu.', 'error');
+                resetSliderHandle();
+                return;
+            }
+            const uid = selectedOption.value;
+            const now = new Date();
+            const dateStr = getLocalDateString(now);
+
+            const timeValidation = validatePresenceTime(currentPresenceMode, now);
+            if (!timeValidation.valid) {
+                setValidationMessage(timeValidation.message);
+                resetSliderHandle();
+                return;
+            }
+
+            let shiftValue = shiftSelectEl ? shiftSelectEl.value : "";
+            let plannedActivities = [];
+            let plannedEvidence = [];
+            let additionalActivities = [];
+
+            if (currentPresenceMode === 'login') {
+                if (!shiftValue) {
+                    setValidationMessage('Shift wajib dipilih sebelum clock in.', 'error');
+                    if (shiftSelectEl) {
+                        shiftSelectEl.classList.add('border-red-400');
+                        setTimeout(() => shiftSelectEl.classList.remove('border-red-400'), 1000);
+                    }
+                    resetSliderHandle();
+                    return;
+                }
+                plannedActivities = getLoginActivitiesFromInputs();
+                if (!plannedActivities.length) {
+                    setValidationMessage('Tambahkan minimal 1 aktivitas sebelum clock in.', 'error');
+                    resetSliderHandle();
+                    return;
+                }
+            }
+
             setValidationMessage('Memvalidasi lokasi sebelum menyimpan presensi...', 'info');
             const locationValidation = await validatePresenceLocation(false);
             if (!locationValidation.ok) {
                 alert(locationValidation.message);
                 setValidationMessage(locationValidation.message, 'error');
-                const handle = document.getElementById('sliderHandle');
-                const sliderText = document.getElementById('sliderText');
-                handle.style.transition = "all 0.3s ease";
-                handle.style.left = '5px';
-                sliderText.style.opacity = 1;
+                resetSliderHandle();
                 return;
             }
 
-            const selectedOption = nameSelect.options[nameSelect.selectedIndex];
             if (selectedOption && selectedOption.textContent) {
                 confirmedUser.innerText = selectedOption.textContent;
             }
@@ -1030,14 +1530,29 @@
                 workDurationInfo.textContent = '';
             }
 
-            const attendanceResult = await recordAttendance(locationValidation);
+            if (currentPresenceMode === 'logout') {
+                setValidationMessage('Mengunggah evidence aktivitas...', 'info');
+                const evidenceResult = await collectLogoutEvidenceUploads(uid, dateStr);
+                if (evidenceResult.error) {
+                    setValidationMessage(evidenceResult.error, 'error');
+                    resetSliderHandle();
+                    return;
+                }
+                plannedEvidence = evidenceResult.plannedItems;
+                additionalActivities = evidenceResult.additionalItems;
+                shiftValue = cachedLoginShift || shiftValue;
+            }
+
+            const attendanceResult = await recordAttendance({
+                locationValidation,
+                shift: shiftValue,
+                plannedActivities,
+                plannedEvidence,
+                additionalActivities
+            });
             if (attendanceResult && attendanceResult.error) {
                 alert(attendanceResult.error);
-                const handle = document.getElementById('sliderHandle');
-                const sliderText = document.getElementById('sliderText');
-                handle.style.transition = "all 0.3s ease";
-                handle.style.left = '5px';
-                sliderText.style.opacity = 1;
+                resetSliderHandle();
                 await onUserSelected();
                 return;
             }
