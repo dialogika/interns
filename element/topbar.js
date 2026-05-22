@@ -138,6 +138,69 @@ export function renderTopBar(target) {
         }
     } catch (e) {}
 
+    // Async update for position name if it looks like an ID
+    (async function updatePositionName() {
+        const roleDisplay = target.querySelector('#user-role-display');
+        if (!roleDisplay) return;
+        
+        // Initialize or get db if not available
+        const waitForDb = async () => {
+            if (window.db || window.dlgDb) return window.db || window.dlgDb;
+            try {
+                const { initializeApp, getApps, getApp } = await import("https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js");
+                const { getFirestore } = await import("https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js");
+                const firebaseConfig = {
+                    apiKey: "AIzaSyDyzzEYbJkkl-N8snrQf14qvj8De4YliV0",
+                    authDomain: "pre-dialogika.firebaseapp.com",
+                    projectId: "pre-dialogika",
+                    storageBucket: "pre-dialogika.firebasestorage.app",
+                    messagingSenderId: "343771410480",
+                    appId: "1:343771410480:web:32881c9868522090237df5",
+                    measurementId: "G-SXN811P3N0"
+                };
+                const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApp();
+                const db = getFirestore(app);
+                window.db = db; // cache it
+                return db;
+            } catch (e) {
+                console.warn("Topbar failed to init firestore", e);
+                return null;
+            }
+        };
+
+        const db = await waitForDb();
+        if (!db) return;
+
+        let currentRole = roleDisplay.textContent;
+        // Logic: if no spaces and >10 chars, treat as ID
+        if (currentRole && currentRole.trim().length > 10 && !currentRole.includes(' ')) {
+            try {
+                // Dynamically import Firestore SDK to avoid module issues if not already imported
+                const { doc, getDoc } = await import("https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js");
+                
+                // Try 'position' collection first
+                let ref = doc(db, "position", currentRole);
+                let snap = await getDoc(ref);
+                
+                // Fallback to 'positions' if not found
+                if (!snap.exists()) {
+                    ref = doc(db, "positions", currentRole);
+                    snap = await getDoc(ref);
+                }
+
+                if (snap.exists()) {
+                    const d = snap.data();
+                    const realName = d.name || d.title || d.position || d.label;
+                    if (realName) {
+                        roleDisplay.textContent = realName;
+                    }
+                }
+            } catch (err) {
+                console.warn("Failed to resolve position name:", err);
+            }
+        }
+    })();
+
     if (toggle && menu && wrapper) {
         toggle.addEventListener('click', function (ev) {
             ev.stopPropagation();
