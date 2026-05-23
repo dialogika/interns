@@ -548,18 +548,18 @@
                 </div>
 
                 <div class="row">
-                    <div class="mb-3">
+                    <div class="col-md-6 mb-3">
                         <label class="form-label">Campus</label>
                         <input type="text" class="form-control" id="inputCampus" placeholder="Nama kampus" required>
                     </div>
-                    <!-- <div class="col-md-6 mb-3">
-                        <label class="form-label">Role ID</label>
-                        <select class="form-select" id="inputRoleId">
-                            <option value="internship" selected>internship</option>
-                            <option value="intern">intern</option>
-                            <option value="staff">staff</option>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Mode Kerja</label>
+                        <select class="form-select" id="inputMode" required>
+                            <option value="WFO" selected>WFO</option>
+                            <option value="WFH">WFH</option>
+                            <option value="Hybrid">Hybrid</option>
                         </select>
-                    </div> -->
+                    </div>
                 </div>
 
                 <div class="row">
@@ -889,6 +889,7 @@
                     campus: document.getElementById('inputCampus').value,
                     photo: photoURL,
                     candidatePhoto: photoURL,
+                    mode: document.getElementById('inputMode').value,
                     role: "internship",
                     internshipStatus: "Active",
                     status: "pending",
@@ -902,7 +903,7 @@
                         linkedin: document.getElementById('inputLinked').value
                     },
                     access: {
-                        role_id: selectedRoleId,
+                        role_id: "internship",
                         level_order: 4
                     },
                     onboardingSourceCollection: candidateContext ? candidateContext.source : "",
