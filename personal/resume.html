@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Resume - Dialogika</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="../assets/css/style.css" rel="stylesheet" />
+
+    <style>
+        .main-container {
+            max-width: 900px;
+            margin: 20px auto 40px auto;
+        }
+
+        .resume-card {
+            background: #ffffff;
+            border: none;
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.04);
+            padding: 40px;
+            margin-top: 20px;
+        }
+
+        .section-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: #1e293b;
+            margin-bottom: 25px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #f1f5f9;
+            display: flex;
+            align-items: center;
+        }
+
+        .section-title i {
+            margin-right: 10px;
+            color: #64748b;
+        }
+
+        .form-label {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #64748b;
+            margin-bottom: 8px;
+        }
+
+        .form-control,
+        .form-select {
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 10px 15px;
+            font-size: 0.95rem;
+            transition: all 0.2s;
+            background-color: #fbfcfd;
+        }
+
+        .form-control:focus, .form-select:focus {
+            border-color: #94a3b8;
+            box-shadow: 0 0 0 3px rgba(148, 163, 184, 0.1);
+            background-color: #fff;
+        }
+
+        .btn-save {
+            background-color: #334155;
+            border: none;
+            padding: 10px 35px;
+            border-radius: 8px;
+            font-weight: 600;
+            color: white;
+            transition: 0.3s;
+        }
+
+        .btn-save:hover {
+            background-color: #1e293b;
+            transform: translateY(-1px);
+        }
+
+        .btn-cancel {
+            background-color: #fff;
+            border: 1px solid #e2e8f0;
+            color: #64748b;
+            padding: 10px 35px;
+            border-radius: 8px;
+            font-weight: 600;
+        }
+        
+        .input-group-text {
+            background-color: #f8fafc;
+            border-color: #e2e8f0;
+            color: #94a3b8;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="topbarContainer"></div>
+
+    <div class="dashboard-container">
+        
+        <div id="sidebarContainer"></div>
+
+        <main class="main-content">
+            <div class="container main-container">
+                <div class="resume-card">
+                    <h2 class="mb-4 fw-bold" style="color: #0f172a;">Intern Resume</h2>
+                    <p class="text-muted mb-4">Lengkapi data resume Anda untuk keperluan rekam jejak intern.</p>
+
+                    <form id="resumeForm">
+                        
+                        <div class="section-title">
+                            <i class="fa-solid fa-user-tie"></i> Data Pribadi & Pekerjaan
+                        </div>
+                        
+                        <div class="row g-4 mb-5">
+                            <div class="col-md-6">
+                                <label class="form-label">Nama Lengkap</label>
+                                <input type="text" class="form-control" id="resumeNameInput" placeholder="Nama lengkap Anda" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Posisi</label>
+                                <select class="form-select" id="resumePositionInput" required>
+                                    <option value="" disabled selected>Pilih Posisi</option>
+                                </select>
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label">Deskripsi Diri Singkat</label>
+                                <textarea class="form-control" id="resumeDescriptionInput" rows="3" placeholder="Ceritakan singkat tentang diri Anda, keahlian, dan minat..."></textarea>
+                            </div>
+                        </div>
+
+                        <div class="section-title">
+                            <i class="fa-solid fa-address-book"></i> Kontak & Media Sosial
+                        </div>
+                        <div class="row g-4 mb-5">
+                            <div class="col-md-6">
+                                <label class="form-label">Nomor WhatsApp</label>
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="fa-brands fa-whatsapp"></i></span>
+                                    <input type="tel" class="form-control" id="resumeWhatsappInput" placeholder="Contoh: 08123456789" />
+                                </div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label class="form-label">Link Instagram</label>
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="fa-brands fa-instagram"></i></span>
+                                    <input type="url" class="form-control" id="resumeInstagramInput" placeholder="https://instagram.com/username" />
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Link LinkedIn</label>
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="fa-brands fa-linkedin-in"></i></span>
+                                    <input type="url" class="form-control" id="resumeLinkedinInput" placeholder="https://linkedin.com/in/username" />
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="section-title">
+                            <i class="fa-solid fa-trophy"></i> Prestasi / Achievement
+                        </div>
+                        <div class="row g-4 mb-5">
+                            <div class="col-12">
+                                <label class="form-label">Daftar Achievement</label>
+                                <textarea class="form-control" id="resumeAchievementInput" rows="4" placeholder="Sebutkan pencapaian Anda (pisahkan dengan enter)..."></textarea>
+                            </div>
+                        </div>
+
+                        <div class="d-flex justify-content-end gap-3 pt-4 border-top">
+                            <button type="button" class="btn btn-cancel shadow-none" onclick="window.history.back()">Batal</button>
+                            <button type="submit" class="btn btn-save shadow-none" id="saveResumeBtn">Simpan Resume</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script type="module">
+        import { renderTopBar } from "../element/topbar.js";
+        import { renderSidebar } from "../element/sidebar.js";
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+        import { getFirestore, collection, getDoc, doc, getDocs, updateDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyDyzzEYbJkkl-N8snrQf14qvj8De4YliV0",
+            authDomain: "pre-dialogika.firebaseapp.com",
+            projectId: "pre-dialogika",
+            storageBucket: "pre-dialogika.firebasestorage.app",
+            messagingSenderId: "343771410480",
+            appId: "1:343771410480:web:32881c9868522090237df5",
+            measurementId: "G-SXN811P3N0"
+        };
+
+        const topbarTarget = document.getElementById('topbarContainer');
+        renderTopBar(topbarTarget);
+        const sidebarTarget = document.getElementById('sidebarContainer');
+        renderSidebar(sidebarTarget);
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+        
+        window.db = db;
+        window.collection = collection;
+        window.getDocs = getDocs;
+        window.getDoc = getDoc;
+        window.doc = doc;
+        
+        if (typeof window.initGlobalUsers === 'function') {
+            try { window.initGlobalUsers(); } catch (e) {}
+        }
+
+        window.toggleSidebar = () => {
+            const sidebar = document.getElementById('sidebarNav');
+            if (sidebar) sidebar.classList.toggle('show');
+        };
+
+        window.logout = async () => {
+            try {
+                await signOut(auth);
+            } catch (e) {}
+            try {
+                localStorage.removeItem('userData');
+            } catch (e) {}
+            window.location.href = "/index.html";
+        };
+
+        async function loadPositions() {
+            const posSelect = document.getElementById('resumePositionInput');
+            try {
+                let posSnap = await getDocs(collection(db, "position"));
+                if (posSnap.empty) {
+                    posSnap = await getDocs(collection(db, "positions"));
+                }
+                
+                if (posSelect) {
+                    posSnap.forEach(docSnap => {
+                        const data = docSnap.data() || {};
+                        const name = data.name || data.title || data.position || data.label || "";
+                        if (!name) return;
+                        const opt = document.createElement('option');
+                        opt.value = docSnap.id;
+                        opt.text = name;
+                        posSelect.appendChild(opt);
+                    });
+                }
+            } catch (e) {
+                console.error("Failed to load positions for resume", e);
+            }
+        }
+
+        async function loadResumeData(userUid) {
+            try {
+                // Try to load from localStorage first for faster UI
+                let localName = "", localPos = "", localWa = "";
+                try {
+                    const raw = localStorage.getItem('userData');
+                    if (raw) {
+                        const data = JSON.parse(raw);
+                        localName = data.name || "";
+                        localPos = data.position || "";
+                        localWa = data.phone || data.whatsapp || "";
+                    }
+                } catch(e) {}
+
+                // Load from Firestore
+                const resumeSnap = await getDoc(doc(db, "interns_resume", userUid));
+                const userSnap = await getDoc(doc(db, "users", userUid));
+                
+                const rData = resumeSnap.exists() ? resumeSnap.data() : {};
+                const uData = userSnap.exists() ? userSnap.data() : {};
+                
+                // Fields to extract: prioritize interns_resume, fallback to users, fallback to local
+                const name = rData.name || uData.name || localName || "";
+                const pos = rData.position || (uData.employment && uData.employment.position) || uData.position || localPos || "";
+                const phone = rData.phone || uData.phone || uData.whatsapp || (uData.contact && uData.contact.whatsapp) || localWa || "";
+                const ig = rData.instagram || (uData.socials && uData.socials.instagram) || "";
+                const linkedIn = rData.linkedin || (uData.socials && uData.socials.linkedin) || "";
+                const desc = rData.description || (uData.resume && uData.resume.description) || "";
+                const achievement = rData.achievement || (uData.resume && uData.resume.achievement) || "";
+                // Bind to UI
+                if (name) document.getElementById('resumeNameInput').value = name;
+                if (pos) setSelectValue('resumePositionInput', pos);
+                if (desc) document.getElementById('resumeDescriptionInput').value = desc;
+                if (phone) document.getElementById('resumeWhatsappInput').value = phone;
+                
+                // For IG and LinkedIn
+                if (ig) document.getElementById('resumeInstagramInput').value = ig;
+                if (linkedIn) document.getElementById('resumeLinkedinInput').value = linkedIn;
+                
+                if (achievement) document.getElementById('resumeAchievementInput').value = achievement;
+
+            } catch (e) {
+                console.error("Error loading resume data:", e);
+            }
+        }
+
+        function setSelectValue(selectId, val) {
+            const selectEl = document.getElementById(selectId);
+            if (!selectEl || !val) return;
+            
+            let found = false;
+            for (let i = 0; i < selectEl.options.length; i++) {
+                if (selectEl.options[i].value === val || selectEl.options[i].text === val || selectEl.options[i].value.toLowerCase() === String(val).toLowerCase()) {
+                    selectEl.selectedIndex = i;
+                    found = true;
+                    break;
+                }
+            }
+            if (!found) {
+                // Fetch the name dynamically if we can't find the ID in the loaded options?
+                // For now, just add the ID as text, topbar does its own async fetch for display.
+                const opt = document.createElement('option');
+                opt.value = val;
+                opt.text = val;
+                selectEl.appendChild(opt);
+                selectEl.value = val;
+            }
+        }
+
+        onAuthStateChanged(auth, async (user) => {
+            if (!user) {
+                window.location.href = "/index.html";
+                return;
+            }
+            
+            // Load positions first so we can bind the current position correctly
+            await loadPositions();
+            await loadResumeData(user.uid);
+
+            const formEl = document.getElementById('resumeForm');
+            const saveBtn = document.getElementById('saveResumeBtn');
+
+            if (formEl) {
+                formEl.addEventListener('submit', async (ev) => {
+                    ev.preventDefault();
+                    
+                    const nameVal = document.getElementById('resumeNameInput').value.trim();
+                    const posVal = document.getElementById('resumePositionInput').value;
+                    const descVal = document.getElementById('resumeDescriptionInput').value.trim();
+                    const waVal = document.getElementById('resumeWhatsappInput').value.trim();
+                    const igVal = document.getElementById('resumeInstagramInput').value.trim();
+                    const linkedInVal = document.getElementById('resumeLinkedinInput').value.trim();
+                    const achievementVal = document.getElementById('resumeAchievementInput').value.trim();
+
+                    const oldText = saveBtn.innerText;
+                    saveBtn.innerText = "Menyimpan...";
+                    saveBtn.disabled = true;
+
+                    try {
+                        const updateData = {
+                            name: nameVal,
+                            phone: waVal,
+                            position: posVal,
+                            instagram: igVal,
+                            linkedin: linkedInVal,
+                            description: descVal,
+                            achievement: achievementVal
+                        };
+                        
+                        await setDoc(doc(db, "interns_resume", user.uid), updateData, { merge: true });
+                        
+                        // Update users collection for global sync of core data
+                        try {
+                            await updateDoc(doc(db, "users", user.uid), {
+                                name: nameVal,
+                                phone: waVal,
+                                'employment.position': posVal
+                            });
+                        } catch (e) {}
+
+                        // Update localStorage for immediate reflection in UI (topbar/sidebar)
+                        try {
+                            const raw = localStorage.getItem('userData');
+                            if (raw) {
+                                const data = JSON.parse(raw);
+                                data.name = nameVal;
+                                data.position = posVal;
+                                data.phone = waVal;
+                                localStorage.setItem('userData', JSON.stringify(data));
+                            }
+                        } catch(e) {}
+
+                        alert("Data resume berhasil disimpan!");
+                        
+                    } catch (e) {
+                        console.error(e);
+                        alert("Gagal menyimpan data: " + (e.message || e));
+                    } finally {
+                        saveBtn.innerText = oldText;
+                        saveBtn.disabled = false;
+                    }
+                });
+            }
+        });
+    </script>
+</body>
+</html>
