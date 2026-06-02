@@ -404,6 +404,11 @@
                 if (userDoc.exists()) {
                     const userData = userDoc.data();
 
+                    if (userData.status !== "Active") {
+                        await signOut(auth);
+                        throw new Error("account_inactive");
+                    }
+
                     localStorage.setItem('userData', JSON.stringify({
                         uid: user.uid,
                         name: userData.name,
@@ -449,6 +454,7 @@
                 if (error.code === 'auth/wrong-password') pesan = "Password salah.";
                 if (error.code === 'auth/invalid-credential') pesan = "Email atau Password salah.";
                 if (error.message === 'pending_approval') pesan = "Akun Anda sedang menunggu persetujuan Administrator.";
+                if (error.message === 'account_inactive') pesan = "Akun Anda sudah non-aktif. Silakan hubungi Admin atau HR untuk bantuan lebih lanjut.";
                 if (error.code === 'permission-denied') {
                     pesan = "Login berhasil, tetapi akun ini belum punya izin akses data di sistem. Hubungi admin untuk diberikan akses.";
                 }
