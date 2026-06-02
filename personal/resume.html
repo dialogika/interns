@@ -122,6 +122,16 @@
                                 <input type="text" class="form-control" id="resumeNameInput" placeholder="Nama lengkap Anda" required>
                             </div>
                             <div class="col-md-6">
+                                <label class="form-label">Divisi</label>
+                                <select class="form-select" id="resumeDivisionInput" required>
+                                    <option value="" disabled selected>Pilih Divisi</option>
+                                    <option value="Branding">Branding</option>
+                                    <option value="Marketing">Marketing</option>
+                                    <option value="HR">HR</option>
+                                    <option value="Client & Product">Client & Product</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
                                 <label class="form-label">Posisi</label>
                                 <select class="form-select" id="resumePositionInput" required>
                                     <option value="" disabled selected>Pilih Posisi</option>
@@ -280,6 +290,15 @@
                 
                 // Fields to extract: prioritize interns_resume, fallback to users, fallback to local
                 const name = rData.name || uData.name || localName || "";
+                
+                let localPhoto = "";
+                try {
+                    const raw = localStorage.getItem('userData');
+                    if (raw) localPhoto = JSON.parse(raw).photo || "";
+                } catch(e) {}
+                window.currentUserPhoto = rData.photo || uData.photo || localPhoto || "";
+
+                const div = rData.division || (uData.employment && uData.employment.division) || uData.division || "";
                 const pos = rData.position || (uData.employment && uData.employment.position) || uData.position || localPos || "";
                 const phone = rData.phone || uData.phone || uData.whatsapp || (uData.contact && uData.contact.whatsapp) || localWa || "";
                 const ig = rData.instagram || (uData.socials && uData.socials.instagram) || "";
@@ -288,6 +307,7 @@
                 const achievement = rData.achievement || (uData.resume && uData.resume.achievement) || "";
                 // Bind to UI
                 if (name) document.getElementById('resumeNameInput').value = name;
+                if (div) document.getElementById('resumeDivisionInput').value = div;
                 if (pos) setSelectValue('resumePositionInput', pos);
                 if (desc) document.getElementById('resumeDescriptionInput').value = desc;
                 if (phone) document.getElementById('resumeWhatsappInput').value = phone;
@@ -344,6 +364,7 @@
                     ev.preventDefault();
                     
                     const nameVal = document.getElementById('resumeNameInput').value.trim();
+                    const divVal = document.getElementById('resumeDivisionInput').value;
                     const posVal = document.getElementById('resumePositionInput').value;
                     const descVal = document.getElementById('resumeDescriptionInput').value.trim();
                     const waVal = document.getElementById('resumeWhatsappInput').value.trim();
@@ -357,8 +378,11 @@
 
                     try {
                         const updateData = {
+                            user_id: user.uid,
+                            photo: window.currentUserPhoto || "",
                             name: nameVal,
                             phone: waVal,
+                            division: divVal,
                             position: posVal,
                             instagram: igVal,
                             linkedin: linkedInVal,
@@ -373,6 +397,7 @@
                             await updateDoc(doc(db, "users", user.uid), {
                                 name: nameVal,
                                 phone: waVal,
+                                'employment.division': divVal,
                                 'employment.position': posVal
                             });
                         } catch (e) {}
