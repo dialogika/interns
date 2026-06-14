@@ -63,65 +63,81 @@
         // SILAHKAN MASUKKAN DATA ANDA DI SINI
         // Format array of objects yang disesuaikan dengan struktur koleksi users
         // ====================================================================
-        const dataUsers = [
-         {
-            id: "hhMSQhwvONXV5L7VK7gumaE3Jqo2",
-            access: {
-                level_order: 3,
-                role_id: "staff"
-            },
-            birth: "2000-12-25",
-            email: "rindiwahyu654@gmail.com",
-            employment: {
-                department: "",
-                joined_at: "December 28, 2025 at 5:08:54 PM UTC+7",
-                position: "Head of Department of Closing"
-            },
-            name: "Wahyu Rindi Rianti",
-            nickname: "",
-            // password_length: 8,
-            phone: "088267108481",
-            photo: "https://firebasestorage.googleapis.com/v0/b/pre-dialogika.firebasestorage.app/o/users%2FhhMSQhwvONXV5L7VK7gumaE3Jqo2%2Fprofile_photo?alt=media&token=1b23add9-bd87-487c-8a7f-96faaeae0578",
-            position: "GBdVvXoZLeTZV8xbEKN6",
-            role: "super_team",
-            socials: {
-                instagram: "@why_rindu",
-                linkedin: "https://www.linkedin.com/in/wahyu-rindi-ab14a0253"
-            },
-            status: "Active"
-        },
-        {
-            id: "j0KXXuVldtTY265SxQRSHORjqOm2",
-            access: {
-                level_order: 4,
-                role_id: "internship"
-            },
-            birth: "2026-03-29",
-            email: "chriswirapku@gmail.com",
-            employment: {
-                department: "",
-                joined_at: "March 31, 2026 at 11:02:38 AM UTC+7",
-                position: "Admin Marketing"
-            },
-            name: "Chris Wiradinata Wu",
-            nickname: "Chris",
-            // password_length: 8,
-            phone: "0895414188049",
-            photo: "https://firebasestorage.googleapis.com/v0/b/pre-dialogika.firebasestorage.app/o/users%2Fj0KXXuVldtTY265SxQRSHORjqOm2%2Fprofile_photo?alt=media&token=ddaab899-314f-4c11-9dee-db8c06f11d34",
-            position: "",
-            role: "internship",
-            socials: {
-                instagram: "@chriswiraa",
-                linkedin: "linkedin.com/in/chriswiradinatawu"
-            },
-            status: "Active"
-        },
-                
-            // Tambahkan (copy-paste) data user lainnya di bawah ini...
-            // Gunakan format string tanggal standar (YYYY-MM-DDTHH:mm:ss) 
-            // agar mudah dikonversi oleh script di bawah
+           const dataUsers = [
+{
+    id: "DDuWK9AX4QRh7nLKYQuzgLaEN313",
 
-        ];
+    access: {
+        level_order: 4,
+        role_id: "internship"
+    },
+
+    address: "Candirejo, Sardonoharjo, Kec. Ngaglik, Kabupaten Sleman, Daerah Istimewa Yogyakarta 55581, Indonesia",
+
+    approved_by: {
+        name: "Dwiya Elsa Yulianti",
+        timestamp: "May 24, 2026 at 3:54:01 PM UTC+7",
+        uid: "Suvd3RUPvuQvHJhPXGd0KuOOXsm1"
+    },
+
+    birth: "March 14, 2005 at 7:00:00 AM UTC+7",
+
+    campus: "Universitas Islam Indonesia",
+
+    candidatePhoto: "https://firebasestorage.googleapis.com/v0/b/pre-dialogika.firebasestorage.app/o/users%2FDDuWK9AX4QRh7nLKYQuzgLaEN313%2Fprofile_photo?alt=media&token=9389c2b0-4094-4d62-93a9-60320f7b5773",
+
+    department: "rebuy",
+
+    email: "marshandaabbas@gmail.com",
+
+    employment: {
+        department: "rebuy",
+        joined_at: "May 24, 2026 at 3:53:23 PM UTC+7",
+        position: "FPvfisqjaMWczX8Aan9H"
+    },
+
+    internshipEndDate: "August 24, 2026 at 7:00:00 AM UTC+7",
+
+    internshipPreRegistered: false,
+
+    internshipStartDate: "May 24, 2026 at 7:00:00 AM UTC+7",
+
+    internshipStatus: "Active",
+
+    is_approved: true,
+
+    mode: "WFO",
+
+    name: "Marshanda Anastasya Abbas",
+
+    onboardingSourceCandidateId: "",
+
+    onboardingSourceCollection: "",
+
+    phone: "081287218006",
+
+    photo: "https://firebasestorage.googleapis.com/v0/b/pre-dialogika.firebasestorage.app/o/users%2FDDuWK9AX4QRh7nLKYQuzgLaEN313%2Fprofile_photo?alt=media&token=9389c2b0-4094-4d62-93a9-60320f7b5773",
+
+    position: "FPvfisqjaMWczX8Aan9H",
+
+    registeredAt: "May 24, 2026 at 3:53:23 PM UTC+7",
+
+    registered_at: "May 24, 2026 at 3:53:23 PM UTC+7",
+
+    registrationCompleted: true,
+
+    role: "internship",
+
+    socials: {
+        instagram: "@caxzsyaaa_",
+        linkedin: "https://linkedin.com/in/MarshandaAnastasya"
+    },
+
+    status: "Active"
+}
+];
+
+// ############################################################################################
 
         document.getElementById('importBtn').addEventListener('click', async () => {
             const btn = document.getElementById('importBtn');

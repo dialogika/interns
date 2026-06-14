@@ -176,6 +176,60 @@
             z-index: 3;
             background-color: #ffffff;
         }
+
+        /* ── Admin Tracking ── */
+        .btn-track {
+            font-size: 11px;
+            font-weight: 700;
+            padding: 5px 10px;
+            border-radius: 8px;
+            border: 1px solid #e2e8f0;
+            background: #fff;
+            cursor: pointer;
+            transition: all .2s;
+            white-space: nowrap;
+        }
+        .btn-track:hover:not(:disabled) { background: #f8fafc; }
+        .btn-track:disabled { opacity: .6; cursor: not-allowed; }
+        .btn-track-certificate { color: #7c3aed; border-color: #ede9fe; }
+        .btn-track-certificate:hover:not(:disabled) { background: #f5f3ff; }
+        .btn-track-logout { color: #0284c7; border-color: #e0f2fe; }
+        .btn-track-logout:hover:not(:disabled) { background: #f0f9ff; }
+        .btn-track-done {
+            color: #16a34a !important;
+            background: #f0fdf4 !important;
+            border-color: #dcfce7 !important;
+            cursor: default;
+        }
+        .tracking-status-badge {
+            font-size: 10px;
+            font-weight: 700;
+            padding: 3px 8px;
+            border-radius: 6px;
+            display: inline-block;
+        }
+        .tracking-pending { background: #fef3c7; color: #92400e; }
+        .tracking-done { background: #dcfce7; color: #166534; }
+        .audit-trail-text {
+            font-size: 10px;
+            color: #94a3b8;
+            line-height: 1.4;
+        }
+        .audit-trail-text strong { color: #64748b; }
+        .filter-select {
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            font-size: 13px;
+            padding: 6px 12px;
+            background-color: #f8fafc;
+            color: #475569;
+            min-width: 180px;
+        }
+        .filter-select:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(255,91,55,.08);
+            outline: none;
+        }
     </style>
 </head>
 <body class="p-8">
@@ -285,7 +339,18 @@
                                 <option value="100">100 entries</option>
                             </select>
                         </div>
-                        <div class="d-flex gap-3 align-items-center">
+                        <div class="d-flex gap-3 align-items-center flex-wrap">
+                            <div class="d-flex align-items-center gap-2">
+                                <span class="text-muted small">Admin</span>
+                                <select id="internshipAdminFilter" class="filter-select shadow-none">
+                                    <option value="">Semua Status</option>
+                                    <option value="cert_pending">Sertifikat Belum Dikirim</option>
+                                    <option value="cert_done">Sertifikat Sudah Dikirim</option>
+                                    <option value="logout_pending">Belum Logout</option>
+                                    <option value="logout_done">Sudah Logout</option>
+                                    <option value="admin_complete">Administrasi Selesai</option>
+                                </select>
+                            </div>
                             <div class="position-relative">
                                 <i class="fas fa-search position-absolute top-50 start-0 translate-middle-y ms-3 text-muted" style="font-size: 12px;"></i>
                                 <input id="internshipSearchInput" type="text" placeholder="Quick search..." class="form-control form-control-custom ps-5 border-0 shadow-none" style="width: 280px; background: #f1f5f9;">
@@ -311,6 +376,9 @@
                                     <th>Email</th>
                                     <th>Instagram</th>
                                     <th>LinkedIn</th>
+                                    <th>Sertifikat</th>
+                                    <th>Logout Akun</th>
+                                    <th>Audit Trail</th>
                                     <th class="text-end pe-4">Action</th>
                                 </tr>
                             </thead>
@@ -597,6 +665,7 @@
         let internshipState = {
             search: "",
             statusFilter: "",
+            adminFilter: "",
             rowsPerPage: 10,
             page: 1
         };
@@ -685,6 +754,17 @@
                     const linkedin = (socials.linkedin || "").trim();
                     const avatar = data.photo || `https://i.pravatar.cc/150?u=${docSnap.id}`;
 
+                    // ── Admin tracking data ──
+                    const tracking = data.adminTracking || {};
+                    const certSent = !!tracking.certificateSent;
+                    const certSentAt = tracking.certificateSentAt || null;
+                    const certSentBy = tracking.certificateSentBy || "";
+                    const certSentByUid = tracking.certificateSentByUid || "";
+                    const logoutDone = !!tracking.accountLoggedOut;
+                    const logoutDoneAt = tracking.accountLoggedOutAt || null;
+                    const logoutDoneBy = tracking.accountLoggedOutBy || "";
+                    const logoutDoneByUid = tracking.accountLoggedOutByUid || "";
+
                     list.push({
                         id: docSnap.id,
                         name,
@@ -704,7 +784,15 @@
                         email,
                         instagram,
                         linkedin,
-                        avatar
+                        avatar,
+                        certSent,
+                        certSentAt,
+                        certSentBy,
+                        certSentByUid,
+                        logoutDone,
+                        logoutDoneAt,
+                        logoutDoneBy,
+                        logoutDoneByUid
                     });
                 });
                 internshipUsersAll = list;
@@ -794,6 +882,22 @@
             } ms-1"></i>`;
         }
 
+        function formatTrackingTimestamp(ts) {
+            if (!ts) return "";
+            let d = null;
+            if (typeof ts.toDate === "function") d = ts.toDate();
+            else if (ts instanceof Date) d = ts;
+            else { d = new Date(ts); }
+            if (!d || isNaN(d.getTime())) return "";
+            const day = String(d.getDate()).padStart(2,"0");
+            const months = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+            const mon = months[d.getMonth()];
+            const year = d.getFullYear();
+            const hh = String(d.getHours()).padStart(2,"0");
+            const mm = String(d.getMinutes()).padStart(2,"0");
+            return `${day} ${mon} ${year}, ${hh}:${mm}`;
+        }
+
         function getFilteredInternshipUsers() {
             let data = [...internshipUsersAll];
             if (internshipState.search) {
@@ -811,6 +915,17 @@
                 data = data.filter(u => {
                     const info = getInternshipDisplayStatus(u);
                     return info.label === target;
+                });
+            }
+            if (internshipState.adminFilter) {
+                const af = internshipState.adminFilter;
+                data = data.filter(u => {
+                    if (af === "cert_pending")  return !u.certSent;
+                    if (af === "cert_done")    return  u.certSent;
+                    if (af === "logout_pending") return !u.logoutDone;
+                    if (af === "logout_done")  return  u.logoutDone;
+                    if (af === "admin_complete") return u.certSent && u.logoutDone;
+                    return true;
                 });
             }
             return data;
@@ -923,10 +1038,41 @@
                     <td>${u.email || "-"}</td>
                     <td>${igShort}</td>
                     <td>${liShort}</td>
+                    <td>
+                        ${u.certSent
+                            ? `<span class="tracking-status-badge tracking-done"><i class="fas fa-check me-1"></i>Terkirim</span>
+                               <div class="audit-trail-text mt-1">${formatTrackingTimestamp(u.certSentAt)}</div>`
+                            : `<span class="tracking-status-badge tracking-pending">Belum</span>`}
+                    </td>
+                    <td>
+                        ${u.logoutDone
+                            ? `<span class="tracking-status-badge tracking-done"><i class="fas fa-check me-1"></i>Logout</span>
+                               <div class="audit-trail-text mt-1">${formatTrackingTimestamp(u.logoutDoneAt)}</div>`
+                            : `<span class="tracking-status-badge tracking-pending">Belum</span>`}
+                    </td>
+                    <td>
+                        <div class="audit-trail-text">
+                            ${(u.certSent && u.certSentBy) ? `<div><strong>Cert:</strong> ${u.certSentBy}</div>` : ""}
+                            ${(u.logoutDone && u.logoutDoneBy) ? `<div><strong>Logout:</strong> ${u.logoutDoneBy}</div>` : ""}
+                            ${(!u.certSent && !u.logoutDone) ? `<span style="color:#cbd5e1">—</span>` : ""}
+                        </div>
+                    </td>
                     <td class="text-end pe-4">
                         <div class="d-flex justify-content-end gap-2">
                             <button class="btn-action shadow-sm internship-edit-btn" data-user-id="${u.id}"><i class="fas fa-edit"></i></button>
                             <button class="btn-action shadow-sm text-danger internship-delete-btn" data-user-id="${u.id}"><i class="fas fa-trash-alt"></i></button>
+                        </div>
+                        <div class="d-flex justify-content-end gap-1 mt-2">
+                            <button class="btn-track btn-track-certificate ${u.certSent ? 'btn-track-done' : ''}"
+                                    data-user-id="${u.id}" data-action="certificate"
+                                    ${u.certSent ? 'disabled' : ''}>
+                                ${u.certSent ? '<i class="fas fa-check me-1"></i>Terkirim' : '<i class="fas fa-certificate me-1"></i>Sertifikat'}
+                            </button>
+                            <button class="btn-track btn-track-logout ${u.logoutDone ? 'btn-track-done' : ''}"
+                                    data-user-id="${u.id}" data-action="logout"
+                                    ${u.logoutDone ? 'disabled' : ''}>
+                                ${u.logoutDone ? '<i class="fas fa-check me-1"></i>Logout' : '<i class="fas fa-sign-out-alt me-1"></i>Logout'}
+                            </button>
                         </div>
                     </td>
                 `;
@@ -1254,6 +1400,70 @@
             }
         }
 
+        // ── Admin Tracking Actions ──
+        async function handleTrackingAction(userId, actionType) {
+            const user = internshipUsersAll.find(u => u.id === userId);
+            if (!user) return;
+
+            const isCert   = actionType === "certificate";
+            const fieldKey  = isCert ? "certificateSent" : "accountLoggedOut";
+            const alreadyDone = isCert ? user.certSent : user.logoutDone;
+            if (alreadyDone) return;
+
+            const label = isCert
+                ? "Tandai Sertifikat Sudah Terkirim"
+                : "Tandai Akun Sudah Logout";
+            const ok = confirm(`${label} untuk intern "${user.name}"?\n\nTindakan ini akan dicatat beserta waktu dan identitas admin.`);
+            if (!ok) return;
+
+            // Gather admin info
+            let adminName = "";
+            let adminUid  = "";
+            try {
+                if (auth && auth.currentUser) {
+                    adminUid  = auth.currentUser.uid;
+                    adminName = auth.currentUser.displayName || auth.currentUser.email || adminUid;
+                    // Try to read name from users/{uid}
+                    if (!adminName || adminName === adminUid) {
+                        try {
+                            const adminSnap = await getDoc(doc(db, "users", adminUid));
+                            if (adminSnap.exists()) {
+                                adminName = adminSnap.data().name || adminSnap.data().fullName || adminName;
+                            }
+                        } catch(_){}
+                    }
+                }
+            } catch(_) {}
+
+            const timestamp = serverTimestamp();
+            const updatePayload = {};
+            updatePayload[`adminTracking.${fieldKey}`]       = true;
+            updatePayload[`adminTracking.${fieldKey}At`]     = timestamp;
+            updatePayload[`adminTracking.${fieldKey}By`]     = adminName || "Unknown Admin";
+            updatePayload[`adminTracking.${fieldKey}ByUid`]  = adminUid  || "";
+
+            try {
+                await updateDoc(doc(db, "users", userId), updatePayload);
+                // Optimistic local update
+                if (isCert) {
+                    user.certSent      = true;
+                    user.certSentAt    = new Date();
+                    user.certSentBy    = adminName || "Unknown Admin";
+                    user.certSentByUid = adminUid;
+                } else {
+                    user.logoutDone      = true;
+                    user.logoutDoneAt    = new Date();
+                    user.logoutDoneBy    = adminName || "Unknown Admin";
+                    user.logoutDoneByUid = adminUid;
+                }
+                updateInternshipStats();
+                renderInternshipTable();
+            } catch (e) {
+                console.error("Error saving tracking action", e);
+                alert("Gagal menyimpan status. Silakan coba lagi.");
+            }
+        }
+
         document.addEventListener("DOMContentLoaded", () => {
             const rowsSelect = document.getElementById("internshipRowsPerPage");
             const searchInput = document.getElementById("internshipSearchInput");
@@ -1355,10 +1565,29 @@
                 });
             }
 
+            const adminFilterSelect = document.getElementById("internshipAdminFilter");
+
+            if (adminFilterSelect) {
+                adminFilterSelect.addEventListener("change", () => {
+                    internshipState.adminFilter = adminFilterSelect.value || "";
+                    internshipState.page = 1;
+                    renderInternshipTable();
+                });
+            }
+
             if (table) {
                 table.addEventListener("click", async (e) => {
                     const editBtn = e.target.closest(".internship-edit-btn");
                     const deleteBtn = e.target.closest(".internship-delete-btn");
+                    const trackBtn  = e.target.closest(".btn-track");
+
+                    if (trackBtn && !trackBtn.disabled) {
+                        const userId   = trackBtn.getAttribute("data-user-id");
+                        const action   = trackBtn.getAttribute("data-action");
+                        if (userId && action) handleTrackingAction(userId, action);
+                        return;
+                    }
+
                     if (editBtn) {
                         const userId = editBtn.getAttribute("data-user-id");
                         if (userId) {
