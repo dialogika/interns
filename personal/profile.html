@@ -658,8 +658,9 @@
                         const posNorm = String(posName).trim().toLowerCase();
                         let found = false;
                         for (let i = 0; i < positionInput.options.length; i++) {
-                            const optNorm = String(positionInput.options[i].value || '').trim().toLowerCase();
-                            if (optNorm === posNorm) {
+                            const optVal = String(positionInput.options[i].value || '');
+                            const optText = String(positionInput.options[i].text || '');
+                            if (optVal.toLowerCase() === posNorm || optText.toLowerCase() === posNorm || optVal === posName) {
                                 positionInput.selectedIndex = i;
                                 found = true;
                                 break;
@@ -802,15 +803,18 @@
             }
 
             try {
-                const posSnap = await getDocs(collection(db, "positions"));
+                let posSnap = await getDocs(collection(db, "position"));
+                if (posSnap.empty) {
+                    posSnap = await getDocs(collection(db, "positions"));
+                }
                 if (posSelect) {
                     posSelect.innerHTML = '<option value="" disabled selected>SELECT POSITION</option>';
                     posSnap.forEach(docSnap => {
                         const data = docSnap.data() || {};
-                        const name = data.name || "";
+                        const name = data.name || data.title || data.position || data.label || "";
                         if (!name) return;
                         const opt = document.createElement('option');
-                        opt.value = name;
+                        opt.value = docSnap.id;
                         opt.text = name;
                         posSelect.appendChild(opt);
                     });

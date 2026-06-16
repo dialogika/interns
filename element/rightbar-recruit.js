@@ -27,14 +27,6 @@ export function renderRightbarRecruit() {
                 <i data-lucide="user-plus"></i>
                 <span>Internship Candidate</span>
             </a>
-            <a href="../data/candidate-mentor.html" class="menu-item">
-                <i data-lucide="graduation-cap"></i>
-                <span>Mentor Candidate</span>
-            </a>
-            <a href="../data/candidate-team.html" class="menu-item">
-                <i data-lucide="users"></i>
-                <span>Team Candidate</span>
-            </a>
             <a href="../data/scouting-candidate.html" class="menu-item">
                 <i data-lucide="search"></i>
                 <span>Scouting Candidate</span>

@@ -72,9 +72,9 @@ export function renderTopBar(target) {
                             <i class="bi bi-gear"></i>
                             <span>Setting</span>
                         </a>
-                        <a href="/personal/portfolio.html" class="profile-dropdown-item" data-menu-portfolio>
+                        <a href="/personal/resume.html" class="profile-dropdown-item" data-menu-resume>
                             <i class="bi bi-briefcase"></i>
-                            <span>Portfolio</span>
+                            <span>Resume</span>
                         </a>
                         <div class="profile-dropdown-accordion" data-accordion="form">
                             <button class="profile-dropdown-item profile-dropdown-accordion-toggle" type="button" data-accordion-toggle="form">
@@ -230,7 +230,7 @@ export function renderTopBar(target) {
     }
 
     const settingLink = target.querySelector('[data-menu-setting]');
-    const portfolioLink = target.querySelector('[data-menu-portfolio]');
+    const resumeLink = target.querySelector('[data-menu-resume]');
 
     function attachUnderDevelopment(linkEl) {
         if (!linkEl) return;
@@ -241,7 +241,6 @@ export function renderTopBar(target) {
     }
 
     attachUnderDevelopment(settingLink);
-    attachUnderDevelopment(portfolioLink);
 
     const accordionToggles = target.querySelectorAll('[data-accordion-toggle]');
     accordionToggles.forEach(function (toggleEl) {

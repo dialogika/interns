@@ -416,25 +416,11 @@
                 </section>
 
                 <section class="row g-4 mb-5" style="margin-top: 10px;">
-                    <div class="col-md-4">
+                    <div class="col-md-12">
                         <div class="card p-4 h-100 shadow-sm">
                             <h5 class="fw-bold mb-3">Internship Radar</h5>
                             <div class="d-flex flex-wrap gap-3" id="internshipRadarList"></div>
                             <p class="text-muted-custom mt-4 mb-0 small">Candidate internship yang terdaftar di sistem.</p>
-                        </div>
-                    </div>
-                    <div class="col-md-4">
-                        <div class="card p-4 h-100 shadow-sm">
-                            <h5 class="fw-bold mb-3">Mentor Radar</h5>
-                            <div class="d-flex flex-wrap gap-3" id="mentorRadarList"></div>
-                            <p class="text-muted-custom mt-4 mb-0 small">Candidate mentor yang terdaftar di sistem.</p>
-                        </div>
-                    </div>
-                    <div class="col-md-4">
-                        <div class="card p-4 h-100 shadow-sm">
-                            <h5 class="fw-bold mb-3">Team Radar</h5>
-                            <div class="d-flex flex-wrap gap-3" id="teamRadarList"></div>
-                            <p class="text-muted-custom mt-4 mb-0 small">Candidate team selain internship dan mentor.</p>
                         </div>
                     </div>
                 </section>
@@ -1128,76 +1114,6 @@
             }
         }
 
-        async function loadMentorRadar(talentsItems) {
-            try {
-                const container = document.getElementById("mentorRadarList");
-                if (!container) return;
-                container.innerHTML = "";
-                const talents = Array.isArray(talentsItems) ? talentsItems : await fetchTalentsItems();
-
-                const items = [];
-                talents.forEach(item => {
-                    const data = item.data || {};
-                    const basic = data.basic_info || {};
-                    const scouting = data.scouting_info || {};
-                    const internship = data.internship || data.internship_info || {};
-
-                    const roleIdRaw = data.role_id || data.roleId || scouting.role_id || internship.role_id || "";
-                    const roleNameRaw = data.role_name || data.role || basic.current_role || scouting.role_name || "";
-                    const { normalizedRoleId, normalizedRoleName } = normalizeRolePair(roleIdRaw, roleNameRaw);
-                    const isMentorRole = normalizedRoleId === "mentor" || normalizedRoleName === "mentor";
-                    if (!isMentorRole) return;
-
-                    const name = basic.full_name || scouting.full_name || data.full_name || "Tanpa Nama";
-                    const avatarUrl = basic.avatar_url || data.photo || "";
-                    items.push({ id: item.id, name, avatarUrl });
-                });
-
-                renderRadarAvatars(container, items);
-            } catch (error) {
-                console.error("Failed to load mentor radar talents:", error);
-            }
-        }
-
-        async function loadTeamRadar(talentsItems) {
-            try {
-                const container = document.getElementById("teamRadarList");
-                if (!container) return;
-                container.innerHTML = "";
-                const talents = Array.isArray(talentsItems) ? talentsItems : await fetchTalentsItems();
-
-                const items = [];
-                talents.forEach(item => {
-                    const data = item.data || {};
-                    const basic = data.basic_info || {};
-                    const scouting = data.scouting_info || {};
-                    const internship = data.internship || data.internship_info || {};
-
-                    const roleIdRaw = data.role_id || data.roleId || scouting.role_id || internship.role_id || "";
-                    const roleNameRaw = data.role_name || data.role || basic.current_role || scouting.role_name || "";
-                    const { normalizedRoleId, normalizedRoleName } = normalizeRolePair(roleIdRaw, roleNameRaw);
-                    const isInternshipRole = normalizedRoleId === "internship" && normalizedRoleName === "internship";
-                    const isMentorRole = normalizedRoleId === "mentor" && normalizedRoleName === "mentor";
-
-                    const recruitment = data.recruitment_status || data.recruitment_system || {};
-                    const currentStatus = normalizeStatus(recruitment.current || "");
-                    const historyArray = Array.isArray(recruitment.history) ? recruitment.history : [];
-                    const hasRadarHistory = historyArray.some(entry => normalizeStatus(entry && entry.status) === "radar");
-                    const isRadar = currentStatus === "radar" || hasRadarHistory;
-
-                    if (isInternshipRole || isMentorRole || isRadar) return;
-
-                    const name = basic.full_name || scouting.full_name || data.full_name || "Tanpa Nama";
-                    const avatarUrl = basic.avatar_url || data.photo || "";
-                    items.push({ id: item.id, name, avatarUrl });
-                });
-
-                renderRadarAvatars(container, items);
-            } catch (error) {
-                console.error("Failed to load team radar talents:", error);
-            }
-        }
-
         const calendarButton = document.querySelector('.btn-weekly');
         const calendarTextEl = calendarButton ? calendarButton.querySelector('.calendar-text') : null;
 
@@ -1753,8 +1669,6 @@
             loadUpcomingInterviews(startDate, endDate, talentsItems);
             loadPlatformJobposting(startDate, endDate, talentsItems);
             loadInternshipRadar(talentsItems);
-            loadMentorRadar(talentsItems);
-            loadTeamRadar(talentsItems);
         }
 
         flatpickr("#calendarPicker", {
