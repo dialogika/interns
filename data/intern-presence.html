@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,72 +9,129 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
     <link href="../assets/css/style.css" rel="stylesheet" />
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        body { font-family: 'Plus Jakarta Sans', sans-serif; background: #fdfeff; color: #0f172a; }
-        .premium-shadow { box-shadow: 0 10px 40px -10px rgba(0,0,0,0.04); }
-        .glass { background: rgba(255, 255, 255, 0.78); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.3); }
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background: #fdfeff;
+            color: #0f172a;
+        }
+
+        .premium-shadow {
+            box-shadow: 0 10px 40px -10px rgba(0, 0, 0, 0.04);
+        }
+
+        .glass {
+            background: rgba(255, 255, 255, 0.78);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
         .active-pulse {
             position: relative;
             display: inline-block;
-            width: 8px; height: 8px;
-            background: #10b981; border-radius: 50%;
+            width: 8px;
+            height: 8px;
+            background: #10b981;
+            border-radius: 50%;
         }
+
         .active-pulse::after {
             content: '';
-            position: absolute; width: 100%; height: 100%;
-            background: #10b981; border-radius: 50%;
-            animation: pulse 2s infinite; opacity: 0.5;
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: #10b981;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+            opacity: 0.5;
         }
-        @keyframes pulse { 0% { transform: scale(1); opacity: 0.5; } 100% { transform: scale(3); opacity: 0; } }
-        .scrollbar-hide::-webkit-scrollbar { display: none; }
+
+        @keyframes pulse {
+            0% {
+                transform: scale(1);
+                opacity: 0.5;
+            }
+
+            100% {
+                transform: scale(3);
+                opacity: 0;
+            }
+        }
+
+        .scrollbar-hide::-webkit-scrollbar {
+            display: none;
+        }
+
         .scrollbar-x {
             overflow-x: auto;
             overflow-y: hidden;
         }
+
         .scrollbar-x::-webkit-scrollbar {
             height: 4px;
         }
+
         .scrollbar-x::-webkit-scrollbar-track {
             background: #f1f5f9;
             border-radius: 99px;
         }
+
         .scrollbar-x::-webkit-scrollbar-thumb {
             background: #cbd5e1;
             border-radius: 99px;
         }
-        .badge-status { font-size: 11px; font-weight: 700; letter-spacing: 0.05em; padding: 6px 10px; border-radius: 999px; }
-        .row-warning { background: #fff7f7; }
+
+        .badge-status {
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.05em;
+            padding: 6px 10px;
+            border-radius: 999px;
+        }
+
+        .row-warning {
+            background: #fff7f7;
+        }
+
         .tbl-outer {
             width: 100%;
             overflow-x: auto;
             -webkit-overflow-scrolling: touch;
         }
+
         .tbl-outer::-webkit-scrollbar {
             height: 4px;
         }
+
         .tbl-outer::-webkit-scrollbar-track {
             background: #f1f5f9;
         }
+
         .tbl-outer::-webkit-scrollbar-thumb {
             background: #cbd5e1;
             border-radius: 99px;
         }
+
         .tbl-scroll-body {
             max-height: 420px;
             overflow-y: auto;
             overflow-x: auto;
             -webkit-overflow-scrolling: touch;
         }
+
         .tbl-scroll-body::-webkit-scrollbar {
             width: 4px;
             height: 4px;
         }
+
         .tbl-scroll-body::-webkit-scrollbar-thumb {
             background: #cbd5e1;
             border-radius: 99px;
         }
+
         .tbl-base {
             width: 100%;
             border-collapse: collapse;
@@ -81,6 +139,7 @@
             background: #ffffff;
             min-width: max-content;
         }
+
         .tbl-base th {
             background: #ffffff;
             position: sticky;
@@ -89,23 +148,41 @@
             box-shadow: 0 1px 0 #e2e8f0;
             white-space: nowrap;
         }
+
         .tbl-base td {
             background: #ffffff;
             white-space: nowrap;
         }
-        .row-warning td { background: #fff7f7 !important; }
+
+        .row-warning td {
+            background: #fff7f7 !important;
+        }
+
         .tbl-base td.cell-name,
         .tbl-base th.cell-name {
             white-space: normal;
             min-width: 180px;
         }
-        .avatar-thumb { width: 36px; height: 36px; border-radius: 999px; background-size: cover; background-position: center; background-color: #e2e8f0; border: 2px solid #fff; box-shadow: 0 2px 10px rgba(15, 23, 42, 0.08); flex-shrink: 0; }
+
+        .avatar-thumb {
+            width: 36px;
+            height: 36px;
+            border-radius: 999px;
+            background-size: cover;
+            background-position: center;
+            background-color: #e2e8f0;
+            border: 2px solid #fff;
+            box-shadow: 0 2px 10px rgba(15, 23, 42, 0.08);
+            flex-shrink: 0;
+        }
+
         .gami-tabs {
             display: flex;
             gap: 8px;
             margin-bottom: 16px;
             flex-wrap: wrap;
         }
+
         .gami-tab {
             padding: 6px 16px;
             border-radius: 999px;
@@ -117,14 +194,17 @@
             color: #64748b;
             transition: all 0.15s;
         }
+
         .gami-tab.active {
             background: #0b2b6a;
             color: #fff;
             border-color: #0b2b6a;
         }
+
         .gami-tab:hover:not(.active) {
             background: #f1f5f9;
         }
+
         .intern-gami-card {
             background: #fff;
             border: 1px solid #e2e8f0;
@@ -132,6 +212,7 @@
             padding: 16px 18px;
             margin-bottom: 10px;
         }
+
         .badge-chip {
             display: inline-flex;
             align-items: center;
@@ -143,41 +224,49 @@
             border: 1px solid;
             margin: 2px;
         }
+
         .badge-chip.early-bgn {
             background: #fef3c7;
             color: #92400e;
             border-color: #f59e0b;
         }
+
         .badge-chip.early-nov {
             background: #fde68a;
             color: #78350f;
             border-color: #d97706;
         }
+
         .badge-chip.early-mas {
             background: #fbbf24;
             color: #451a03;
             border-color: #b45309;
         }
+
         .badge-chip.step-rookie {
             background: #dbeafe;
             color: #1e40af;
             border-color: #3b82f6;
         }
+
         .badge-chip.step-strider {
             background: #bfdbfe;
             color: #1e3a8a;
             border-color: #2563eb;
         }
+
         .badge-chip.step-sprint {
             background: #1e40af;
             color: #fff;
             border-color: #1e3a8a;
         }
+
         .badge-chip.locked {
             background: #f8fafc;
             color: #94a3b8;
             border-color: #e2e8f0;
         }
+
         .ldr-row {
             display: flex;
             align-items: center;
@@ -185,9 +274,11 @@
             padding: 10px 0;
             border-bottom: 1px solid #f1f5f9;
         }
+
         .ldr-row:last-child {
             border-bottom: none;
         }
+
         .ldr-rank {
             font-size: 13px;
             font-weight: 600;
@@ -195,10 +286,12 @@
             text-align: center;
             flex-shrink: 0;
         }
+
         @media (max-width: 640px) {
             .gami-tabs {
                 gap: 6px;
             }
+
             .gami-tab {
                 font-size: 11px;
                 padding: 5px 12px;
@@ -206,6 +299,7 @@
         }
     </style>
 </head>
+
 <body class="antialiased" style="background-color:#f1f7fd;">
 
     <div id="topbarContainer"></div>
@@ -219,7 +313,8 @@
                     <div>
                         <div class="flex items-center gap-2 mb-2">
                             <span class="active-pulse"></span>
-                            <span class="text-xs font-bold tracking-[0.2em] text-slate-400 uppercase">Rekap Kehadiran Internship</span>
+                            <span class="text-xs font-bold tracking-[0.2em] text-slate-400 uppercase">Rekap Kehadiran
+                                Internship</span>
                         </div>
                         <h1 class="text-4xl font-extrabold text-slate-900 tracking-tight">
                             Presensi Internship
@@ -259,24 +354,33 @@
                                     <h2 class="text-lg font-bold text-slate-900">Tabel Presensi Intern</h2>
                                 </div>
                                 <div class="flex items-center gap-2 sm:ml-auto">
-                                    <input type="date" id="filterDate" class="min-w-[180px] px-3 py-2 rounded-xl text-xs border border-slate-200 bg-white focus:outline-none focus:ring-2 focus:ring-[#0B2B6A]">
-                                    <button id="btnExportXlsx" class="px-4 py-2 rounded-xl text-xs font-semibold text-white bg-[#0B2B6A] hover:bg-[#113981] transition"><i class="bi bi-download me-1"></i>Export XLSX</button>
-                                    <div id="loadingSpinner" class="w-5 h-5 border-2 border-[#0B2B6A] border-t-transparent rounded-full animate-spin"></div>
+                                    <input type="date" id="filterDate"
+                                        class="min-w-[180px] px-3 py-2 rounded-xl text-xs border border-slate-200 bg-white focus:outline-none focus:ring-2 focus:ring-[#0B2B6A]">
+                                    <button id="btnExportXlsx"
+                                        class="px-4 py-2 rounded-xl text-xs font-semibold text-white bg-[#0B2B6A] hover:bg-[#113981] transition"><i
+                                            class="bi bi-download me-1"></i>Export XLSX</button>
+                                    <div id="loadingSpinner"
+                                        class="w-5 h-5 border-2 border-[#0B2B6A] border-t-transparent rounded-full animate-spin">
+                                    </div>
                                 </div>
                             </div>
                             <div class="flex items-center gap-4 border-b border-slate-100">
-                                <button id="tabWfoBtn" class="px-4 py-2 text-sm font-semibold border-b-2 border-[#0B2B6A] text-[#0B2B6A] transition">WFO / Hybrid</button>
-                                <button id="tabWfhBtn" class="px-4 py-2 text-sm font-semibold border-b-2 border-transparent text-slate-400 hover:text-slate-600 transition">WFH</button>
+                                <button id="tabWfoBtn"
+                                    class="px-4 py-2 text-sm font-semibold border-b-2 border-[#0B2B6A] text-[#0B2B6A] transition">WFO
+                                    / Hybrid</button>
+                                <button id="tabWfhBtn"
+                                    class="px-4 py-2 text-sm font-semibold border-b-2 border-transparent text-slate-400 hover:text-slate-600 transition">WFH</button>
                             </div>
                         </div>
-                        
+
                         <div id="wfoTableSection">
                             <div class="px-4 pb-4">
                                 <div class="tbl-outer">
                                     <div class="tbl-scroll-body">
                                         <table class="tbl-base text-left">
                                             <thead>
-                                                <tr class="text-slate-400 text-[11px] font-extrabold uppercase tracking-[0.2em]">
+                                                <tr
+                                                    class="text-slate-400 text-[11px] font-extrabold uppercase tracking-[0.2em]">
                                                     <th class="px-4 py-3 cell-name">Nama Intern</th>
                                                     <th class="px-4 py-3" style="min-width: 110px;">Clock In</th>
                                                     <th class="px-4 py-3" style="min-width: 110px;">Clock Out</th>
@@ -286,7 +390,8 @@
                                             </thead>
                                             <tbody id="attendanceWfoBody" class="text-slate-700 text-sm"></tbody>
                                         </table>
-                                        <p id="emptyStateWfo" class="text-xs text-slate-400 hidden px-4 py-4">Belum ada data intern/presensi pada tanggal ini.</p>
+                                        <p id="emptyStateWfo" class="text-xs text-slate-400 hidden px-4 py-4">Belum ada
+                                            data intern/presensi pada tanggal ini.</p>
                                     </div>
                                 </div>
                             </div>
@@ -298,18 +403,21 @@
                                     <div class="tbl-scroll-body">
                                         <table class="tbl-base text-left">
                                             <thead>
-                                                <tr class="text-slate-400 text-[11px] font-extrabold uppercase tracking-[0.2em]">
+                                                <tr
+                                                    class="text-slate-400 text-[11px] font-extrabold uppercase tracking-[0.2em]">
                                                     <th class="px-4 py-3 cell-name">Nama Intern</th>
                                                     <th class="px-4 py-3" style="min-width: 120px;">Clock In</th>
                                                     <th class="px-4 py-3" style="min-width: 120px;">Clock Out</th>
-                                                    <th class="px-4 py-3" style="min-width: 240px;">Aktivitas & Evidence</th>
+                                                    <th class="px-4 py-3" style="min-width: 240px;">Aktivitas & Evidence
+                                                    </th>
                                                     <th class="px-4 py-3" style="min-width: 150px;">Total Jam Kerja</th>
                                                     <th class="px-4 py-3" style="min-width: 140px;">Status</th>
                                                 </tr>
                                             </thead>
                                             <tbody id="attendanceWfhBody" class="text-slate-700 text-sm"></tbody>
                                         </table>
-                                        <p id="emptyStateWfh" class="text-xs text-slate-400 hidden px-4 py-4">Belum ada data intern WFH/presensi pada tanggal ini.</p>
+                                        <p id="emptyStateWfh" class="text-xs text-slate-400 hidden px-4 py-4">Belum ada
+                                            data intern WFH/presensi pada tanggal ini.</p>
                                     </div>
                                 </div>
                             </div>
@@ -317,14 +425,18 @@
                     </section>
 
                     <section class="glass rounded-[28px] premium-shadow overflow-hidden">
-                        <div class="px-6 py-5 border-b border-slate-100/80 flex flex-col md:flex-row gap-3 md:items-center md:justify-between">
+                        <div
+                            class="px-6 py-5 border-b border-slate-100/80 flex flex-col md:flex-row gap-3 md:items-center md:justify-between">
                             <div>
                                 <h3 class="text-lg font-bold text-[#0B2B6A]">Tabel Rekap Per Intern (Bulanan)</h3>
-                               
+
                             </div>
                             <div class="flex flex-wrap items-center gap-2">
-                                <input type="month" id="recapMonthFilter" class="px-3 py-2 rounded-xl text-xs border border-slate-200 bg-white focus:outline-none focus:ring-2 focus:ring-[#0B2B6A]">
-                                <button id="btnExportMonthlyRecapXlsx" class="px-3 py-2 rounded-xl text-xs font-semibold text-white bg-[#0B2B6A] hover:bg-[#113981] transition"><i class="bi bi-download me-1"></i>Export XLSX</button>
+                                <input type="month" id="recapMonthFilter"
+                                    class="px-3 py-2 rounded-xl text-xs border border-slate-200 bg-white focus:outline-none focus:ring-2 focus:ring-[#0B2B6A]">
+                                <button id="btnExportMonthlyRecapXlsx"
+                                    class="px-3 py-2 rounded-xl text-xs font-semibold text-white bg-[#0B2B6A] hover:bg-[#113981] transition"><i
+                                        class="bi bi-download me-1"></i>Export XLSX</button>
                             </div>
                         </div>
                         <div class="px-4 pb-4">
@@ -332,7 +444,8 @@
                                 <div class="tbl-scroll-body">
                                     <table class="tbl-base text-left">
                                         <thead>
-                                            <tr class="text-slate-400 text-[11px] font-extrabold uppercase tracking-[0.2em]">
+                                            <tr
+                                                class="text-slate-400 text-[11px] font-extrabold uppercase tracking-[0.2em]">
                                                 <th class="px-4 py-3 cell-name">Nama Intern</th>
                                                 <th class="px-4 py-3" style="min-width: 120px;">Hari Hadir</th>
                                                 <th class="px-4 py-3" style="min-width: 160px;">Total Jam Kerja</th>
@@ -340,23 +453,32 @@
                                         </thead>
                                         <tbody id="internRecapBody" class="text-slate-700 text-sm"></tbody>
                                     </table>
-                                    <p id="internRecapEmpty" class="text-xs text-slate-400 hidden px-4 py-4">Belum ada data rekap bulanan.</p>
+                                    <p id="internRecapEmpty" class="text-xs text-slate-400 hidden px-4 py-4">Belum ada
+                                        data rekap bulanan.</p>
                                 </div>
                             </div>
                         </div>
                     </section>
 
                     <section class="glass rounded-[28px] premium-shadow overflow-hidden">
-                        <div class="px-6 py-5 border-b border-slate-100/80 flex flex-col md:flex-row gap-3 md:items-center md:justify-between">
+                        <div
+                            class="px-6 py-5 border-b border-slate-100/80 flex flex-col md:flex-row gap-3 md:items-center md:justify-between">
                             <div>
                                 <h3 class="text-lg font-bold text-[#0B2B6A]">Tabel Total Jam Internship</h3>
                                 <p id="internshipTotalRangeText" class="text-xs text-slate-400 mt-1">Rentang: -</p>
                             </div>
                             <div class="flex flex-wrap items-center gap-2">
-                                <input type="month" id="internshipTotalStart" class="px-3 py-2 rounded-xl text-xs border border-slate-200 bg-white focus:outline-none focus:ring-2 focus:ring-[#0B2B6A]" aria-label="Bulan mulai">
-                                <input type="month" id="internshipTotalEnd" class="px-3 py-2 rounded-xl text-xs border border-slate-200 bg-white focus:outline-none focus:ring-2 focus:ring-[#0B2B6A]" aria-label="Bulan selesai">
-                                <button id="btnLoadInternshipTotal" class="px-3 py-2 rounded-xl text-xs font-semibold text-[#0B2B6A] border border-[#0B2B6A] hover:bg-[#0B2B6A]/10 transition">Muat</button>
-                                <button id="btnExportInternshipTotalXlsx" class="px-3 py-2 rounded-xl text-xs font-semibold text-white bg-[#0B2B6A] hover:bg-[#113981] transition"><i class="bi bi-download me-1"></i>Export XLSX</button>
+                                <input type="month" id="internshipTotalStart"
+                                    class="px-3 py-2 rounded-xl text-xs border border-slate-200 bg-white focus:outline-none focus:ring-2 focus:ring-[#0B2B6A]"
+                                    aria-label="Bulan mulai">
+                                <input type="month" id="internshipTotalEnd"
+                                    class="px-3 py-2 rounded-xl text-xs border border-slate-200 bg-white focus:outline-none focus:ring-2 focus:ring-[#0B2B6A]"
+                                    aria-label="Bulan selesai">
+                                <button id="btnLoadInternshipTotal"
+                                    class="px-3 py-2 rounded-xl text-xs font-semibold text-[#0B2B6A] border border-[#0B2B6A] hover:bg-[#0B2B6A]/10 transition">Muat</button>
+                                <button id="btnExportInternshipTotalXlsx"
+                                    class="px-3 py-2 rounded-xl text-xs font-semibold text-white bg-[#0B2B6A] hover:bg-[#113981] transition"><i
+                                        class="bi bi-download me-1"></i>Export XLSX</button>
                             </div>
                         </div>
                         <div class="px-4 pb-4">
@@ -364,37 +486,40 @@
                                 <div class="tbl-scroll-body">
                                     <table class="tbl-base text-left">
                                         <thead>
-                                            <tr class="text-slate-400 text-[11px] font-extrabold uppercase tracking-[0.2em]">
+                                            <tr
+                                                class="text-slate-400 text-[11px] font-extrabold uppercase tracking-[0.2em]">
                                                 <th class="px-4 py-3 cell-name">Nama Intern</th>
-                                                <th class="px-4 py-3" style="min-width: 180px;">Total Jam Internship</th>
+                                                <th class="px-4 py-3" style="min-width: 180px;">Total Jam Internship
+                                                </th>
                                                 <th class="px-4 py-3" style="min-width: 150px;">Jumlah Hari Hadir</th>
                                                 <th class="px-4 py-3" style="min-width: 170px;">Rata-rata per Hari</th>
                                             </tr>
                                         </thead>
                                         <tbody id="internshipTotalBody" class="text-slate-700 text-sm"></tbody>
                                     </table>
-                                    <p id="internshipTotalEmpty" class="text-xs text-slate-400 hidden px-4 py-4">Belum ada data total jam internship.</p>
+                                    <p id="internshipTotalEmpty" class="text-xs text-slate-400 hidden px-4 py-4">Belum
+                                        ada data total jam internship.</p>
                                 </div>
                             </div>
                         </div>
                     </section>
 
                     <section class="glass rounded-[28px] premium-shadow overflow-hidden">
-                        <div class="px-6 py-5 border-b border-slate-100/80 flex flex-col md:flex-row gap-3 md:items-center md:justify-between">
+                        <div
+                            class="px-6 py-5 border-b border-slate-100/80 flex flex-col md:flex-row gap-3 md:items-center md:justify-between">
                             <div>
                                 <h3 class="text-lg font-bold text-[#0B2B6A]">Gamifikasi Kehadiran Intern</h3>
-                                <p class="text-xs text-slate-400 mt-0.5">Progress bulanan, leaderboard, dan achievement kehadiran</p>
+                                <p class="text-xs text-slate-400 mt-0.5">Progress bulanan, leaderboard, dan achievement
+                                    kehadiran</p>
                             </div>
                             <div class="flex flex-wrap items-center gap-2">
-                                <input type="month" id="gamiMonthFilter" class="px-3 py-2 rounded-xl text-xs border border-slate-200 bg-white focus:outline-none focus:ring-2 focus:ring-[#0B2B6A]">
+                                <input type="month" id="gamiMonthFilter"
+                                    class="px-3 py-2 rounded-xl text-xs border border-slate-200 bg-white focus:outline-none focus:ring-2 focus:ring-[#0B2B6A]">
                             </div>
                         </div>
 
                         <div class="p-6">
-                            <div class="flex flex-wrap gap-3 mb-5 text-xs text-slate-500">
-                                <span class="flex items-center gap-1.5"><span class="inline-block w-3 h-3 rounded-full bg-[#185FA5]"></span>Progress normal</span>
-                                <span class="flex items-center gap-1.5"><span class="inline-block w-3 h-3 rounded-full bg-red-500"></span>Streak aktif</span>
-                            </div>
+
 
                             <div class="gami-tabs">
                                 <button class="gami-tab active" data-tab="progress">Progress Bulanan</button>
@@ -403,14 +528,27 @@
                             </div>
 
                             <div id="gamiTabProgress">
+                                <div class="flex flex-wrap gap-3 mb-5 text-xs text-slate-500">
+                                    <span class="flex items-center gap-1.5"><span
+                                            class="inline-block w-3 h-3 rounded-full bg-[#185FA5]"></span>Progress
+                                        normal</span>
+                                    <span class="flex items-center gap-1.5"><span
+                                            class="inline-block w-3 h-3 rounded-full bg-red-500"></span>Streak
+                                        aktif</span>
+                                </div>
                                 <div id="gamiCards"></div>
-                                <p id="gamiEmpty" class="text-xs text-slate-400 hidden py-4">Belum ada data gamifikasi bulan ini.</p>
+                                <p id="gamiEmpty" class="text-xs text-slate-400 hidden py-4">Belum ada data gamifikasi
+                                    bulan ini.</p>
                             </div>
 
                             <div id="gamiTabLeaderboard" class="hidden">
                                 <div class="bg-white border border-slate-100 rounded-2xl p-5">
-                                    <p class="text-[11px] font-extrabold uppercase tracking-widest text-slate-400 mb-3">Peringkat Bulan Ini</p>
-                                    <div id="gamiLeaderboard"></div>
+                                    <p class="text-[11px] font-extrabold uppercase tracking-widest text-slate-400 mb-3">
+                                        Peringkat Bulan Ini</p>
+                                    <div style="overflow-x:auto;-webkit-overflow-scrolling:touch;"
+                                        class="ldr-scroll-wrap">
+                                        <div id="gamiLeaderboard" style="min-width:520px;"></div>
+                                    </div>
                                     <p id="gamiLdrEmpty" class="text-xs text-slate-400 hidden py-2">Belum ada data.</p>
                                 </div>
                             </div>
@@ -419,20 +557,28 @@
                                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                     <div class="bg-white border border-slate-100 rounded-2xl p-5">
                                         <p class="font-semibold text-slate-800 mb-1">☀️ Early Attend</p>
-                                        <p class="text-xs text-slate-500 mb-3">Diberikan untuk intern dengan total clock in paling awal pada bulan aktif.</p>
+                                        <p class="text-xs text-slate-500 mb-3">Diberikan untuk intern dengan total clock
+                                            in paling awal pada bulan aktif.</p>
                                         <div class="flex flex-col gap-2">
-                                            <span class="badge-chip early-bgn w-fit">☀️ Beginner - total 2x paling awal</span>
-                                            <span class="badge-chip early-nov w-fit">☀️ Novice - total 4x paling awal</span>
-                                            <span class="badge-chip early-mas w-fit">☀️ Mastery - total 10x paling awal</span>
+                                            <span class="badge-chip early-bgn w-fit">☀️ Beginner - total 2x paling
+                                                awal</span>
+                                            <span class="badge-chip early-nov w-fit">☀️ Novice - total 4x paling
+                                                awal</span>
+                                            <span class="badge-chip early-mas w-fit">☀️ Mastery - total 10x paling
+                                                awal</span>
                                         </div>
                                     </div>
                                     <div class="bg-white border border-slate-100 rounded-2xl p-5">
                                         <p class="font-semibold text-slate-800 mb-1">🔥 Step-in Master</p>
-                                        <p class="text-xs text-slate-500 mb-3">Diberikan untuk intern dengan streak kehadiran valid pada hari kerja bulan aktif.</p>
+                                        <p class="text-xs text-slate-500 mb-3">Diberikan untuk intern dengan streak
+                                            kehadiran valid pada hari kerja bulan aktif.</p>
                                         <div class="flex flex-col gap-2">
-                                            <span class="badge-chip step-rookie w-fit">🔥 Rookie - 3 hari berturut-turut</span>
-                                            <span class="badge-chip step-strider w-fit">🔥 Strider - 7 hari berturut-turut</span>
-                                            <span class="badge-chip step-sprint w-fit">🔥 Sprinter - 14 hari berturut-turut</span>
+                                            <span class="badge-chip step-rookie w-fit">🔥 Rookie - 3 hari
+                                                berturut-turut</span>
+                                            <span class="badge-chip step-strider w-fit">🔥 Strider - 7 hari
+                                                berturut-turut</span>
+                                            <span class="badge-chip step-sprint w-fit">🔥 Sprinter - 14 hari
+                                                berturut-turut</span>
                                         </div>
                                     </div>
                                 </div>
@@ -443,32 +589,41 @@
             </div>
 
             <!-- WFH Activity Detail Modal -->
-            <div class="modal fade" id="wfhDetailModal" tabindex="-1" aria-labelledby="wfhDetailModalLabel" aria-hidden="true">
+            <div class="modal fade" id="wfhDetailModal" tabindex="-1" aria-labelledby="wfhDetailModalLabel"
+                aria-hidden="true">
                 <div class="modal-dialog modal-dialog-centered modal-lg modal-dialog-scrollable">
                     <div class="modal-content border-0 rounded-[28px] overflow-hidden premium-shadow">
                         <div class="modal-header border-b border-slate-100 px-6 py-4">
                             <div>
-                                <h5 class="modal-title font-bold text-slate-900" id="wfhDetailModalLabel">Detail Aktivitas WFH</h5>
+                                <h5 class="modal-title font-bold text-slate-900" id="wfhDetailModalLabel">Detail
+                                    Aktivitas WFH</h5>
                                 <p id="modalInternName" class="text-xs text-slate-500 mb-0"></p>
                             </div>
                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
                         <div class="modal-body px-6 py-5 bg-slate-50/50">
                             <div class="mb-4">
-                                <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Shift</span>
+                                <span
+                                    class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Shift</span>
                                 <p id="modalShift" class="text-sm font-semibold text-slate-800 mt-1">-</p>
                             </div>
                             <div class="mb-6">
-                                <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest block mb-2">Aktivitas Terjadwal & Evidence</span>
+                                <span
+                                    class="text-[10px] font-bold text-slate-400 uppercase tracking-widest block mb-2">Aktivitas
+                                    Terjadwal & Evidence</span>
                                 <div id="modalPlannedActivities" class="flex flex-col gap-3"></div>
                             </div>
                             <div>
-                                <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest block mb-2">Aktivitas Tambahan & Evidence</span>
+                                <span
+                                    class="text-[10px] font-bold text-slate-400 uppercase tracking-widest block mb-2">Aktivitas
+                                    Tambahan & Evidence</span>
                                 <div id="modalAdditionalActivities" class="flex flex-col gap-3"></div>
                             </div>
                         </div>
                         <div class="modal-footer border-t border-slate-100 px-6 py-4">
-                            <button type="button" class="px-5 py-2 rounded-xl text-sm font-semibold text-slate-600 bg-slate-100 hover:bg-slate-200 transition" data-bs-dismiss="modal">Tutup</button>
+                            <button type="button"
+                                class="px-5 py-2 rounded-xl text-sm font-semibold text-slate-600 bg-slate-100 hover:bg-slate-200 transition"
+                                data-bs-dismiss="modal">Tutup</button>
                         </div>
                     </div>
                 </div>
@@ -572,7 +727,7 @@
             const d = new Date(y, (m || 1) - 1, 1);
             const start = new Date(d.getFullYear(), d.getMonth(), 1);
             const end = new Date(d.getFullYear(), d.getMonth() + 1, 0);
-            const f = (x) => `${x.getFullYear()}-${String(x.getMonth()+1).padStart(2,'0')}-${String(x.getDate()).padStart(2,'0')}`;
+            const f = (x) => `${x.getFullYear()}-${String(x.getMonth() + 1).padStart(2, '0')}-${String(x.getDate()).padStart(2, '0')}`;
             return { startKey: f(start), endKey: f(end) };
         }
 
@@ -833,9 +988,12 @@
 
             const earlyCountMap = new Map();
             const earlyConsecutiveMap = new Map();
+            // earlyDateByCount[uid][n] = the date on which intern uid gained their n-th early attendance
+            const earlyDateByCount = new Map();
             allInterns.forEach(intern => {
                 earlyCountMap.set(intern.id, 0);
                 earlyConsecutiveMap.set(intern.id, 0);
+                earlyDateByCount.set(intern.id, []);
             });
 
             workDays.filter(date => date <= todayKey).sort().forEach(date => {
@@ -849,7 +1007,10 @@
                 allInterns.forEach(intern => {
                     if (earliestSet.has(intern.id)) {
                         earlyConsecutiveMap.set(intern.id, earlyConsecutiveMap.get(intern.id) + 1);
-                        earlyCountMap.set(intern.id, earlyCountMap.get(intern.id) + 1);
+                        const newCount = (earlyCountMap.get(intern.id) || 0) + 1;
+                        earlyCountMap.set(intern.id, newCount);
+                        // Record the date this n-th early attendance was achieved
+                        earlyDateByCount.get(intern.id).push(date);
                     } else {
                         earlyConsecutiveMap.set(intern.id, 0);
                     }
@@ -863,6 +1024,11 @@
                     if (date > todayKey) return -1;
                     return presentDates.has(date) ? 1 : 0;
                 });
+                const earlyCount = earlyCountMap.get(intern.id) || 0;
+                // The tiebreaker date = the date intern reached their current total early count
+                // (i.e. the last element in earlyDateByCount, which is the date of the earlyCount-th early attendance)
+                const earlyDates = earlyDateByCount.get(intern.id) || [];
+                const earlyTiebreakerDate = earlyDates.length > 0 ? earlyDates[earlyDates.length - 1] : '9999-99-99';
                 return {
                     ...intern,
                     flags,
@@ -871,9 +1037,20 @@
                     currentStreak: calcCurrentStreak(flags),
                     totalPresent: flags.filter(flag => flag === 1).length,
                     countedDays: flags.filter(flag => flag !== -1).length,
-                    earlyCount: earlyCountMap.get(intern.id) || 0
+                    earlyCount,
+                    earlyTiebreakerDate
                 };
-            }).sort((a, b) => b.totalPresent - a.totalPresent || b.bestStreak - a.bestStreak || a.name.localeCompare(b.name));
+            }).sort((a, b) => {
+                // 1. Total points (earlyCount + bestStreak) DESC
+                const ptA = a.earlyCount + a.bestStreak;
+                const ptB = b.earlyCount + b.bestStreak;
+                if (ptB !== ptA) return ptB - ptA;
+                // 2. Same total points: whoever reached their early count on an earlier date ranks higher
+                if (a.earlyTiebreakerDate !== b.earlyTiebreakerDate)
+                    return a.earlyTiebreakerDate < b.earlyTiebreakerDate ? -1 : 1;
+                // 3. Alphabetical
+                return a.name.localeCompare(b.name);
+            });
 
             gamiCards.innerHTML = '';
             gamiLeaderboard.innerHTML = '';
@@ -959,8 +1136,8 @@
                             <p class="text-xs text-slate-400 mb-0">Clock in paling awal: ${intern.earlyCount}x bulan ini</p>
                         </div>
                         ${intern.bestStreak >= 2
-                            ? `<span style="font-size:11px;font-weight:600;padding:3px 10px;border-radius:99px;background:#FEF2F2;color:#A32D2D;border:1px solid #F09595;white-space:nowrap;flex-shrink:0">Best streak: ${intern.bestStreak}x</span>`
-                            : `<span class="text-xs text-slate-400 flex-shrink-0">Streak terbaik: ${intern.bestStreak}</span>`}
+                        ? `<span style="font-size:11px;font-weight:600;padding:3px 10px;border-radius:99px;background:#FEF2F2;color:#A32D2D;border:1px solid #F09595;white-space:nowrap;flex-shrink:0">Best streak: ${intern.bestStreak}x</span>`
+                        : `<span class="text-xs text-slate-400 flex-shrink-0">Streak terbaik: ${intern.bestStreak}</span>`}
                     </div>
                     <div style="position:relative;margin-bottom:4px">
                         <div style="position:relative;height:22px;margin-bottom:2px">${flameRowHTML}</div>
@@ -977,18 +1154,47 @@
             });
 
             const medals = ['🥇', '🥈', '🥉'];
+
+            // Leaderboard header
+            const hdr = document.createElement('div');
+            hdr.style.cssText = 'display:grid;grid-template-columns:32px 36px 1fr 80px 80px 80px 70px;gap:8px;align-items:center;padding:6px 4px 8px 4px;border-bottom:2px solid #f1f5f9;';
+            hdr.innerHTML = `
+                <span></span><span></span>
+                <span style="font-size:10px;font-weight:800;color:#94a3b8;letter-spacing:.08em;text-transform:uppercase">Nama</span>
+                <span style="font-size:10px;font-weight:800;color:#94a3b8;letter-spacing:.08em;text-transform:uppercase;text-align:center">Total Pts</span>
+                <span style="font-size:10px;font-weight:800;color:#f59e0b;letter-spacing:.08em;text-transform:uppercase;text-align:center">☀️ Early</span>
+                <span style="font-size:10px;font-weight:800;color:#E24B4A;letter-spacing:.08em;text-transform:uppercase;text-align:center">🔥 Streak</span>
+                <span style="font-size:10px;font-weight:800;color:#94a3b8;letter-spacing:.08em;text-transform:uppercase;text-align:center">Hadir</span>
+            `;
+            gamiLeaderboard.appendChild(hdr);
+
             leaderboardRows.forEach((intern, index) => {
+                const totalPts = intern.earlyCount + intern.bestStreak;
+                const earlyTiebreakerLabel = intern.earlyCount > 0
+                    ? `<div style="font-size:9px;color:#f59e0b;margin-top:1px" title="Capai ${intern.earlyCount}x early per ${intern.earlyTiebreakerDate}">${intern.earlyTiebreakerDate}</div>`
+                    : '<div style="font-size:9px;color:#cbd5e1">-</div>';
                 const row = document.createElement('div');
-                row.className = 'ldr-row';
+                row.style.cssText = 'display:grid;grid-template-columns:32px 36px 1fr 80px 80px 80px 70px;gap:8px;align-items:center;padding:9px 4px;border-bottom:1px solid #f8fafc;';
+                if (index % 2 === 0) row.style.background = '#fafbff';
                 row.innerHTML = `
-                    <span class="ldr-rank">${medals[index] || index + 1}</span>
+                    <span style="font-size:${index < 3 ? '20' : '12'}px;font-weight:700;text-align:center;line-height:1">${medals[index] || index + 1}</span>
                     ${avatarHtml(intern.photo, intern.name, 32)}
-                    <span class="flex-1 text-sm font-semibold text-slate-800">${intern.name}</span>
-                    <div class="text-right">
-                        <p class="text-sm font-semibold text-slate-800 mb-0">${intern.totalPresent} hari</p>
-                        <p class="text-xs mb-0" style="color:${intern.bestStreak >= 2 ? '#E24B4A' : '#94a3b8'}">
-                            ${intern.bestStreak >= 2 ? '🔥 Best streak: ' + intern.bestStreak + 'x' : 'streak: ' + intern.bestStreak}
-                        </p>
+                    <span style="font-size:13px;font-weight:600;color:#0f172a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${intern.name}</span>
+                    <div style="text-align:center">
+                        <span style="font-size:15px;font-weight:800;color:#0B2B6A">${totalPts}</span>
+                        <div style="font-size:9px;color:#94a3b8">pts</div>
+                    </div>
+                    <div style="text-align:center">
+                        <span style="font-size:13px;font-weight:700;color:#d97706">${intern.earlyCount}x</span>
+                        ${earlyTiebreakerLabel}
+                    </div>
+                    <div style="text-align:center">
+                        <span style="font-size:13px;font-weight:700;color:${intern.bestStreak >= 2 ? '#E24B4A' : '#94a3b8'}">${intern.bestStreak}x</span>
+                        <div style="font-size:9px;color:#94a3b8">best</div>
+                    </div>
+                    <div style="text-align:center">
+                        <span style="font-size:13px;font-weight:600;color:#334155">${intern.totalPresent}</span>
+                        <div style="font-size:9px;color:#94a3b8">hari</div>
                     </div>
                 `;
                 gamiLeaderboard.appendChild(row);
@@ -1037,15 +1243,15 @@
             document.getElementById('wfhDetailModalLabel').textContent = 'Detail Aktivitas WFH';
             document.getElementById('modalInternName').textContent = rowData.name + ' - ' + rowData.date;
             document.getElementById('modalShift').textContent = rowData.shift || '-';
-            
+
             const plannedEl = document.getElementById('modalPlannedActivities');
             plannedEl.innerHTML = '';
             if (rowData.plannedEvidence && rowData.plannedEvidence.length > 0) {
                 rowData.plannedEvidence.forEach((item, i) => {
-                    const text = item.text || `Aktivitas ${i+1}`;
+                    const text = item.text || `Aktivitas ${i + 1}`;
                     const imgUrl = item.evidence_url;
                     let html = `<div class="bg-white border border-slate-200 rounded-xl p-3 flex flex-col gap-2">
-                        <span class="text-sm text-slate-700 font-semibold">${i+1}. ${text}</span>`;
+                        <span class="text-sm text-slate-700 font-semibold">${i + 1}. ${text}</span>`;
                     if (imgUrl) {
                         html += `<a href="${imgUrl}" target="_blank"><img src="${imgUrl}" class="rounded-lg max-h-[150px] object-cover cursor-pointer hover:opacity-90 transition" alt="Evidence"></a>`;
                     }
@@ -1054,24 +1260,24 @@
                 });
             } else if (rowData.plannedActivities && rowData.plannedActivities.length > 0) {
                 rowData.plannedActivities.forEach((item, i) => {
-                    const text = typeof item === 'string' ? item : (item.text || `Aktivitas ${i+1}`);
+                    const text = typeof item === 'string' ? item : (item.text || `Aktivitas ${i + 1}`);
                     plannedEl.innerHTML += `<div class="bg-white border border-slate-200 rounded-xl p-3">
-                        <span class="text-sm text-slate-700 font-semibold">${i+1}. ${text}</span>
+                        <span class="text-sm text-slate-700 font-semibold">${i + 1}. ${text}</span>
                         <p class="text-[11px] font-medium text-orange-500 mt-1 mb-0"><i class="bi bi-clock-history me-1"></i>Belum ada evidence (Belum Clock Out)</p>
                     </div>`;
                 });
             } else {
                 plannedEl.innerHTML = `<p class="text-sm text-slate-500 italic">Tidak ada aktivitas terjadwal.</p>`;
             }
-            
+
             const additionalEl = document.getElementById('modalAdditionalActivities');
             additionalEl.innerHTML = '';
             if (rowData.additionalActivities && rowData.additionalActivities.length > 0) {
                 rowData.additionalActivities.forEach((item, i) => {
-                    const text = item.text || `Tambahan ${i+1}`;
+                    const text = item.text || `Tambahan ${i + 1}`;
                     const imgUrl = item.evidence_url;
                     let html = `<div class="bg-white border border-slate-200 rounded-xl p-3 flex flex-col gap-2">
-                        <span class="text-sm text-slate-700 font-semibold">${i+1}. ${text}</span>`;
+                        <span class="text-sm text-slate-700 font-semibold">${i + 1}. ${text}</span>`;
                     if (imgUrl) {
                         html += `<a href="${imgUrl}" target="_blank"><img src="${imgUrl}" class="rounded-lg max-h-[150px] object-cover cursor-pointer hover:opacity-90 transition" alt="Evidence"></a>`;
                     }
@@ -1081,7 +1287,7 @@
             } else {
                 additionalEl.innerHTML = `<p class="text-sm text-slate-500 italic">Tidak ada aktivitas tambahan.</p>`;
             }
-            
+
             const modal = new bootstrap.Modal(document.getElementById('wfhDetailModal'));
             modal.show();
         }
@@ -1089,7 +1295,7 @@
         function renderAttendanceTable(rows) {
             const wfoRows = rows.filter(r => r.mode !== 'WFH');
             const wfhRows = rows.filter(r => r.mode === 'WFH');
-            
+
             attendanceWfoBody.innerHTML = '';
             if (!wfoRows.length) {
                 emptyStateWfo.classList.remove('hidden');
@@ -1122,19 +1328,19 @@
                 wfhRows.forEach((r, idx) => {
                     const tr = document.createElement('tr');
                     tr.className = `border-b border-slate-100 ${(r.status === 'Tidak Valid' || r.status === 'Tidak Valid (Belum Clock Out)') ? 'row-warning' : ''}`;
-                    
+
                     let activitySummary = '-';
                     let btnDisabled = 'disabled opacity-50 cursor-not-allowed';
                     const hasPlanned = (r.plannedActivities && r.plannedActivities.length > 0) || (r.plannedEvidence && r.plannedEvidence.length > 0);
                     const hasAdditional = r.additionalActivities && r.additionalActivities.length > 0;
-                    
+
                     if (hasPlanned || hasAdditional) {
                         btnDisabled = '';
                         const totalPlanned = Math.max(r.plannedActivities?.length || 0, r.plannedEvidence?.length || 0);
                         const totalAdditional = r.additionalActivities?.length || 0;
                         activitySummary = `${totalPlanned} Rencana, ${totalAdditional} Tambahan`;
                     }
-                    
+
                     tr.innerHTML = `
                         <td class="px-4 py-3 cell-name">
                             <div class="flex items-center gap-3">
@@ -1158,9 +1364,9 @@
                     `;
                     attendanceWfhBody.appendChild(tr);
                 });
-                
+
                 document.querySelectorAll('.btn-detail-wfh:not(.disabled)').forEach(btn => {
-                    btn.addEventListener('click', function() {
+                    btn.addEventListener('click', function () {
                         const idx = this.getAttribute('data-idx');
                         showWfhDetailModal(wfhRows[idx]);
                     });
@@ -1537,4 +1743,5 @@
         });
     </script>
 </body>
+
 </html>
