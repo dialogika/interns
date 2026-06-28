@@ -175,9 +175,10 @@
                             <div class="flex flex-wrap items-center gap-2">
                                 <input type="month" id="gamiMonthFilter"
                                     class="px-3 py-2 rounded-xl text-xs border border-slate-200 bg-white focus:outline-none focus:ring-2 focus:ring-[#0B2B6A]">
-                                <button id="kelolaQuizBtn"
-                                    class="px-3 py-2 rounded-xl text-xs font-semibold border border-slate-200 bg-white hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-[#0B2B6A] text-[#0B2B6A]"
-                                    style="transition:all .15s" title="Kelola Quiz">
+                                  <button id="kelolaQuizBtn"
+                                      class="hidden px-3 py-2 rounded-xl text-xs font-semibold border border-slate-200 bg-white hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-[#0B2B6A] text-[#0B2B6A]"
+                                      style="transition:all .15s" title="Kelola Quiz">
+
                                     <i class="bi bi-pencil-square me-1"></i>Kelola Quiz
                                 </button>
                             </div>
@@ -256,7 +257,7 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getFirestore, collection, getDocs, query, where, addDoc, updateDoc, deleteDoc, doc, serverTimestamp, orderBy } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+        import { getFirestore, collection, getDocs, query, where, addDoc, updateDoc, deleteDoc, doc, serverTimestamp, orderBy, getDoc, setDoc, Timestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
         import { renderTopBar } from "../element/topbar.js";
         import { renderSidebar } from "../element/sidebar.js";
 
@@ -752,6 +753,9 @@
             const todayKey = getTodayKey();
             const monthKey = getMonthKeyFromDate(todayKey);
             if (gamiMonthFilter) gamiMonthFilter.value = monthKey;
+            const hasAccess = await checkAccess();
+            const kelolaBtn = document.getElementById('kelolaQuizBtn');
+            if (kelolaBtn) kelolaBtn.classList.toggle('hidden', !hasAccess);
             await loadInterns();
             await loadGamification(gamiMonthFilter ? gamiMonthFilter.value : monthKey);
         }
@@ -779,12 +783,26 @@
             console.error('Init gagal:', e);
         });
 
-        /* ============================
-         * Quiz Management
-         * ============================ */
+        async function checkAccess() {
+            let userData = null;
+            try { userData = JSON.parse(localStorage.getItem('userData') || 'null'); } catch (e) {}
+            const userId = userData?.uid || localStorage.getItem('userId');
+            if (!userId) return false;
+            try {
+                const userDoc = await getDoc(doc(db, 'users', userId));
+                if (!userDoc.exists()) return false;
+                const data = userDoc.data();
+                const allowedPositions = ['gtebWhJ7db4xxHQxI67t', 'Head of Department of Happy Team', '3jlfwya0KQuAk5Twkike'];
+                return allowedPositions.includes(data?.employment?.position) || allowedPositions.includes(data?.position);
+            } catch (e) {
+                console.error("Error checking access:", e);
+                return false;
+            }
+        }
         let questions = [];
         let editingQuizId = null;
         let deleteTargetId = null;
+        const quizScheduleRef = doc(db, 'quiz_settings', 'schedule');
 
         function escapeHtml(text) {
             const div = document.createElement('div');
@@ -845,13 +863,22 @@
         function showQuizListView() {
             document.getElementById('quizListView').classList.remove('hidden');
             document.getElementById('quizFormView').classList.add('hidden');
+            document.getElementById('quizScheduleView').classList.add('hidden');
             document.getElementById('quizModalLabel').textContent = 'Manajemen Soal Pilihan Ganda';
         }
 
         function showQuizFormView(title) {
             document.getElementById('quizListView').classList.add('hidden');
             document.getElementById('quizFormView').classList.remove('hidden');
+            document.getElementById('quizScheduleView').classList.add('hidden');
             document.getElementById('quizModalLabel').textContent = title;
+        }
+
+        function showQuizScheduleView() {
+            document.getElementById('quizListView').classList.add('hidden');
+            document.getElementById('quizFormView').classList.add('hidden');
+            document.getElementById('quizScheduleView').classList.remove('hidden');
+            document.getElementById('quizModalLabel').textContent = 'Atur Jadwal Quiz';
         }
 
         function showAddForm() {
@@ -931,6 +958,108 @@
             }
         }
 
+        function toDatetimeLocalValue(value) {
+            if (!value) return '';
+            const date = value?.toDate ? value.toDate() : new Date(value);
+            if (Number.isNaN(date.getTime())) return '';
+            const pad = (n) => String(n).padStart(2, '0');
+            return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}`;
+        }
+
+        function formatScheduleInfo(openAt, closeAt) {
+            if (!openAt || !closeAt) return '<span class="text-xs text-slate-400">Jadwal belum diatur</span>';
+            const openDate = openAt?.toDate ? openAt.toDate() : new Date(openAt);
+            const closeDate = closeAt?.toDate ? closeAt.toDate() : new Date(closeAt);
+            if (Number.isNaN(openDate.getTime()) || Number.isNaN(closeDate.getTime())) {
+                return '<span class="text-xs text-slate-400">Jadwal belum valid</span>';
+            }
+            return '<div class="text-xs" style="color:#475569">' +
+                '<div><span class="fw-semibold">Buka:</span> ' + openDate.toLocaleString('id-ID') + '</div>' +
+                '<div><span class="fw-semibold">Tutup:</span> ' + closeDate.toLocaleString('id-ID') + '</div>' +
+                '</div>';
+        }
+
+        async function loadQuizSchedule() {
+            const info = document.getElementById('quizScheduleInfo');
+            const openInput = document.getElementById('quizOpenAt');
+            const closeInput = document.getElementById('quizCloseAt');
+            if (info) info.innerHTML = '<span class="text-xs text-slate-400">Memuat jadwal...</span>';
+            try {
+                const snap = await getDoc(quizScheduleRef);
+                if (!snap.exists()) {
+                    if (openInput) openInput.value = '';
+                    if (closeInput) closeInput.value = '';
+                    if (info) info.innerHTML = '<span class="text-xs text-slate-400">Belum ada jadwal quiz aktif.</span>';
+                    return null;
+                }
+                const data = snap.data() || {};
+                if (openInput) openInput.value = toDatetimeLocalValue(data.open_at);
+                if (closeInput) closeInput.value = toDatetimeLocalValue(data.close_at);
+                if (info) info.innerHTML = formatScheduleInfo(data.open_at, data.close_at);
+                return data;
+            } catch (error) {
+                console.error('Gagal memuat jadwal quiz:', error);
+                if (info) info.innerHTML = '<span class="text-xs" style="color:#dc2626">Gagal memuat jadwal quiz.</span>';
+                return null;
+            }
+        }
+
+        async function saveQuizSchedule(event) {
+            event.preventDefault();
+            const openValue = document.getElementById('quizOpenAt').value;
+            const closeValue = document.getElementById('quizCloseAt').value;
+            const feedback = document.getElementById('quizScheduleFeedback');
+            const saveText = document.getElementById('saveScheduleText');
+            const saveLoading = document.getElementById('saveScheduleLoading');
+            const saveBtn = document.getElementById('saveScheduleBtn');
+
+            if (feedback) {
+                feedback.classList.add('hidden');
+                feedback.textContent = '';
+            }
+
+            if (!openValue || !closeValue) {
+                if (feedback) {
+                    feedback.textContent = 'Waktu buka dan tutup wajib diisi.';
+                    feedback.classList.remove('hidden');
+                }
+                return;
+            }
+
+            const openDate = new Date(openValue);
+            const closeDate = new Date(closeValue);
+            if (Number.isNaN(openDate.getTime()) || Number.isNaN(closeDate.getTime()) || closeDate <= openDate) {
+                if (feedback) {
+                    feedback.textContent = 'Waktu tutup harus lebih besar dari waktu buka.';
+                    feedback.classList.remove('hidden');
+                }
+                return;
+            }
+
+            saveBtn.disabled = true;
+            saveText.classList.add('hidden');
+            saveLoading.classList.remove('hidden');
+            try {
+                await setDoc(quizScheduleRef, {
+                    open_at: Timestamp.fromDate(openDate),
+                    close_at: Timestamp.fromDate(closeDate),
+                    updated_at: serverTimestamp()
+                }, { merge: true });
+                await loadQuizSchedule();
+                showQuizListView();
+            } catch (error) {
+                console.error('Gagal menyimpan jadwal quiz:', error);
+                if (feedback) {
+                    feedback.textContent = 'Gagal menyimpan jadwal quiz.';
+                    feedback.classList.remove('hidden');
+                }
+            } finally {
+                saveBtn.disabled = false;
+                saveText.classList.remove('hidden');
+                saveLoading.classList.add('hidden');
+            }
+        }
+
         async function loadQuestions() {
             const container = document.getElementById('quizTableContainer');
             container.innerHTML = '<p class="text-xs text-slate-400">Memuat data...</p>';
@@ -994,6 +1123,7 @@
                     const modal = new bootstrap.Modal(document.getElementById('quizModal'));
                     modal.show();
                     await loadQuestions();
+                    await loadQuizSchedule();
                 });
             }
             const tambahBtn = document.getElementById('tambahSoalBtn');
@@ -1016,6 +1146,21 @@
                     resetQuizForm();
                 });
             }
+
+            const aturJadwalBtn = document.getElementById('aturJadwalBtn');
+            if (aturJadwalBtn) {
+                aturJadwalBtn.addEventListener('click', function() {
+                    showQuizScheduleView();
+                });
+            }
+            const batalScheduleBtn = document.getElementById('batalScheduleBtn');
+            if (batalScheduleBtn) {
+                batalScheduleBtn.addEventListener('click', function() {
+                    showQuizListView();
+                });
+            }
+            const quizScheduleForm = document.getElementById('quizScheduleForm');
+            if (quizScheduleForm) quizScheduleForm.addEventListener('submit', saveQuizSchedule);
         }
 
         initQuizModule();
@@ -1030,9 +1175,11 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" style="font-size:13px"></button>
                 </div>
                 <div class="modal-body p-0">
-                    <!-- List View -->
-                    <div id="quizListView" class="p-4">
-                        <div class="d-flex justify-content-end mb-3 sticky-top bg-white py-2" style="z-index:5">
+                        <div id="quizListView" class="p-4">
+                        <div class="d-flex justify-content-between mb-3 sticky-top bg-white py-2" style="z-index:5">
+                            <button id="aturJadwalBtn" class="px-4 py-2 rounded-xl text-xs fw-semibold border border-slate-200 bg-white hover:bg-slate-50 text-[#0B2B6A]" title="Atur Jadwal Quiz">
+                                <i class="bi bi-calendar-event me-1"></i>Atur Jadwal
+                            </button>
                             <button id="tambahSoalBtn" class="px-4 py-2 rounded-xl text-xs fw-semibold text-white border-0" style="background:#0B2B6A;transition:all .15s" title="Tambah Pertanyaan Baru">
                                 <i class="bi bi-plus-lg me-1"></i>Tambah Pertanyaan
                             </button>
@@ -1040,6 +1187,28 @@
                         <div id="quizTableContainer">
                             <p class="text-xs text-slate-400">Memuat data...</p>
                         </div>
+                    </div>
+                    <!-- Schedule View -->
+                    <div id="quizScheduleView" class="hidden p-4">
+                        <div id="quizScheduleInfo" class="mb-4 p-3 rounded-xl border border-slate-100 bg-slate-50"></div>
+                        <form id="quizScheduleForm" novalidate>
+                            <div class="mb-3">
+                                <label class="form-label text-xs fw-semibold">Waktu Buka Quiz <span class="text-red-500">*</span></label>
+                                <input type="datetime-local" id="quizOpenAt" class="form-control form-control-sm" style="border-radius:12px;font-size:13px;border-color:#e2e8f0" required>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label text-xs fw-semibold">Waktu Tutup Quiz <span class="text-red-500">*</span></label>
+                                <input type="datetime-local" id="quizCloseAt" class="form-control form-control-sm" style="border-radius:12px;font-size:13px;border-color:#e2e8f0" required>
+                            </div>
+                            <div id="quizScheduleFeedback" class="hidden text-xs text-red-500 mb-3"></div>
+                            <div class="d-flex gap-2 justify-content-end pt-3 mt-3 border-top">
+                                <button type="button" id="batalScheduleBtn" class="px-4 py-2 rounded-xl text-xs fw-semibold border bg-white text-slate-500">Batal</button>
+                                <button type="submit" id="saveScheduleBtn" class="px-4 py-2 rounded-xl text-xs fw-semibold text-white border-0" style="background:#0B2B6A">
+                                    <span id="saveScheduleText">Simpan Jadwal</span>
+                                    <span id="saveScheduleLoading" class="hidden"><span class="spinner-border spinner-border-sm me-1"></span>Menyimpan...</span>
+                                </button>
+                            </div>
+                        </form>
                     </div>
                     <!-- Form View -->
                     <div id="quizFormView" class="hidden p-4">
