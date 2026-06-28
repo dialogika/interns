@@ -1,0 +1,649 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz Intern - Team Dialogika</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link href="../assets/css/style.css" rel="stylesheet" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background: #f1f7fd;
+            color: #0f172a;
+        }
+        .glass {
+            background: rgba(255, 255, 255, 0.78);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+        .quiz-card {
+            background: #fff;
+            border: 1px solid #e2e8f0;
+            border-radius: 24px;
+            padding: 32px 28px;
+            max-width: 720px;
+            margin: 0 auto;
+        }
+        .option-btn {
+            display: block;
+            width: 100%;
+            text-align: left;
+            padding: 14px 18px;
+            border-radius: 14px;
+            border: 2px solid #e2e8f0;
+            background: #fff;
+            font-size: 14px;
+            font-weight: 500;
+            color: #0f172a;
+            transition: all 0.15s;
+            cursor: pointer;
+        }
+        .option-btn:hover:not(.disabled) {
+            border-color: #0B2B6A;
+            background: #f8faff;
+        }
+        .option-btn.selected {
+            border-color: #0B2B6A;
+            background: #eef4ff;
+        }
+        .option-btn.correct {
+            border-color: #10b981;
+            background: #ecfdf5;
+            color: #065f46;
+        }
+        .option-btn.wrong {
+            border-color: #ef4444;
+            background: #fef2f2;
+            color: #991b1b;
+        }
+        .option-btn.disabled {
+            cursor: default;
+            opacity: 0.8;
+        }
+        .option-label {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 28px;
+            height: 28px;
+            border-radius: 8px;
+            background: #f1f5f9;
+            font-size: 12px;
+            font-weight: 700;
+            color: #64748b;
+            margin-right: 12px;
+            flex-shrink: 0;
+        }
+        .option-btn.correct .option-label {
+            background: #10b981;
+            color: #fff;
+        }
+        .option-btn.wrong .option-label {
+            background: #ef4444;
+            color: #fff;
+        }
+
+        @keyframes fadeSlideIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .fade-slide-in {
+            animation: fadeSlideIn 0.35s ease-out;
+        }
+
+        @keyframes popIn {
+            0% { transform: scale(0.5); opacity: 0; }
+            70% { transform: scale(1.1); }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        .pop-in {
+            animation: popIn 0.45s ease-out;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            20% { transform: translateX(-10px); }
+            40% { transform: translateX(10px); }
+            60% { transform: translateX(-6px); }
+            80% { transform: translateX(6px); }
+        }
+        .shake {
+            animation: shake 0.5s ease-out;
+        }
+
+        @keyframes confettiDrop {
+            0% { transform: translateY(-100px) rotate(0deg); opacity: 1; }
+            100% { transform: translateY(400px) rotate(720deg); opacity: 0; }
+        }
+        .confetti-piece {
+            position: fixed;
+            width: 10px;
+            height: 10px;
+            border-radius: 2px;
+            animation: confettiDrop 2s ease-in forwards;
+            pointer-events: none;
+            z-index: 9999;
+        }
+
+        .score-badge {
+            position: fixed;
+            top: 20px;
+            right: 24px;
+            z-index: 100;
+            background: rgba(255,255,255,0.92);
+            backdrop-filter: blur(8px);
+            border: 1px solid #e2e8f0;
+            border-radius: 16px;
+            padding: 10px 20px;
+            box-shadow: 0 4px 20px rgba(0,0,0,.06);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .score-badge .score-num {
+            font-size: 22px;
+            font-weight: 800;
+            color: #0B2B6A;
+            line-height: 1;
+        }
+
+        @media (max-width: 640px) {
+            .quiz-card { padding: 20px 16px; }
+            .option-btn { padding: 12px 14px; font-size: 13px; }
+            .score-badge { top: 12px; right: 12px; padding: 8px 14px; }
+            .score-badge .score-num { font-size: 18px; }
+        }
+    </style>
+</head>
+
+<body class="antialiased" style="background-color:#f1f7fd;">
+
+    <div id="topbarContainer"></div>
+
+    <div class="dashboard-container">
+        <div id="sidebarContainer"></div>
+
+        <main class="main-content">
+            <div class="ml-20 p-8 md:p-12 lg:p-16 max-w-[1700px] mx-auto" id="mainContent">
+
+                <!-- Score Badge -->
+                <div id="scoreBadge" class="score-badge hidden">
+                    <i class="bi bi-trophy-fill" style="color:#f59e0b;font-size:18px"></i>
+                    <div>
+                        <div class="score-num" id="scoreDisplay">0</div>
+                        <div style="font-size:9px;font-weight:600;color:#94a3b8;letter-spacing:.1em;text-transform:uppercase">Poin</div>
+                    </div>
+                </div>
+
+                <!-- Welcome / Select Intern -->
+                <div id="welcomeScreen" class="fade-slide-in">
+                    <div class="flex flex-col items-center justify-center" style="min-height:70vh">
+                        <div class="quiz-card glass w-full">
+                            <div class="text-center mb-6">
+                                <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-[#0B2B6A] mb-4">
+                                    <i class="bi bi-question-circle text-white" style="font-size:28px"></i>
+                                </div>
+                                <h2 class="text-2xl font-extrabold text-slate-900 tracking-tight">Quiz Gamification</h2>
+                                <p class="text-sm text-slate-400 mt-1">Pilih nama kamu dan mulai quiz</p>
+                            </div>
+                            <div class="mb-4">
+                                <label class="form-label text-xs fw-semibold" style="color:#334155">Nama Intern</label>
+                                <select id="internSelect" class="form-select form-select-sm" style="border-radius:12px;font-size:13px;border-color:#e2e8f0;padding:10px 12px">
+                                    <option value="">-- Pilih Nama --</option>
+                                </select>
+                            </div>
+                            <button id="startQuizBtn" class="w-full py-3 rounded-xl text-sm font-bold text-white border-0" style="background:#0B2B6A;transition:all .15s" disabled>
+                                <i class="bi bi-play-fill me-1"></i>Mulai Quiz
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Question Screen -->
+                <div id="questionScreen" class="hidden" style="min-height:70vh">
+                    <div class="flex flex-col items-center justify-center" style="min-height:70vh">
+                        <div class="w-full quiz-card fade-slide-in" id="questionCard">
+                            <!-- Progress -->
+                            <div class="flex items-center gap-3 mb-5">
+                                <div class="flex-1">
+                                    <div style="height:6px;background:#e2e8f0;border-radius:99px;overflow:hidden">
+                                        <div id="progressBar" style="height:100%;background:#0B2B6A;border-radius:99px;transition:width .4s ease;width:0%"></div>
+                                    </div>
+                                </div>
+                                <span id="questionCounter" class="text-xs font-semibold" style="color:#64748b;white-space:nowrap">1/10</span>
+                            </div>
+                            <!-- Question -->
+                            <h3 id="questionText" class="text-lg font-bold text-slate-900 mb-5 leading-relaxed">Loading...</h3>
+                            <!-- Options -->
+                            <div id="optionsContainer" class="d-flex flex-column gap-3"></div>
+                            <!-- Result Feedback -->
+                            <div id="answerFeedback" class="hidden text-center py-4"></div>
+                            <!-- Next Button -->
+                            <button id="nextBtn" class="hidden w-full py-3 rounded-xl text-sm font-bold text-white border-0 mt-4" style="background:#0B2B6A;transition:all .15s">
+                                Selanjutnya <i class="bi bi-arrow-right ms-1"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Result Screen -->
+                <div id="resultScreen" class="hidden">
+                    <div class="flex flex-col items-center justify-center" style="min-height:70vh">
+                        <div class="quiz-card text-center fade-slide-in">
+                            <div id="resultIcon" class="mb-4 pop-in">
+                                <i class="bi bi-trophy-fill" style="font-size:56px;color:#f59e0b"></i>
+                            </div>
+                            <h2 class="text-2xl font-extrabold text-slate-900 tracking-tight mb-1">Quiz Selesai!</h2>
+                            <p class="text-sm text-slate-400 mb-5">Lihat hasil kamu di bawah ini</p>
+                            <div class="flex items-center justify-center gap-6 mb-6">
+                                <div class="text-center">
+                                    <div class="text-4xl font-extrabold" id="finalScore" style="color:#0B2B6A">0</div>
+                                    <div class="text-xs font-semibold" style="color:#94a3b8">Poin</div>
+                                </div>
+                                <div style="width:1px;height:50px;background:#e2e8f0"></div>
+                                <div class="text-center">
+                                    <div class="text-4xl font-extrabold" id="finalCorrect" style="color:#10b981">0</div>
+                                    <div class="text-xs font-semibold" style="color:#94a3b8">Benar</div>
+                                </div>
+                                <div style="width:1px;height:50px;background:#e2e8f0"></div>
+                                <div class="text-center">
+                                    <div class="text-4xl font-extrabold" id="finalWrong" style="color:#ef4444">0</div>
+                                    <div class="text-xs font-semibold" style="color:#94a3b8">Salah</div>
+                                </div>
+                            </div>
+                            <div id="resultDetail" class="text-left mb-5" style="max-height:300px;overflow-y:auto"></div>
+                            <div class="d-flex gap-3 justify-content-center">
+                                <button id="backHomeBtn" class="px-5 py-2.5 rounded-xl text-sm font-semibold text-white border-0" style="background:#0B2B6A;transition:all .15s">
+                                    <i class="bi bi-house me-1"></i>Beranda
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </main>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getFirestore, collection, getDocs, query, where, orderBy, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+        import { renderTopBar } from "../element/topbar.js";
+        import { renderSidebar } from "../element/sidebar.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyDyzzEYbJkkl-N8snrQf14qvj8De4YliV0",
+            authDomain: "pre-dialogika.firebaseapp.com",
+            projectId: "pre-dialogika",
+            storageBucket: "pre-dialogika.firebasestorage.app",
+            messagingSenderId: "343771410480",
+            appId: "1:343771410480:web:32881c9868522090237df5",
+            measurementId: "G-SXN811P3N0"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        renderTopBar(document.getElementById("topbarContainer"));
+        renderSidebar(document.getElementById("sidebarContainer"));
+
+        // --- State ---
+        let allInterns = [];
+        let selectedIntern = null;
+        let questions = [];
+        let currentIndex = 0;
+        let score = 0;
+        let correctCount = 0;
+        let wrongCount = 0;
+        let isAnswering = false;
+        let answers = [];
+        let quizLocked = false;
+
+        // --- DOM refs ---
+        const internSelect = document.getElementById('internSelect');
+        const startBtn = document.getElementById('startQuizBtn');
+        const welcomeScreen = document.getElementById('welcomeScreen');
+        const questionScreen = document.getElementById('questionScreen');
+        const resultScreen = document.getElementById('resultScreen');
+        const questionText = document.getElementById('questionText');
+        const optionsContainer = document.getElementById('optionsContainer');
+        const progressBar = document.getElementById('progressBar');
+        const questionCounter = document.getElementById('questionCounter');
+        const answerFeedback = document.getElementById('answerFeedback');
+        const nextBtn = document.getElementById('nextBtn');
+        const scoreDisplay = document.getElementById('scoreDisplay');
+        const scoreBadge = document.getElementById('scoreBadge');
+        const finalScore = document.getElementById('finalScore');
+        const finalCorrect = document.getElementById('finalCorrect');
+        const finalWrong = document.getElementById('finalWrong');
+        const resultDetail = document.getElementById('resultDetail');
+        const backHomeBtn = document.getElementById('backHomeBtn');
+
+        // --- Load Interns ---
+        async function loadInterns() {
+            try {
+                const q = query(
+                    collection(db, 'users'),
+                    where('access.role_id', '==', 'internship'),
+                    where("status", "==", "Active")
+                );
+                const snap = await getDocs(q);
+                const users = [];
+                snap.forEach(docSnap => {
+                    const d = docSnap.data() || {};
+                    users.push({
+                        id: docSnap.id,
+                        name: d.name || d.email || 'Tanpa Nama'
+                    });
+                });
+                users.sort((a, b) => a.name.localeCompare(b.name));
+                allInterns = users;
+                users.forEach(u => {
+                    const opt = document.createElement('option');
+                    opt.value = u.id;
+                    opt.textContent = u.name;
+                    internSelect.appendChild(opt);
+                });
+            } catch (e) {
+                console.error('Gagal load interns:', e);
+            }
+        }
+
+        internSelect.addEventListener('change', async function() {
+            const id = this.value;
+            selectedIntern = id ? allInterns.find(u => u.id === id) || null : null;
+            if (selectedIntern) {
+                await checkInternQuizStatus(selectedIntern.id);
+            } else {
+                quizLocked = false;
+                startBtn.disabled = true;
+                startBtn.innerHTML = '<i class="bi bi-play-fill me-1"></i>Mulai Quiz';
+            }
+        });
+
+        async function checkInternQuizStatus(userId) {
+            startBtn.disabled = true;
+            startBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Memeriksa...';
+            try {
+                const q = query(collection(db, 'quiz_results'), where('user_id', '==', userId));
+                const snap = await getDocs(q);
+                if (!snap.empty) {
+                    quizLocked = true;
+                    startBtn.disabled = true;
+                    startBtn.innerHTML = '<i class="bi bi-lock me-1"></i>Sudah Mengikuti Quiz';
+                } else {
+                    quizLocked = false;
+                    startBtn.disabled = false;
+                    startBtn.innerHTML = '<i class="bi bi-play-fill me-1"></i>Mulai Quiz';
+                }
+            } catch (e) {
+                console.error('Check status gagal:', e);
+            }
+        }
+        async function loadQuestions() {
+            try {
+                const q = query(collection(db, 'intern_quizz'), orderBy('created_at', 'desc'));
+                const snap = await getDocs(q);
+                const all = [];
+                snap.forEach(docSnap => {
+                    const d = docSnap.data() || {};
+                    all.push({
+                        id: docSnap.id,
+                        question: d.question || '',
+                        options: d.options || { A: '', B: '', C: '', D: '' },
+                        correct_answer: d.correct_answer || d.correctAnswer || ''
+                    });
+                });
+                questions = shuffle(all);
+            } catch (e) {
+                console.error('Gagal load questions:', e);
+                questions = [];
+            }
+        }
+
+        function shuffle(arr) {
+            const a = [...arr];
+            for (let i = a.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [a[i], a[j]] = [a[j], a[i]];
+            }
+            return a;
+        }
+
+        // --- Quiz Logic ---
+        function startQuiz() {
+            if (!questions.length) return;
+            currentIndex = 0;
+            score = 0;
+            correctCount = 0;
+            wrongCount = 0;
+            answers = [];
+            isAnswering = false;
+            updateScore();
+            scoreBadge.classList.remove('hidden');
+            welcomeScreen.classList.add('hidden');
+            resultScreen.classList.add('hidden');
+            questionScreen.classList.remove('hidden');
+            showQuestion();
+        }
+
+        function showQuestion() {
+            if (currentIndex >= questions.length) {
+                showResult();
+                return;
+            }
+
+            const q = questions[currentIndex];
+            questionText.textContent = q.question;
+            questionCounter.textContent = `${currentIndex + 1}/${questions.length}`;
+            progressBar.style.width = `${((currentIndex) / questions.length) * 100}%`;
+            isAnswering = true;
+            answerFeedback.classList.add('hidden');
+            nextBtn.classList.add('hidden');
+
+            const labels = ['A', 'B', 'C', 'D'];
+            optionsContainer.innerHTML = '';
+            labels.forEach(key => {
+                const btn = document.createElement('button');
+                btn.className = 'option-btn';
+                btn.innerHTML = `<span class="option-label">${key}</span><span>${escapeHtml(q.options[key] || '')}</span>`;
+                btn.dataset.value = key;
+                btn.addEventListener('click', function() { handleAnswer(this, q); });
+                optionsContainer.appendChild(btn);
+            });
+
+            // Re-trigger animation
+            const card = document.getElementById('questionCard');
+            card.classList.remove('fade-slide-in');
+            void card.offsetWidth;
+            card.classList.add('fade-slide-in');
+        }
+
+        function handleAnswer(btn, q) {
+            if (!isAnswering) return;
+            isAnswering = false;
+
+            const selected = btn.dataset.value;
+            const correct = q.correct_answer;
+            const isCorrect = selected === correct;
+            const allBtns = optionsContainer.querySelectorAll('.option-btn');
+
+            allBtns.forEach(b => b.classList.add('disabled'));
+
+            if (isCorrect) {
+                btn.classList.add('correct');
+                score += 1;
+                correctCount++;
+                showCorrectAnimation(btn);
+            } else {
+                btn.classList.add('wrong');
+                wrongCount++;
+                allBtns.forEach(b => {
+                    if (b.dataset.value === correct) b.classList.add('correct');
+                });
+                showWrongAnimation(btn);
+            }
+
+            answers.push({
+                question: q.question,
+                selected,
+                correct,
+                isCorrect
+            });
+
+            updateScore();
+
+            setTimeout(() => {
+                nextBtn.classList.remove('hidden');
+                nextBtn.innerHTML = currentIndex < questions.length - 1
+                    ? 'Selanjutnya <i class="bi bi-arrow-right ms-1"></i>'
+                    : 'Lihat Hasil <i class="bi bi-graph-up ms-1"></i>';
+            }, 800);
+        }
+
+        function showCorrectAnimation(btn) {
+            spawnConfetti();
+            const feedback = answerFeedback;
+            feedback.classList.remove('hidden', 'shake');
+            feedback.innerHTML = '<div class="pop-in"><i class="bi bi-check-circle-fill" style="font-size:40px;color:#10b981"></i><p class="text-sm fw-bold mt-2" style="color:#065f46">Benar!</p></div>';
+        }
+
+        function showWrongAnimation(btn) {
+            btn.classList.add('shake');
+            const feedback = answerFeedback;
+            feedback.classList.remove('hidden');
+            feedback.innerHTML = '<div><i class="bi bi-x-circle-fill" style="font-size:40px;color:#ef4444"></i><p class="text-sm fw-bold mt-2" style="color:#991b1b">Salah!</p></div>';
+        }
+
+        function spawnConfetti() {
+            const colors = ['#0B2B6A', '#f59e0b', '#10b981', '#ef4444', '#3b82f6', '#8b5cf6'];
+            for (let i = 0; i < 40; i++) {
+                const el = document.createElement('div');
+                el.className = 'confetti-piece';
+                el.style.left = Math.random() * 100 + 'vw';
+                el.style.top = '-10px';
+                el.style.background = colors[Math.floor(Math.random() * colors.length)];
+                el.style.width = (Math.random() * 6 + 4) + 'px';
+                el.style.height = (Math.random() * 6 + 4) + 'px';
+                el.style.animationDuration = (Math.random() * 1.5 + 1.2) + 's';
+                el.style.animationDelay = (Math.random() * 0.3) + 's';
+                document.body.appendChild(el);
+                setTimeout(() => el.remove(), 3000);
+            }
+        }
+
+        function updateScore() {
+            scoreDisplay.textContent = score;
+        }
+
+        nextBtn.addEventListener('click', function() {
+            currentIndex++;
+            if (currentIndex >= questions.length) {
+                showResult();
+            } else {
+                showQuestion();
+            }
+        });
+
+        function showResult() {
+            questionScreen.classList.add('hidden');
+            resultScreen.classList.remove('hidden');
+            progressBar.style.width = '100%';
+            scoreBadge.classList.add('hidden');
+
+            finalScore.textContent = score;
+            finalCorrect.textContent = correctCount;
+            finalWrong.textContent = wrongCount;
+
+            if (selectedIntern) {
+                saveQuizResult(selectedIntern.id, score, questions.length);
+            }
+
+            const icon = document.getElementById('resultIcon');
+            const pct = questions.length ? Math.round((correctCount / questions.length) * 100) : 0;
+            if (pct >= 80) {
+                icon.innerHTML = '<i class="bi bi-trophy-fill" style="font-size:56px;color:#f59e0b"></i>';
+            } else if (pct >= 50) {
+                icon.innerHTML = '<i class="bi bi-hand-thumbs-up-fill" style="font-size:56px;color:#3b82f6"></i>';
+            } else {
+                icon.innerHTML = '<i class="bi bi-emoji-frown-fill" style="font-size:56px;color:#94a3b8"></i>';
+            }
+            icon.classList.remove('pop-in');
+            void icon.offsetWidth;
+            icon.classList.add('pop-in');
+
+            let detailHtml = '';
+            answers.forEach((a, i) => {
+                const isC = a.isCorrect;
+                detailHtml += `<div class="flex items-start gap-2 mb-2 p-2 rounded-xl" style="background:${isC ? '#ecfdf5' : '#fef2f2'}">
+                    <i class="bi ${isC ? 'bi-check-circle-fill text-green-500' : 'bi-x-circle-fill text-red-500'} mt-0.5" style="font-size:14px"></i>
+                    <div class="flex-1 min-w-0">
+                        <p class="text-xs font-medium" style="color:#0f172a">${escapeHtml(a.question)}</p>
+                        <p class="text-xs mt-0.5" style="color:#64748b">
+                            ${isC
+                                ? `Jawaban: <span style="color:#10b981;font-weight:600">${a.selected}</span>`
+                                : `Kamu: <span style="color:#ef4444;font-weight:600">${a.selected}</span> — Benar: <span style="color:#10b981;font-weight:600">${a.correct}</span>`
+                            }
+                        </p>
+                    </div>
+                </div>`;
+            });
+            resultDetail.innerHTML = detailHtml;
+        }
+
+        // --- Save Quiz Result ---
+        async function saveQuizResult(userId, score, totalQuestions) {
+            try {
+                await addDoc(collection(db, 'quiz_results'), {
+                    user_id: userId,
+                    score: score,
+                    total_questions: totalQuestions,
+                    completed_at: serverTimestamp()
+                });
+            } catch (e) {
+                console.error('Gagal simpan hasil quiz:', e);
+            }
+        }
+
+        // --- Navigation ---
+        backHomeBtn.addEventListener('click', function() {
+            resultScreen.classList.add('hidden');
+            questionScreen.classList.add('hidden');
+            scoreBadge.classList.add('hidden');
+            welcomeScreen.classList.remove('hidden');
+            internSelect.value = '';
+            selectedIntern = null;
+            quizLocked = false;
+            startBtn.disabled = true;
+            startBtn.innerHTML = '<i class="bi bi-play-fill me-1"></i>Mulai Quiz';
+        });
+
+        // --- Init ---
+        async function init() {
+            await loadInterns();
+            await loadQuestions();
+        }
+
+        startBtn.addEventListener('click', function() {
+            if (quizLocked) return;
+            startQuiz();
+        });
+
+        init().catch(e => console.error('Init gagal:', e));
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+    </script>
+</body>
+
+</html>

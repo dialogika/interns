@@ -19,6 +19,11 @@
             color: #0f172a;
         }
 
+        .placeholder-dark::placeholder {
+            color: #94a3b8;
+            opacity: 1;
+        }
+
         .premium-shadow {
             box-shadow: 0 10px 40px -10px rgba(0, 0, 0, 0.04);
         }
@@ -170,6 +175,11 @@
                             <div class="flex flex-wrap items-center gap-2">
                                 <input type="month" id="gamiMonthFilter"
                                     class="px-3 py-2 rounded-xl text-xs border border-slate-200 bg-white focus:outline-none focus:ring-2 focus:ring-[#0B2B6A]">
+                                <button id="kelolaQuizBtn"
+                                    class="px-3 py-2 rounded-xl text-xs font-semibold border border-slate-200 bg-white hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-[#0B2B6A] text-[#0B2B6A]"
+                                    style="transition:all .15s" title="Kelola Quiz">
+                                    <i class="bi bi-pencil-square me-1"></i>Kelola Quiz
+                                </button>
                             </div>
                         </div>
 
@@ -200,7 +210,7 @@
                                         Peringkat Bulan Ini</p>
                                     <div style="overflow-x:auto;-webkit-overflow-scrolling:touch;"
                                         class="ldr-scroll-wrap">
-                                        <div id="gamiLeaderboard" style="min-width:520px;"></div>
+                                        <div id="gamiLeaderboard" style="min-width:620px;"></div>
                                     </div>
                                     <p id="gamiLdrEmpty" class="text-xs text-slate-400 hidden py-2">Belum ada data.</p>
                                 </div>
@@ -246,7 +256,7 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getFirestore, collection, getDocs, query, where } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+        import { getFirestore, collection, getDocs, query, where, addDoc, updateDoc, deleteDoc, doc, serverTimestamp, orderBy } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
         import { renderTopBar } from "../element/topbar.js";
         import { renderSidebar } from "../element/sidebar.js";
 
@@ -276,6 +286,7 @@
 
         let allInterns = [];
         let allAttendanceRecords = [];
+        let allQuizResults = [];
 
         function getTodayKey() {
             const now = new Date();
@@ -468,6 +479,14 @@
             });
 
             const dayNames = { 0: 'Min', 2: 'Sel', 4: 'Kam', 6: 'Sab' };
+            
+            // Map user_id to total quiz score
+            const quizScoreMap = new Map();
+            allQuizResults.forEach(res => {
+                const prev = quizScoreMap.get(res.user_id) || 0;
+                quizScoreMap.set(res.user_id, prev + res.score);
+            });
+
             const leaderboardRows = allInterns.map(intern => {
                 const presentDates = presentMap.get(intern.id) || new Set();
                 const flags = workDays.map(date => {
@@ -477,6 +496,8 @@
                 const earlyCount = earlyCountMap.get(intern.id) || 0;
                 const earlyDates = earlyDateByCount.get(intern.id) || [];
                 const earlyTiebreakerDate = earlyDates.length > 0 ? earlyDates[earlyDates.length - 1] : '9999-99-99';
+                const totalQuizScore = quizScoreMap.get(intern.id) || 0;
+
                 return {
                     ...intern,
                     flags,
@@ -486,11 +507,12 @@
                     totalPresent: flags.filter(flag => flag === 1).length,
                     countedDays: flags.filter(flag => flag !== -1).length,
                     earlyCount,
-                    earlyTiebreakerDate
+                    earlyTiebreakerDate,
+                    quizScore: totalQuizScore
                 };
             }).sort((a, b) => {
-                const ptA = a.earlyCount + a.bestStreak;
-                const ptB = b.earlyCount + b.bestStreak;
+                const ptA = a.earlyCount + a.bestStreak + a.quizScore;
+                const ptB = b.earlyCount + b.bestStreak + b.quizScore;
                 if (ptB !== ptA) return ptB - ptA;
                 if (a.earlyTiebreakerDate !== b.earlyTiebreakerDate)
                     return a.earlyTiebreakerDate < b.earlyTiebreakerDate ? -1 : 1;
@@ -572,7 +594,7 @@
                         <div class="flex-1 min-w-0">
                             <p class="font-semibold text-slate-800 text-sm truncate">${intern.name}</p>
                             <p class="text-xs text-slate-400">${intern.totalPresent}/${intern.countedDays} hari hadir (${percentage}%)</p>
-                            <p class="text-xs text-slate-400 mb-0">Clock in paling awal: ${intern.earlyCount}x bulan ini</p>
+                            <p class="text-xs text-slate-400 mb-0">Clock in paling awal: ${intern.earlyCount}x | Poin Quiz: ${intern.quizScore || 0} pts</p>
                         </div>
                         ${intern.bestStreak >= 2
                         ? `<span style="font-size:11px;font-weight:600;padding:3px 10px;border-radius:99px;background:#FEF2F2;color:#A32D2D;border:1px solid #F09595;white-space:nowrap;flex-shrink:0">Best streak: ${intern.bestStreak}x</span>`
@@ -595,24 +617,25 @@
             const medals = ['🥇', '🥈', '🥉'];
 
             const hdr = document.createElement('div');
-            hdr.style.cssText = 'display:grid;grid-template-columns:32px 36px 1fr 80px 80px 80px 70px;gap:8px;align-items:center;padding:6px 4px 8px 4px;border-bottom:2px solid #f1f5f9;';
+            hdr.style.cssText = 'display:grid;grid-template-columns:32px 36px 1fr 80px 80px 80px 80px 70px;gap:8px;align-items:center;padding:6px 4px 8px 4px;border-bottom:2px solid #f1f5f9;';
             hdr.innerHTML = `
                 <span></span><span></span>
                 <span style="font-size:10px;font-weight:800;color:#94a3b8;letter-spacing:.08em;text-transform:uppercase">Nama</span>
                 <span style="font-size:10px;font-weight:800;color:#94a3b8;letter-spacing:.08em;text-transform:uppercase;text-align:center">Total Pts</span>
                 <span style="font-size:10px;font-weight:800;color:#f59e0b;letter-spacing:.08em;text-transform:uppercase;text-align:center">☀️ Early</span>
                 <span style="font-size:10px;font-weight:800;color:#E24B4A;letter-spacing:.08em;text-transform:uppercase;text-align:center">🔥 Streak</span>
+                <span style="font-size:10px;font-weight:800;color:#3b82f6;letter-spacing:.08em;text-transform:uppercase;text-align:center">💡 Quiz</span>
                 <span style="font-size:10px;font-weight:800;color:#94a3b8;letter-spacing:.08em;text-transform:uppercase;text-align:center">Hadir</span>
             `;
             gamiLeaderboard.appendChild(hdr);
 
             leaderboardRows.forEach((intern, index) => {
-                const totalPts = intern.earlyCount + intern.bestStreak;
+                const totalPts = intern.earlyCount + intern.bestStreak + (intern.quizScore || 0);
                 const earlyTiebreakerLabel = intern.earlyCount > 0
                     ? `<div style="font-size:9px;color:#f59e0b;margin-top:1px" title="Capai ${intern.earlyCount}x early per ${intern.earlyTiebreakerDate}">${intern.earlyTiebreakerDate}</div>`
                     : '<div style="font-size:9px;color:#cbd5e1">-</div>';
                 const row = document.createElement('div');
-                row.style.cssText = 'display:grid;grid-template-columns:32px 36px 1fr 80px 80px 80px 70px;gap:8px;align-items:center;padding:9px 4px;border-bottom:1px solid #f8fafc;';
+                row.style.cssText = 'display:grid;grid-template-columns:32px 36px 1fr 80px 80px 80px 80px 70px;gap:8px;align-items:center;padding:9px 4px;border-bottom:1px solid #f8fafc;';
                 if (index % 2 === 0) row.style.background = '#fafbff';
                 row.innerHTML = `
                     <span style="font-size:${index < 3 ? '20' : '12'}px;font-weight:700;text-align:center;line-height:1">${medals[index] || index + 1}</span>
@@ -631,6 +654,10 @@
                         <div style="font-size:9px;color:#94a3b8">best</div>
                     </div>
                     <div style="text-align:center">
+                        <span style="font-size:13px;font-weight:700;color:#3b82f6">${intern.quizScore || 0} pts</span>
+                        <div style="font-size:9px;color:#94a3b8">quiz</div>
+                    </div>
+                    <div style="text-align:center">
                         <span style="font-size:13px;font-weight:600;color:#334155">${intern.totalPresent}</span>
                         <div style="font-size:9px;color:#94a3b8">hari</div>
                     </div>
@@ -647,12 +674,28 @@
 
             try {
                 const range = getMonthRangeFromMonthKey(monthKey);
+                
+                // Fetch attendance
                 const qMonth = query(
                     collection(db, 'user_attendance'),
                     where('date', '>=', range.startKey),
                     where('date', '<=', range.endKey)
                 );
-                const snap = await getDocs(qMonth);
+                
+                // Fetch quiz results for this month
+                const startOfM = new Date(range.startKey + 'T00:00:00');
+                const endOfM = new Date(range.endKey + 'T23:59:59');
+                const qQuiz = query(
+                    collection(db, 'quiz_results'),
+                    where('completed_at', '>=', startOfM),
+                    where('completed_at', '<=', endOfM)
+                );
+
+                const [snap, quizSnap] = await Promise.all([
+                    getDocs(qMonth),
+                    getDocs(qQuiz)
+                ]);
+
                 const rows = [];
                 snap.forEach(docSnap => {
                     const d = docSnap.data() || {};
@@ -664,7 +707,18 @@
                         type: d.type || ''
                     });
                 });
+                
+                const qResults = [];
+                quizSnap.forEach(docSnap => {
+                    const d = docSnap.data() || {};
+                    qResults.push({
+                        user_id: d.user_id || '',
+                        score: d.score || 0
+                    });
+                });
+
                 allAttendanceRecords = rows;
+                allQuizResults = qResults;
                 renderGamification(monthKey);
             } catch (error) {
                 console.error('Gagal memuat gamifikasi:', error);
@@ -724,7 +778,343 @@
         init().catch((e) => {
             console.error('Init gagal:', e);
         });
+
+        /* ============================
+         * Quiz Management
+         * ============================ */
+        let questions = [];
+        let editingQuizId = null;
+        let deleteTargetId = null;
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        function resetQuizForm() {
+            const form = document.getElementById('quizForm');
+            if (form) form.reset();
+            document.getElementById('quizFormId').value = '';
+            document.querySelectorAll('#quizForm .form-control').forEach(el => el.classList.remove('is-invalid'));
+            document.querySelectorAll('.correct-answer-feedback').forEach(el => el.classList.add('hidden'));
+            editingQuizId = null;
+        }
+
+        function getQuizFormData() {
+            return {
+                question: document.getElementById('quizQuestion').value.trim(),
+                options: {
+                    A: document.getElementById('quizOptionA').value.trim(),
+                    B: document.getElementById('quizOptionB').value.trim(),
+                    C: document.getElementById('quizOptionC').value.trim(),
+                    D: document.getElementById('quizOptionD').value.trim()
+                },
+                correctAnswer: document.querySelector('[name="correctAnswer"]:checked')?.value || ''
+            };
+        }
+
+        function validateQuizForm(data) {
+            let isValid = true;
+            document.querySelectorAll('#quizForm .form-control').forEach(el => el.classList.remove('is-invalid'));
+            document.querySelectorAll('.correct-answer-feedback').forEach(el => el.classList.add('hidden'));
+
+            if (!data.question) {
+                document.getElementById('quizQuestion').classList.add('is-invalid');
+                isValid = false;
+            }
+            ['A', 'B', 'C', 'D'].forEach(key => {
+                if (!data.options[key]) {
+                    document.getElementById('quizOption' + key).classList.add('is-invalid');
+                    isValid = false;
+                }
+            });
+            if (!data.correctAnswer) {
+                document.querySelectorAll('.correct-answer-feedback').forEach(el => el.classList.remove('hidden'));
+                isValid = false;
+            }
+            return isValid;
+        }
+
+        function setFormLoading(loading) {
+            document.getElementById('simpanSoalText').classList.toggle('hidden', loading);
+            document.getElementById('simpanSoalLoading').classList.toggle('hidden', !loading);
+            document.getElementById('simpanSoalBtn').disabled = loading;
+        }
+
+        function showQuizListView() {
+            document.getElementById('quizListView').classList.remove('hidden');
+            document.getElementById('quizFormView').classList.add('hidden');
+            document.getElementById('quizModalLabel').textContent = 'Manajemen Soal Pilihan Ganda';
+        }
+
+        function showQuizFormView(title) {
+            document.getElementById('quizListView').classList.add('hidden');
+            document.getElementById('quizFormView').classList.remove('hidden');
+            document.getElementById('quizModalLabel').textContent = title;
+        }
+
+        function showAddForm() {
+            resetQuizForm();
+            showQuizFormView('Tambah Pertanyaan Baru');
+        }
+
+        function editQuestion(id) {
+            const q = questions.find(item => item.id === id);
+            if (!q) return;
+            resetQuizForm();
+            editingQuizId = id;
+            document.getElementById('quizFormId').value = id;
+            document.getElementById('quizQuestion').value = q.question || '';
+            document.getElementById('quizOptionA').value = q.options?.A || '';
+            document.getElementById('quizOptionB').value = q.options?.B || '';
+            document.getElementById('quizOptionC').value = q.options?.C || '';
+            document.getElementById('quizOptionD').value = q.options?.D || '';
+            const correctAnswer = q.correct_answer || '';
+            const radio = document.querySelector('[name="correctAnswer"][value="' + correctAnswer + '"]');
+            if (radio) radio.checked = true;
+            showQuizFormView('Edit Pertanyaan');
+        }
+
+        async function saveQuestion(event) {
+            event.preventDefault();
+            const data = getQuizFormData();
+            if (!validateQuizForm(data)) return;
+            setFormLoading(true);
+            try {
+                const payload = {
+                    question: data.question,
+                    options: data.options,
+                    correct_answer: data.correctAnswer,
+                    updated_at: serverTimestamp()
+                };
+                if (editingQuizId) {
+                    await updateDoc(doc(db, 'intern_quizz', editingQuizId), payload);
+                } else {
+                    payload.created_at = serverTimestamp();
+                    await addDoc(collection(db, 'intern_quizz'), payload);
+                }
+                showQuizListView();
+                await loadQuestions();
+                resetQuizForm();
+            } catch (error) {
+                console.error('Gagal menyimpan soal:', error);
+                alert('Gagal menyimpan soal. Silakan coba lagi.');
+            } finally {
+                setFormLoading(false);
+            }
+        }
+
+        function showDeleteConfirmation(id) {
+            deleteTargetId = id;
+            const modal = new bootstrap.Modal(document.getElementById('deleteQuizModal'));
+            modal.show();
+        }
+
+        async function confirmDelete() {
+            if (!deleteTargetId) return;
+            document.getElementById('deleteText').classList.add('hidden');
+            document.getElementById('deleteLoading').classList.remove('hidden');
+            document.getElementById('confirmDeleteBtn').disabled = true;
+            try {
+                await deleteDoc(doc(db, 'intern_quizz', deleteTargetId));
+                bootstrap.Modal.getInstance(document.getElementById('deleteQuizModal')).hide();
+                await loadQuestions();
+            } catch (error) {
+                console.error('Gagal menghapus soal:', error);
+                alert('Gagal menghapus soal. Silakan coba lagi.');
+            } finally {
+                document.getElementById('deleteText').classList.remove('hidden');
+                document.getElementById('deleteLoading').classList.add('hidden');
+                document.getElementById('confirmDeleteBtn').disabled = false;
+                deleteTargetId = null;
+            }
+        }
+
+        async function loadQuestions() {
+            const container = document.getElementById('quizTableContainer');
+            container.innerHTML = '<p class="text-xs text-slate-400">Memuat data...</p>';
+            try {
+                const q = query(collection(db, 'intern_quizz'), orderBy('created_at', 'desc'));
+                const snap = await getDocs(q);
+                questions = [];
+                snap.forEach(docSnap => {
+                    questions.push({ id: docSnap.id, ...docSnap.data() });
+                });
+                renderQuestions();
+            } catch (error) {
+                console.error('Gagal memuat soal:', error);
+                container.innerHTML = '<p class="text-xs" style="color:#dc2626">Gagal memuat data soal.</p>';
+            }
+        }
+
+        function renderQuestions() {
+            const container = document.getElementById('quizTableContainer');
+            if (!questions.length) {
+                container.innerHTML = '<div class="text-center py-5"><i class="bi bi-inbox" style="font-size:40px;color:#cbd5e1"></i><p class="text-xs mt-2" style="color:#94a3b8">Belum ada soal. Klik "Tambah Pertanyaan" untuk memulai.</p></div>';
+                return;
+            }
+            let html = '<div style="overflow-x:auto">';
+            html += '<table class="table table-sm align-middle mb-0" style="font-size:13px">';
+            html += '<thead><tr style="border-bottom:2px solid #f1f5f9">';
+            html += '<th style="color:#94a3b8;font-size:10px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;padding:8px 6px">No</th>';
+            html += '<th style="color:#94a3b8;font-size:10px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;padding:8px 6px">Pertanyaan</th>';
+            html += '<th style="color:#94a3b8;font-size:10px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;padding:8px 6px">Pilihan</th>';
+            html += '<th style="color:#94a3b8;font-size:10px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;padding:8px 6px">Jawaban</th>';
+            html += '<th style="color:#94a3b8;font-size:10px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;padding:8px 6px;width:100px">Aksi</th>';
+            html += '</tr></thead><tbody>';
+            questions.forEach((q, i) => {
+                const optionsList = ['A', 'B', 'C', 'D'].map(function(key) {
+                    return '<span style="font-size:12px">' + key + '. ' + escapeHtml(q.options?.[key] || '') + '</span>';
+                }).join('<br>');
+                html += '<tr style="border-bottom:1px solid #f8fafc">';
+                html += '<td style="padding:10px 6px;color:#64748b;font-weight:600">' + (i + 1) + '</td>';
+                html += '<td style="padding:10px 6px;color:#0f172a;font-weight:500;max-width:300px">' + escapeHtml(q.question || '') + '</td>';
+                html += '<td style="padding:10px 6px;color:#475569">' + optionsList + '</td>';
+                html += '<td style="padding:10px 6px"><span style="background:#dbeafe;color:#1e40af;font-size:11px;font-weight:600;padding:4px 10px;border-radius:999px;display:inline-block">' + (q.correct_answer || '-') + '</span></td>';
+                html += '<td style="padding:10px 6px;white-space:nowrap">';
+                html += '<button class="edit-quiz-btn btn btn-sm p-1 border-0" data-id="' + q.id + '" style="color:#2563eb" title="Edit"><i class="bi bi-pencil"></i></button>';
+                html += '<button class="delete-quiz-btn btn btn-sm p-1 border-0" data-id="' + q.id + '" style="color:#dc2626" title="Hapus"><i class="bi bi-trash"></i></button>';
+                html += '</td></tr>';
+            });
+            html += '</tbody></table></div>';
+            container.innerHTML = html;
+            container.querySelectorAll('.edit-quiz-btn').forEach(function(btn) {
+                btn.addEventListener('click', function() { editQuestion(btn.dataset.id); });
+            });
+            container.querySelectorAll('.delete-quiz-btn').forEach(function(btn) {
+                btn.addEventListener('click', function() { showDeleteConfirmation(btn.dataset.id); });
+            });
+        }
+
+        function initQuizModule() {
+            const kelolaBtn = document.getElementById('kelolaQuizBtn');
+            if (kelolaBtn) {
+                kelolaBtn.addEventListener('click', async function() {
+                    const modal = new bootstrap.Modal(document.getElementById('quizModal'));
+                    modal.show();
+                    await loadQuestions();
+                });
+            }
+            const tambahBtn = document.getElementById('tambahSoalBtn');
+            if (tambahBtn) tambahBtn.addEventListener('click', showAddForm);
+            const batalBtn = document.getElementById('batalFormBtn');
+            if (batalBtn) {
+                batalBtn.addEventListener('click', function() {
+                    showQuizListView();
+                    resetQuizForm();
+                });
+            }
+            const quizForm = document.getElementById('quizForm');
+            if (quizForm) quizForm.addEventListener('submit', saveQuestion);
+            const confirmDeleteBtn = document.getElementById('confirmDeleteBtn');
+            if (confirmDeleteBtn) confirmDeleteBtn.addEventListener('click', confirmDelete);
+            const quizModal = document.getElementById('quizModal');
+            if (quizModal) {
+                quizModal.addEventListener('hidden.bs.modal', function() {
+                    showQuizListView();
+                    resetQuizForm();
+                });
+            }
+        }
+
+        initQuizModule();
     </script>
+
+    <!-- Quiz Management Modal -->
+    <div class="modal fade" id="quizModal" tabindex="-1" aria-labelledby="quizModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-xl modal-dialog-scrollable">
+            <div class="modal-content" style="border-radius:20px;border:none;box-shadow:0 20px 60px rgba(0,0,0,.12);overflow:hidden">
+                <div class="modal-header px-4 py-3 sticky-top bg-white" style="border-bottom:1px solid #f1f5f9;z-index:10">
+                    <h5 class="modal-title fw-bold" id="quizModalLabel" style="color:#0B2B6A;font-size:15px">Manajemen Soal Pilihan Ganda</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" style="font-size:13px"></button>
+                </div>
+                <div class="modal-body p-0">
+                    <!-- List View -->
+                    <div id="quizListView" class="p-4">
+                        <div class="d-flex justify-content-end mb-3 sticky-top bg-white py-2" style="z-index:5">
+                            <button id="tambahSoalBtn" class="px-4 py-2 rounded-xl text-xs fw-semibold text-white border-0" style="background:#0B2B6A;transition:all .15s" title="Tambah Pertanyaan Baru">
+                                <i class="bi bi-plus-lg me-1"></i>Tambah Pertanyaan
+                            </button>
+                        </div>
+                        <div id="quizTableContainer">
+                            <p class="text-xs text-slate-400">Memuat data...</p>
+                        </div>
+                    </div>
+                    <!-- Form View -->
+                    <div id="quizFormView" class="hidden p-4">
+                        <form id="quizForm" novalidate>
+                            <input type="hidden" id="quizFormId" value="">
+                            <div class="mb-3">
+                                <label class="form-label text-xs fw-semibold" style="color:#334155">Pertanyaan <span style="color:#dc2626">*</span></label>
+                                <textarea id="quizQuestion" class="form-control form-control-sm placeholder-dark" rows="3" placeholder="Masukkan pertanyaan..." style="border-radius:12px;font-size:13px;resize:vertical;border-color:#e2e8f0" required></textarea>
+                                <div class="invalid-feedback" style="font-size:11px">Pertanyaan tidak boleh kosong.</div>
+                            </div>
+                            <div class="row g-3 mb-3">
+                                <div class="col-md-6">
+                                    <label class="form-label text-xs fw-semibold" style="color:#334155">Pilihan A <span style="color:#dc2626">*</span></label>
+                                    <input type="text" id="quizOptionA" class="form-control form-control-sm placeholder-dark" placeholder="Pilihan A" style="border-radius:12px;font-size:13px;border-color:#e2e8f0" required>
+                                    <div class="invalid-feedback" style="font-size:11px">Pilihan A wajib diisi.</div>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label text-xs fw-semibold" style="color:#334155">Pilihan B <span style="color:#dc2626">*</span></label>
+                                    <input type="text" id="quizOptionB" class="form-control form-control-sm placeholder-dark" placeholder="Pilihan B" style="border-radius:12px;font-size:13px;border-color:#e2e8f0" required>
+                                    <div class="invalid-feedback" style="font-size:11px">Pilihan B wajib diisi.</div>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label text-xs fw-semibold" style="color:#334155">Pilihan C <span style="color:#dc2626">*</span></label>
+                                    <input type="text" id="quizOptionC" class="form-control form-control-sm placeholder-dark" placeholder="Pilihan C" style="border-radius:12px;font-size:13px;border-color:#e2e8f0" required>
+                                    <div class="invalid-feedback" style="font-size:11px">Pilihan C wajib diisi.</div>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label text-xs fw-semibold" style="color:#334155">Pilihan D <span style="color:#dc2626">*</span></label>
+                                    <input type="text" id="quizOptionD" class="form-control form-control-sm placeholder-dark" placeholder="Pilihan D" style="border-radius:12px;font-size:13px;border-color:#e2e8f0" required>
+                                    <div class="invalid-feedback" style="font-size:11px">Pilihan D wajib diisi.</div>
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label text-xs fw-semibold" style="color:#334155">Jawaban Benar <span style="color:#dc2626">*</span></label>
+                                <div class="d-flex gap-3 flex-wrap">
+                                    <div class="form-check"><input class="form-check-input" type="radio" name="correctAnswer" id="correctA" value="A"><label class="form-check-label" for="correctA" style="font-size:13px;color:#334155">A</label></div>
+                                    <div class="form-check"><input class="form-check-input" type="radio" name="correctAnswer" id="correctB" value="B"><label class="form-check-label" for="correctB" style="font-size:13px;color:#334155">B</label></div>
+                                    <div class="form-check"><input class="form-check-input" type="radio" name="correctAnswer" id="correctC" value="C"><label class="form-check-label" for="correctC" style="font-size:13px;color:#334155">C</label></div>
+                                    <div class="form-check"><input class="form-check-input" type="radio" name="correctAnswer" id="correctD" value="D"><label class="form-check-label" for="correctD" style="font-size:13px;color:#334155">D</label></div>
+                                </div>
+                                <div class="correct-answer-feedback hidden text-xs mt-1" style="color:#dc2626">Silakan pilih jawaban yang benar.</div>
+                            </div>
+                            <div class="d-flex gap-2 justify-content-end pt-3 mt-3" style="border-top:1px solid #f1f5f9">
+                                <button type="button" id="batalFormBtn" class="px-4 py-2 rounded-xl text-xs fw-semibold border" style="border-color:#e2e8f0;background:#fff;color:#64748b;transition:all .15s">Batal</button>
+                                <button type="submit" id="simpanSoalBtn" class="px-4 py-2 rounded-xl text-xs fw-semibold text-white border-0" style="background:#0B2B6A;transition:all .15s">
+                                    <span id="simpanSoalText">Simpan</span>
+                                    <span id="simpanSoalLoading" class="hidden"><span class="spinner-border spinner-border-sm me-1" role="status"></span>Menyimpan...</span>
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Delete Confirmation Modal -->
+    <div class="modal fade" id="deleteQuizModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-sm modal-dialog-centered">
+            <div class="modal-content" style="border-radius:20px;border:none;box-shadow:0 20px 60px rgba(0,0,0,.12)">
+                <div class="modal-body p-4 text-center">
+                    <div class="mb-3"><i class="bi bi-exclamation-triangle" style="font-size:40px;color:#dc2626"></i></div>
+                    <h6 class="fw-bold mb-2" style="color:#0f172a;font-size:14px">Hapus Pertanyaan?</h6>
+                    <p class="text-xs mb-3" style="color:#64748b">Tindakan ini tidak dapat dibatalkan.</p>
+                    <div class="d-flex gap-2 justify-content-center">
+                        <button type="button" class="btn btn-sm px-3 rounded-xl" data-bs-dismiss="modal" style="font-size:12px;border:1px solid #e2e8f0;color:#64748b;background:#fff">Batal</button>
+                        <button type="button" id="confirmDeleteBtn" class="btn btn-sm px-3 rounded-xl text-white border-0" style="font-size:12px;background:#dc2626">
+                            <span id="deleteText">Hapus</span>
+                            <span id="deleteLoading" class="hidden"><span class="spinner-border spinner-border-sm" role="status"></span></span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 </body>
 
 </html>
