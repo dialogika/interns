@@ -288,6 +288,7 @@
         let allInterns = [];
         let allAttendanceRecords = [];
         let allQuizResults = [];
+        let allApprovedDailyReports = [];
 
         function getTodayKey() {
             const now = new Date();
@@ -488,6 +489,15 @@
                 quizScoreMap.set(res.user_id, prev + res.score);
             });
 
+            // Map user_id to total Quest points
+            const questPointsMap = new Map();
+            allApprovedDailyReports.forEach(report => {
+                if (report.tasks && Array.isArray(report.tasks)) {
+                    const currentPoints = questPointsMap.get(report.user_id) || 0;
+                    questPointsMap.set(report.user_id, currentPoints + report.tasks.length);
+                }
+            });
+
             const leaderboardRows = allInterns.map(intern => {
                 const presentDates = presentMap.get(intern.id) || new Set();
                 const flags = workDays.map(date => {
@@ -498,6 +508,7 @@
                 const earlyDates = earlyDateByCount.get(intern.id) || [];
                 const earlyTiebreakerDate = earlyDates.length > 0 ? earlyDates[earlyDates.length - 1] : '9999-99-99';
                 const totalQuizScore = quizScoreMap.get(intern.id) || 0;
+                const questPoints = questPointsMap.get(intern.id) || 0;
 
                 return {
                     ...intern,
@@ -509,11 +520,12 @@
                     countedDays: flags.filter(flag => flag !== -1).length,
                     earlyCount,
                     earlyTiebreakerDate,
-                    quizScore: totalQuizScore
+                    quizScore: totalQuizScore,
+                    questPoints: questPoints
                 };
             }).sort((a, b) => {
-                const ptA = a.earlyCount + a.bestStreak + a.quizScore;
-                const ptB = b.earlyCount + b.bestStreak + b.quizScore;
+                const ptA = a.earlyCount + a.bestStreak + a.quizScore + a.questPoints;
+                const ptB = b.earlyCount + b.bestStreak + b.quizScore + b.questPoints;
                 if (ptB !== ptA) return ptB - ptA;
                 if (a.earlyTiebreakerDate !== b.earlyTiebreakerDate)
                     return a.earlyTiebreakerDate < b.earlyTiebreakerDate ? -1 : 1;
@@ -618,7 +630,7 @@
             const medals = ['🥇', '🥈', '🥉'];
 
             const hdr = document.createElement('div');
-            hdr.style.cssText = 'display:grid;grid-template-columns:32px 36px 1fr 80px 80px 80px 80px 70px;gap:8px;align-items:center;padding:6px 4px 8px 4px;border-bottom:2px solid #f1f5f9;';
+            hdr.style.cssText = 'display:grid;grid-template-columns:32px 36px 1fr 80px 80px 80px 80px 70px 70px;gap:8px;align-items:center;padding:6px 4px 8px 4px;border-bottom:2px solid #f1f5f9;';
             hdr.innerHTML = `
                 <span></span><span></span>
                 <span style="font-size:10px;font-weight:800;color:#94a3b8;letter-spacing:.08em;text-transform:uppercase">Nama</span>
@@ -626,17 +638,18 @@
                 <span style="font-size:10px;font-weight:800;color:#f59e0b;letter-spacing:.08em;text-transform:uppercase;text-align:center">☀️ Early</span>
                 <span style="font-size:10px;font-weight:800;color:#E24B4A;letter-spacing:.08em;text-transform:uppercase;text-align:center">🔥 Streak</span>
                 <span style="font-size:10px;font-weight:800;color:#3b82f6;letter-spacing:.08em;text-transform:uppercase;text-align:center">💡 Quiz</span>
+                <span style="font-size:10px;font-weight:800;color:#10b981;letter-spacing:.08em;text-transform:uppercase;text-align:center">✅ Quest</span>
                 <span style="font-size:10px;font-weight:800;color:#94a3b8;letter-spacing:.08em;text-transform:uppercase;text-align:center">Hadir</span>
             `;
             gamiLeaderboard.appendChild(hdr);
 
             leaderboardRows.forEach((intern, index) => {
-                const totalPts = intern.earlyCount + intern.bestStreak + (intern.quizScore || 0);
+                const totalPts = intern.earlyCount + intern.bestStreak + (intern.quizScore || 0) + (intern.questPoints || 0);
                 const earlyTiebreakerLabel = intern.earlyCount > 0
                     ? `<div style="font-size:9px;color:#f59e0b;margin-top:1px" title="Capai ${intern.earlyCount}x early per ${intern.earlyTiebreakerDate}">${intern.earlyTiebreakerDate}</div>`
                     : '<div style="font-size:9px;color:#cbd5e1">-</div>';
                 const row = document.createElement('div');
-                row.style.cssText = 'display:grid;grid-template-columns:32px 36px 1fr 80px 80px 80px 80px 70px;gap:8px;align-items:center;padding:9px 4px;border-bottom:1px solid #f8fafc;';
+                row.style.cssText = 'display:grid;grid-template-columns:32px 36px 1fr 80px 80px 80px 80px 70px 70px;gap:8px;align-items:center;padding:9px 4px;border-bottom:1px solid #f8fafc;';
                 if (index % 2 === 0) row.style.background = '#fafbff';
                 row.innerHTML = `
                     <span style="font-size:${index < 3 ? '20' : '12'}px;font-weight:700;text-align:center;line-height:1">${medals[index] || index + 1}</span>
@@ -657,6 +670,10 @@
                     <div style="text-align:center">
                         <span style="font-size:13px;font-weight:700;color:#3b82f6">${intern.quizScore || 0} pts</span>
                         <div style="font-size:9px;color:#94a3b8">quiz</div>
+                    </div>
+                    <div style="text-align:center">
+                        <span style="font-size:13px;font-weight:700;color:#10b981">${intern.questPoints || 0}</span>
+                        <div style="font-size:9px;color:#94a3b8">Quest</div>
                     </div>
                     <div style="text-align:center">
                         <span style="font-size:13px;font-weight:600;color:#334155">${intern.totalPresent}</span>
@@ -692,9 +709,15 @@
                     where('completed_at', '<=', endOfM)
                 );
 
-                const [snap, quizSnap] = await Promise.all([
+                const qReports = query(
+                    collection(db, 'intern_dailyreport'),
+                    where('status', '==', 'Approved')
+                );
+
+                const [snap, quizSnap, reportSnap] = await Promise.all([
                     getDocs(qMonth),
-                    getDocs(qQuiz)
+                    getDocs(qQuiz),
+                    getDocs(qReports)
                 ]);
 
                 const rows = [];
@@ -718,8 +741,18 @@
                     });
                 });
 
+                const approvedReports = [];
+                reportSnap.forEach(docSnap => {
+                    const d = docSnap.data() || {};
+                    approvedReports.push({
+                        user_id: d.user_id || '',
+                        tasks: d.tasks || []
+                    });
+                });
+
                 allAttendanceRecords = rows;
                 allQuizResults = qResults;
+                allApprovedDailyReports = approvedReports;
                 renderGamification(monthKey);
             } catch (error) {
                 console.error('Gagal memuat gamifikasi:', error);
