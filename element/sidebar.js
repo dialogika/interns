@@ -264,41 +264,8 @@ export function renderSidebar(target) {
             <!-- WRAPPER UNTUK AREA YANG BISA DI-SCROLL -->
             <div class="sidebar-scroll-wrapper">
                 
-                <!-- Smart Filters (4 Kotak Besar) -->
-                <div class="smart-filters-grid">
-                    <a href="#" class="filter-card">
-                        <div class="filter-top"><div class="filter-icon" style="background-color: var(--dlg-blue);"><i class="bi bi-archive-fill"></i></div><div class="filter-count" id="mainQuestCount">0</div></div>
-                        <div class="filter-label">Main Quest</div>
-                    </a>
-                    <a href="#" class="filter-card">
-                        <div class="filter-top"><div class="filter-icon" style="background-color: var(--dlg-yellow);"><i class="bi bi-archive-fill"></i></div><div class="filter-count" id="sideQuestCount">0</div></div>
-                        <div class="filter-label">Side Quest</div>
-                    </a>
-                    <a href="/home.html" class="filter-card">
-                        <div class="filter-top"><div class="filter-icon" style="background-color: var(--dlg-purple);"><i class="bi bi-calendar-event-fill"></i></div><div class="filter-count" id="projectTasksTotalCount">0</div></div>
-                        <div class="filter-label">Project</div>
-                    </a>
-                    <a href="#" class="filter-card" id="reportFilterCard">
-                        <div class="filter-top"><div class="filter-icon" style="background-color: var(--dlg-green);"><i class="bi bi-calendar-event-fill"></i></div><div class="filter-count" id="reportPendingApprovalCount">0</div></div>
-                        <div class="filter-label">Report</div>
-                    </a>
-                    
-                </div>
-
                 <!-- Navigation Links -->
                 <div class="nav-category">Main Navigation</div>
-                <a href="javascript:void(0)" class="sidebar-link active" onclick="window.toggleDashboardMenu(this)">
-                    <i class="bi bi-columns-gap"></i> Dashboard 
-                    <span class="sidebar-badge">
-                        <i class="bi bi-arrow-left-square-fill" id="dashboardIcon"></i>
-                    </span>
-                </a>
-                <div class="sidebar-submenu">
-                    <a href="javascript:void(0)" class="sidebar-submenu-link">Closing</a>
-                    <a href="javascript:void(0)" class="sidebar-submenu-link">Rebuy</a>
-                    <a href="javascript:void(0)" class="sidebar-submenu-link">Happy</a>
-                    <a href="javascript:void(0)" class="sidebar-submenu-link">Branding</a>
-                </div>
                 <a href="#" class="sidebar-link"><i class="bi bi-list-columns-reverse"></i> Shortcut 
                 <a href="javascript:void(0)" class="sidebar-link" onclick="alert('Under Development')"><i class="bi bi-chat-dots"></i> Pings</a>
                 <a href="javascript:void(0)" class="sidebar-link" onclick="alert('Under Development')"><i class="bi bi-bell"></i> Hey!</a>
@@ -339,7 +306,7 @@ export function renderSidebar(target) {
 
 
             <!-- PENDING WIDGET (Pinned di Bawah, di luar scroll wrapper) -->
-            <div class="pending-widget" style="background-color: #1c83e368; color:#fff;margin-bottom: -17px;">
+            <div class="pending-widget" style="background-color: #1c83e368; color:#fff;margin-bottom: -17px; display: none;">
                 <div class="fire-icon-wrapper shadow-purple" style="border: 0.4px solid rgba(114, 4, 207, 1);"><i class="bi bi-fire fire-icon"></i></div>
                 <h6 class="fw-bold" style="color:#0B2B6A; margin-bottom: 5px;">Pending Reports</h6>
                 <p class="small text-muted mb-3">You have <span id="reportPendingApprovalCount">0</span> reports waiting.</p>

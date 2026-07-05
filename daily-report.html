@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="id">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,8 +8,175 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
     <link href="assets/css/style.css" rel="stylesheet" />
     <style>
-        .history-item{border:1px solid #e5e7eb;border-radius:16px;padding:14px 16px;margin-bottom:12px;background:#fff}
-        .task-item{border:1px solid #e5e7eb;border-radius:12px;padding:10px 12px;background:#fff}
+        .report-form-card {
+            min-height: calc(100vh - 200px);
+            display: flex;
+            flex-direction: column;
+        }
+        .report-form-card .card-body {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+        .report-form-card form {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+        .report-form-card .form-content {
+            flex: 1;
+        }
+        .history-card {
+            min-height: calc(100vh - 200px);
+            display: flex;
+            flex-direction: column;
+        }
+        .history-card .card-body {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+        .history-scroll-container {
+            flex: 1;
+            overflow-y: auto;
+            max-height: calc(100vh - 280px);
+        }
+        .history-item {
+            border: 1px solid #e5e7eb;
+            border-radius: 16px;
+            padding: 16px 18px;
+            margin-bottom: 12px;
+            background: #fff;
+            transition: all 0.2s ease;
+        }
+        .history-item:hover {
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            transform: translateY(-2px);
+        }
+        .task-item {
+            border: 1px solid #e5e7eb;
+            border-radius: 12px;
+            padding: 10px 12px;
+            background: #fff;
+        }
+        .review-modal .modal-content {
+            border-radius: 20px;
+            border: none;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.15);
+        }
+        .review-modal .modal-header {
+            border-bottom: 1px solid #f3f4f6;
+            padding: 24px 32px;
+        }
+        .review-modal .modal-body {
+            padding: 32px;
+        }
+        .review-modal .modal-footer {
+            border-top: 1px solid #f3f4f6;
+            padding: 20px 32px;
+        }
+        .review-section {
+            margin-bottom: 24px;
+        }
+        .review-label {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #64748b;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 8px;
+        }
+        .review-value {
+            font-size: 1rem;
+            color: #1e293b;
+            font-weight: 500;
+        }
+        .review-tasks-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        .review-tasks-list li {
+            padding: 10px 12px;
+            margin-bottom: 8px;
+            background: #f8fafc;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .review-tasks-list li i {
+            color: #10b981;
+            font-size: 1.1rem;
+        }
+        .toast-success {
+            position: fixed;
+            top: 30px;
+            right: 30px;
+            z-index: 9999;
+            min-width: 320px;
+            background: #fff;
+            border-radius: 14px;
+            box-shadow: 0 12px 40px rgba(0,0,0,0.15);
+            overflow: hidden;
+            transform: translateX(calc(100% + 40px));
+            transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.3s ease;
+            opacity: 0;
+        }
+        .toast-success.show {
+            transform: translateX(0);
+            opacity: 1;
+        }
+        .toast-success .toast-success-bar {
+            height: 4px;
+            background: linear-gradient(90deg, #0B2B6A, #2563eb);
+        }
+        .toast-success .toast-success-body {
+            padding: 18px 22px;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+        .toast-success .toast-success-icon {
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            background: #f0fdf4;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+        .toast-success .toast-success-icon i {
+            color: #16a34a;
+            font-size: 1.3rem;
+        }
+        .toast-success .toast-success-content {
+            flex: 1;
+        }
+        .toast-success .toast-success-title {
+            font-weight: 700;
+            color: #1e293b;
+            font-size: 0.95rem;
+            margin-bottom: 2px;
+        }
+        .toast-success .toast-success-msg {
+            color: #64748b;
+            font-size: 0.82rem;
+        }
+        .toast-success .toast-close-btn {
+            background: none;
+            border: none;
+            color: #94a3b8;
+            font-size: 1.2rem;
+            cursor: pointer;
+            padding: 4px;
+            line-height: 1;
+            transition: color 0.2s;
+        }
+        .toast-success .toast-close-btn:hover {
+            color: #475569;
+        }
     </style>
 </head>
 <body>
@@ -17,26 +184,123 @@
     <div class="dashboard-container">
         <div id="sidebarContainer"></div>
         <main class="main-content">
-            <div class="mb-4"><h4 class="fw-bold mb-0">Daily Report</h4><small class="text-muted">Kirim laporan harian internship.</small></div>
+            <div class="mb-4">
+                <h4 class="fw-bold mb-0">Daily Report</h4>
+                <small class="text-muted">Submit your daily internship report.</small>
+            </div>
             <div class="row g-4">
                 <div class="col-lg-6">
-                    <div class="card border-0 shadow-sm rounded-4"><div class="card-body p-4">
-                        <form id="dailyReportForm">
-                            <div class="mb-3"><label class="form-label">Tanggal</label><input type="date" id="reportDate" class="form-control" readonly></div>
-                            <div class="mb-3"><label class="form-label">Nama</label><input type="text" id="reportName" class="form-control" readonly></div>
-                            <div class="mb-3"><label class="form-label">Departemen & Posisi</label><input type="text" id="reportDeptPos" class="form-control" readonly></div>
-                            <div class="mb-3"><label class="form-label">Tugas</label><div id="tasksContainer" class="d-flex flex-column gap-2"></div><button type="button" class="btn btn-sm btn-outline-secondary mt-2" onclick="addTask()"><i class="bi bi-plus"></i> Tambah Tugas</button></div>
-                            <button type="submit" class="btn btn-dlg-blue w-100 rounded-pill">Kirim Laporan</button>
-                        </form>
-                    </div></div>
+                    <div class="card border-0 shadow-sm rounded-4 report-form-card">
+                        <div class="card-body p-4">
+                            <form id="dailyReportForm">
+                                <div class="form-content">
+                                    <div class="mb-3">
+                                        <label class="form-label fw-semibold">Date</label>
+                                        <input type="date" id="reportDate" class="form-control" readonly>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label fw-semibold">Name</label>
+                                        <input type="text" id="reportName" class="form-control" readonly>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label fw-semibold">Department & Position</label>
+                                        <input type="text" id="reportDeptPos" class="form-control" readonly>
+                                    </div>
+                                    <div class="mb-4">
+                                        <label class="form-label fw-semibold">Tasks</label>
+                                        <div id="tasksContainer" class="d-flex flex-column gap-2"></div>
+                                        <button type="button" class="btn btn-sm btn-outline-secondary mt-2" onclick="addTask()">
+                                            <i class="bi bi-plus"></i> Add Task
+                                        </button>
+                                    </div>
+                                </div>
+                                <button type="submit" class="btn btn-dlg-blue w-100 rounded-pill py-3 fw-semibold">
+                                    Submit Report
+                                </button>
+                            </form>
+                        </div>
+                    </div>
                 </div>
                 <div class="col-lg-6">
-                    <div class="card border-0 shadow-sm rounded-4"><div class="card-body p-4">
-                        <h6 class="fw-bold mb-3">Riwayat Laporan</h6><div id="reportHistoryBody"></div>
-                    </div></div>
+                    <div class="card border-0 shadow-sm rounded-4 history-card">
+                        <div class="card-body p-4">
+                            <h6 class="fw-bold mb-3">Report History</h6>
+                            <div id="reportHistoryBody" class="history-scroll-container"></div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </main>
+    </div>
+
+    <!-- Review Modal -->
+    <div class="modal fade review-modal" id="reviewModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title fw-bold">Review Your Report</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="review-section">
+                        <div class="review-label">Date</div>
+                        <div class="review-value" id="reviewDate">-</div>
+                    </div>
+                    <div class="review-section">
+                        <div class="review-label">Name</div>
+                        <div class="review-value" id="reviewName">-</div>
+                    </div>
+                    <div class="review-section">
+                        <div class="review-label">Department & Position</div>
+                        <div class="review-value" id="reviewDeptPos">-</div>
+                    </div>
+                    <div class="review-section">
+                        <div class="review-label">Tasks Completed</div>
+                        <ul class="review-tasks-list" id="reviewTasksList"></ul>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-light rounded-pill px-4" data-bs-dismiss="modal">Back</button>
+                    <button type="button" class="btn btn-dlg-blue rounded-pill px-4" onclick="confirmSubmitReport()">Submit Report</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Success Modal -->
+    <div class="modal fade" id="successModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 rounded-4 shadow-lg">
+                <div class="modal-body p-5 text-center">
+                    <div class="mb-4">
+                        <div class="d-inline-flex align-items-center justify-content-center bg-success bg-opacity-10 rounded-circle" style="width: 80px; height: 80px;">
+                            <i class="bi bi-check-lg text-success" style="font-size: 2.5rem;"></i>
+                        </div>
+                    </div>
+                    <h4 class="fw-bold mb-2">Great Job!</h4>
+                    <p class="text-muted mb-4">Your daily report has been submitted successfully and is now pending review.</p>
+                    <button type="button" class="btn btn-dlg-blue rounded-pill px-5 py-2" data-bs-dismiss="modal">Got it!</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Error Modal (Optional but good for UX) -->
+    <div class="modal fade" id="errorModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 rounded-4 shadow-lg">
+                <div class="modal-body p-5 text-center">
+                    <div class="mb-4">
+                        <div class="d-inline-flex align-items-center justify-content-center bg-danger bg-opacity-10 rounded-circle" style="width: 80px; height: 80px;">
+                            <i class="bi bi-exclamation-triangle text-danger" style="font-size: 2.5rem;"></i>
+                        </div>
+                    </div>
+                    <h4 class="fw-bold mb-2">Oops!</h4>
+                    <p class="text-muted mb-4" id="errorMessage">Something went wrong. Please try again.</p>
+                    <button type="button" class="btn btn-secondary rounded-pill px-5 py-2" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
     </div>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script type="module">
@@ -49,14 +313,187 @@
         const app=initializeApp(firebaseConfig),auth=getAuth(app),db=getFirestore(app);
         renderTopBar(document.getElementById('topbarContainer')); renderSidebar(document.getElementById('sidebarContainer'));
         let currentUser=null,currentUserData=null,reportUnsub=null,positionsMap={};
+        let currentTasksToSubmit = [];
+        
         async function loadPositionsMap(){try{const snap=await getDocs(collection(db,'positions'));snap.forEach(d=>{positionsMap[d.id]=d.data().name||d.data().label||d.id;});}catch(e){console.warn('Failed to load positions:',e);}}
         function resolvePositionName(posId){return positionsMap[posId]||posId;}
         function todayKey(){return new Date().toISOString().split('T')[0];}
-        window.addTask=()=>{const c=document.getElementById('tasksContainer');const d=document.createElement('div');d.className='input-group';d.innerHTML='<input type="text" class="form-control report-task" placeholder="Tambah tugas..."><button type="button" class="btn btn-outline-danger" onclick="this.parentElement.remove()"><i class="bi bi-trash"></i></button>';c.appendChild(d);};
-        async function submitDailyReport(e){e.preventDefault();const tasks=[...document.querySelectorAll('.report-task')].map(x=>x.value.trim()).filter(Boolean);if(!tasks.length)return alert('Tambahkan minimal satu tugas');await addDoc(collection(db,'intern_dailyreport'),{user_id:currentUser.uid,name:currentUserData.name,department:currentUserData.department,position:currentUserData.positionName,report_date:document.getElementById('reportDate').value,tasks,status:'Pending',submitted_at:serverTimestamp(),reviewer_id:null,reviewed_at:null,rejection_reason:null});document.getElementById('dailyReportForm').reset();initForm();}
-        function initForm(){document.getElementById('reportDate').value=todayKey();document.getElementById('tasksContainer').innerHTML='';window.addTask();document.getElementById('dailyReportForm').onsubmit=submitDailyReport;}
-        function renderHistory(){const wrap=document.getElementById('reportHistoryBody');if(reportUnsub)reportUnsub();const q=query(collection(db,'intern_dailyreport'),where('user_id','==',currentUser.uid),orderBy('submitted_at','desc'));reportUnsub=onSnapshot(q,s=>{wrap.innerHTML='';if(s.empty){wrap.innerHTML='<p class="text-muted small">Belum ada laporan</p>';return;}s.forEach(d=>{const x=d.data();wrap.insertAdjacentHTML('beforeend',`<div class="history-item"><div class="d-flex justify-content-between"><strong>${x.report_date||'-'}</strong><span class="badge ${x.status==='Approved'?'bg-success':x.status==='Rejected'?'bg-danger':'bg-warning text-dark'}">${x.status||'Pending'}</span></div>${x.status==='Rejected'&&x.rejection_reason?`<div class="text-danger small mt-2">${x.rejection_reason}</div>`:''}<div class="small text-muted mt-2">Reviewer: ${x.reviewer_name||'-'}</div></div>`);});});}
-        onAuthStateChanged(auth,async user=>{if(!user)return location.href='index.html';currentUser=user;await loadPositionsMap();const snap=await getDoc(doc(db,'users',user.uid));if(snap.exists()){const d=snap.data();const e=d.employment||{};const posName=resolvePositionName(e.position||'');currentUserData={name:d.name||user.email,department:e.department||'',position:e.position||'',positionName:posName};document.getElementById('reportName').value=currentUserData.name;document.getElementById('reportDeptPos').value=`${currentUserData.department||'-'} / ${posName||'-'}`;}initForm();renderHistory();});
+        
+        window.addTask=()=>{
+            const c=document.getElementById('tasksContainer');
+            const d=document.createElement('div');
+            d.className='input-group';
+            d.innerHTML='<input type="text" class="form-control report-task" placeholder="Enter task..."><button type="button" class="btn btn-outline-danger" onclick="this.parentElement.remove()"><i class="bi bi-trash"></i></button>';
+            c.appendChild(d);
+        };
+        
+        function showReviewModal() {
+            const tasks = [...document.querySelectorAll('.report-task')].map(x=>x.value.trim()).filter(Boolean);
+            if(!tasks.length) {
+                document.getElementById('errorMessage').textContent = 'Please add at least one task before submitting your report.';
+                const errorModal = new bootstrap.Modal(document.getElementById('errorModal'));
+                errorModal.show();
+                return false;
+            }
+            
+            // Store tasks for later submission
+            currentTasksToSubmit = tasks;
+            
+            // Populate review modal
+            document.getElementById('reviewDate').textContent = document.getElementById('reportDate').value;
+            document.getElementById('reviewName').textContent = document.getElementById('reportName').value;
+            document.getElementById('reviewDeptPos').textContent = document.getElementById('reportDeptPos').value;
+            
+            // Populate tasks list in modal
+            const tasksList = document.getElementById('reviewTasksList');
+            tasksList.innerHTML = '';
+            tasks.forEach(task => {
+                const li = document.createElement('li');
+                li.innerHTML = `<i class="bi bi-check-circle-fill"></i> <span>${task}</span>`;
+                tasksList.appendChild(li);
+            });
+            
+            // Show modal
+            const modal = new bootstrap.Modal(document.getElementById('reviewModal'));
+            modal.show();
+            return true;
+        }
+        
+        window.confirmSubmitReport = async function() {
+            try {
+                await addDoc(collection(db,'intern_dailyreport'),{
+                    user_id:currentUser.uid,
+                    name:currentUserData.name,
+                    department:currentUserData.department,
+                    position:currentUserData.positionName,
+                    report_date:document.getElementById('reportDate').value,
+                    tasks: currentTasksToSubmit,
+                    status:'Pending Review',
+                    submitted_at:serverTimestamp(),
+                    reviewer_id:null,
+                    reviewed_at:null,
+                    rejection_reason:null
+                });
+                
+                // Close Review Modal
+                const reviewModal = bootstrap.Modal.getInstance(document.getElementById('reviewModal'));
+                reviewModal.hide();
+                
+                // Show Success Modal
+                const successModal = new bootstrap.Modal(document.getElementById('successModal'));
+                successModal.show();
+                
+                // Reset form
+                initForm();
+                
+                // Refresh history
+                renderHistory();
+                
+            } catch(error) {
+                console.error('Error submitting report:', error);
+                
+                // Show Error Modal
+                document.getElementById('errorMessage').textContent = 'Failed to submit report. Please try again.';
+                const errorModal = new bootstrap.Modal(document.getElementById('errorModal'));
+                errorModal.show();
+            }
+        }
+        
+        function initForm(){
+            document.getElementById('reportDate').value=todayKey();
+            document.getElementById('tasksContainer').innerHTML='';
+            window.addTask();
+            
+            // Attach form submit handler directly
+            const form = document.getElementById('dailyReportForm');
+            form.onsubmit = (e) => {
+                e.preventDefault();
+                showReviewModal();
+            };
+        }
+        
+        // Ensure modal button works by checking when modal is opened
+        const reviewModalEl = document.getElementById('reviewModal');
+        reviewModalEl.addEventListener('shown.bs.modal', function () {
+            // Modal is ready
+        });
+        
+        async function renderHistory(){
+            const wrap=document.getElementById('reportHistoryBody');
+            if(reportUnsub)reportUnsub();
+            try{
+                const q=query(collection(db,'intern_dailyreport'),where('user_id','==',currentUser.uid));
+                const snapshot=await getDocs(q);
+                console.log('Report snapshot received, count:', snapshot.size);
+                wrap.innerHTML='';
+                if(snapshot.empty){
+                    wrap.innerHTML='<p class="text-muted small text-center py-4">No reports yet</p>';
+                    return;
+                }
+                const reports=[];
+                snapshot.forEach(d=>{
+                    const x=d.data();
+                    reports.push({id:d.id,submitted_at:x.submitted_at?.toDate()||new Date(0),data:x});
+                });
+                reports.sort((a,b)=>b.submitted_at-a.submitted_at);
+                reports.forEach(item=>{
+                    const x=item.data;
+                    console.log('Report data:', x);
+                    let statusBadgeClass='';
+                    let statusText='';
+                    if(x.status==='Approved'){
+                        statusBadgeClass='bg-primary';
+                        statusText='Approved';
+                    } else if(x.status==='Rejected'){
+                        statusBadgeClass='bg-danger';
+                        statusText='Rejected';
+                    } else {
+                        statusBadgeClass='bg-warning text-dark';
+                        statusText='Pending Review';
+                    }
+                    const tasksHtml=x.tasks&&x.tasks.length>0?`<ul class="list-unstyled mt-2 mb-0">${x.tasks.map(task=>`<li><i class="bi bi-check-circle-fill me-1 text-success"></i>${task}</li>`).join('')}</ul>`:'';
+                    wrap.insertAdjacentHTML('beforeend',`
+                        <div class="history-item">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <strong>${x.report_date||'-'}</strong>
+                                <span class="badge ${statusBadgeClass}">${statusText}</span>
+                            </div>
+                            ${tasksHtml}
+                            ${x.status==='Rejected'&&x.rejection_reason?`<div class="alert alert-danger small mt-2 mb-1 py-2"><strong>Reason:</strong> ${x.rejection_reason}</div>`:''}
+                            <div class="small text-muted mt-2">
+                                <i class="bi bi-person-circle me-1"></i> Reviewer: ${x.reviewer_name||'Not yet reviewed'}
+                            </div>
+                        </div>
+                    `);
+                });
+            } catch(err){
+                console.error('Error fetching reports:',err);
+                wrap.innerHTML=`<p class="text-danger small text-center py-4">Error loading reports</p>`;
+            }
+        }
+        
+        onAuthStateChanged(auth,async user=>{
+            if(!user)return location.href='index.html';
+            currentUser=user;
+            await loadPositionsMap();
+            const snap=await getDoc(doc(db,'users',user.uid));
+            if(snap.exists()){
+                const d=snap.data();
+                const e=d.employment||{};
+                const posName=resolvePositionName(e.position||'');
+                currentUserData={
+                    name:d.name||user.email,
+                    department:e.department||'',
+                    position:e.position||'',
+                    positionName:posName
+                };
+                document.getElementById('reportName').value=currentUserData.name;
+                document.getElementById('reportDeptPos').value=`${currentUserData.department||'-'} / ${posName||'-'}`;
+            }
+            initForm();
+            renderHistory();
+        });
+        
         window.logout=async()=>{await signOut(auth);localStorage.removeItem('userData');location.href='index.html';};
     </script>
 </body>
