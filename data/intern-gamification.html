@@ -186,12 +186,12 @@
 
                         <div class="p-6">
                             <div class="gami-tabs">
-                                <button class="gami-tab active" data-tab="progress">Progress Bulanan</button>
-                                <button class="gami-tab" data-tab="leaderboard">Leaderboard</button>
+                                <button class="gami-tab" data-tab="progress">Progress Bulanan</button>
+                                <button class="gami-tab active" data-tab="leaderboard">Leaderboard</button>
                                 <button class="gami-tab" data-tab="legend">Panduan Achievement</button>
                             </div>
 
-                            <div id="gamiTabProgress">
+                            <div id="gamiTabProgress" class="hidden">
                                 <div class="flex flex-wrap gap-3 mb-5 text-xs text-slate-500">
                                     <span class="flex items-center gap-1.5"><span
                                             class="inline-block w-3 h-3 rounded-full bg-[#185FA5]"></span>Progress
@@ -205,7 +205,7 @@
                                     bulan ini.</p>
                             </div>
 
-                            <div id="gamiTabLeaderboard" class="hidden">
+                            <div id="gamiTabLeaderboard">
                                 <div class="bg-white border border-slate-100 rounded-2xl p-5">
                                     <p class="text-[11px] font-extrabold uppercase tracking-widest text-slate-400 mb-3">
                                         Peringkat Bulan Ini</p>
@@ -744,10 +744,14 @@
                 const approvedReports = [];
                 reportSnap.forEach(docSnap => {
                     const d = docSnap.data() || {};
-                    approvedReports.push({
-                        user_id: d.user_id || '',
-                        tasks: d.tasks || []
-                    });
+                    // Filter client-side berdasarkan report_date agar sesuai bulan aktif
+                    const rDate = d.report_date; // Format string YYYY-MM-DD
+                    if (rDate && rDate >= range.startKey && rDate <= range.endKey) {
+                        approvedReports.push({
+                            user_id: d.user_id || '',
+                            tasks: d.tasks || []
+                        });
+                    }
                 });
 
                 allAttendanceRecords = rows;
