@@ -322,13 +322,35 @@
         window.addTask=()=>{
             const c=document.getElementById('tasksContainer');
             const d=document.createElement('div');
-            d.className='input-group';
-            d.innerHTML='<input type="text" class="form-control report-task" placeholder="Enter task..."><button type="button" class="btn btn-outline-danger" onclick="this.parentElement.remove()"><i class="bi bi-trash"></i></button>';
+            d.className='task-item mb-2 position-relative';
+            d.innerHTML=`
+                <button type="button" class="btn btn-sm btn-link text-danger position-absolute top-0 end-0 mt-1 me-1 text-decoration-none shadow-none" onclick="this.parentElement.remove()"><i class="bi bi-trash"></i></button>
+                <div class="mb-2 pe-4">
+                    <label class="form-label small fw-semibold text-muted mb-1">Task</label>
+                    <input type="text" class="form-control report-task form-control-sm" placeholder="e.g. Completed homepage design">
+                </div>
+                <div>
+                    <label class="form-label small fw-semibold text-muted mb-1">Note / Details</label>
+                    <textarea class="form-control report-note form-control-sm" rows="2" placeholder="Explain what you did..."></textarea>
+                </div>
+            `;
             c.appendChild(d);
         };
         
         function showReviewModal() {
-            const tasks = [...document.querySelectorAll('.report-task')].map(x=>x.value.trim()).filter(Boolean);
+            const taskElements = [...document.querySelectorAll('.task-item')];
+            const tasks = [];
+            taskElements.forEach(el => {
+                const taskInput = el.querySelector('.report-task');
+                const noteInput = el.querySelector('.report-note');
+                if (taskInput && taskInput.value.trim()) {
+                    tasks.push({
+                        task: taskInput.value.trim(),
+                        note: noteInput ? noteInput.value.trim() : ''
+                    });
+                }
+            });
+            
             if(!tasks.length) {
                 document.getElementById('errorMessage').textContent = 'Please add at least one task before submitting your report.';
                 const errorModal = new bootstrap.Modal(document.getElementById('errorModal'));
@@ -347,9 +369,15 @@
             // Populate tasks list in modal
             const tasksList = document.getElementById('reviewTasksList');
             tasksList.innerHTML = '';
-            tasks.forEach(task => {
+            tasks.forEach(item => {
                 const li = document.createElement('li');
-                li.innerHTML = `<i class="bi bi-check-circle-fill"></i> <span>${task}</span>`;
+                li.className = 'flex-column align-items-start';
+                li.innerHTML = `
+                    <div class="d-flex align-items-center mb-1">
+                        <i class="bi bi-check-circle-fill me-2"></i> <strong>${item.task}</strong>
+                    </div>
+                    ${item.note ? `<div class="small text-muted ms-4">${item.note}</div>` : ''}
+                `;
                 tasksList.appendChild(li);
             });
             
@@ -451,7 +479,27 @@
                         statusBadgeClass='bg-warning text-dark';
                         statusText='Pending Review';
                     }
-                    const tasksHtml=x.tasks&&x.tasks.length>0?`<ul class="list-unstyled mt-2 mb-0">${x.tasks.map(task=>`<li><i class="bi bi-check-circle-fill me-1 text-success"></i>${task}</li>`).join('')}</ul>`:'';
+                    let tasksHtml = '';
+                    if (x.tasks && x.tasks.length > 0) {
+                        const items = x.tasks.map(t => {
+                            if (typeof t === 'object' && t !== null) {
+                                return `
+                                    <li class="mb-2">
+                                        <div class="d-flex align-items-start">
+                                            <i class="bi bi-check-circle-fill me-2 text-success mt-1"></i>
+                                            <div>
+                                                <strong>${t.task}</strong>
+                                                ${t.note ? `<div class="small text-muted mt-1">${t.note}</div>` : ''}
+                                            </div>
+                                        </div>
+                                    </li>
+                                `;
+                            } else {
+                                return `<li><i class="bi bi-check-circle-fill me-1 text-success"></i>${t}</li>`;
+                            }
+                        }).join('');
+                        tasksHtml = `<ul class="list-unstyled mt-2 mb-0">${items}</ul>`;
+                    }
                     wrap.insertAdjacentHTML('beforeend',`
                         <div class="history-item">
                             <div class="d-flex justify-content-between align-items-center mb-2">
