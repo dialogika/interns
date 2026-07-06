@@ -493,8 +493,9 @@
             const questPointsMap = new Map();
             allApprovedDailyReports.forEach(report => {
                 if (report.tasks && Array.isArray(report.tasks)) {
+                    const approvedTasks = report.tasks.filter(t => t.status === 'Approved').length;
                     const currentPoints = questPointsMap.get(report.user_id) || 0;
-                    questPointsMap.set(report.user_id, currentPoints + report.tasks.length);
+                    questPointsMap.set(report.user_id, currentPoints + approvedTasks);
                 }
             });
 
@@ -711,7 +712,7 @@
 
                 const qReports = query(
                     collection(db, 'intern_dailyreport'),
-                    where('status', '==', 'Approved')
+                    where('status', 'in', ['Approved', 'Partially Approved', 'Rejected'])
                 );
 
                 const [snap, quizSnap, reportSnap] = await Promise.all([

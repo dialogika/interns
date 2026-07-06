@@ -9,37 +9,62 @@
     <link href="assets/css/style.css" rel="stylesheet" />
     <style>
         .report-form-card {
-            min-height: calc(100vh - 200px);
+            height: calc(100vh - 220px);
             display: flex;
             flex-direction: column;
+            overflow: hidden;
         }
         .report-form-card .card-body {
             flex: 1;
             display: flex;
             flex-direction: column;
+            min-height: 0;
         }
         .report-form-card form {
             flex: 1;
             display: flex;
             flex-direction: column;
+            min-height: 0;
         }
         .report-form-card .form-content {
             flex: 1;
-        }
-        .history-card {
-            min-height: calc(100vh - 200px);
             display: flex;
             flex-direction: column;
+            min-height: 0;
+        }
+        .report-form-card .form-header {
+            flex-shrink: 0;
+            margin-bottom: 1rem;
+        }
+        .report-form-card .tasks-scroll-wrapper {
+            flex: 1;
+            min-height: 0;
+            overflow-y: auto;
+            margin-bottom: 1rem;
+        }
+        .report-form-card .form-submit {
+            flex-shrink: 0;
+        }
+        .history-card {
+            height: calc(100vh - 220px);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
         }
         .history-card .card-body {
             flex: 1;
             display: flex;
             flex-direction: column;
+            min-height: 0;
+        }
+        .history-card .history-header {
+            flex-shrink: 0;
+            margin-bottom: 1rem;
         }
         .history-scroll-container {
             flex: 1;
             overflow-y: auto;
-            max-height: calc(100vh - 280px);
+            min-height: 0;
         }
         .history-item {
             border: 1px solid #e5e7eb;
@@ -194,29 +219,33 @@
                         <div class="card-body p-4">
                             <form id="dailyReportForm">
                                 <div class="form-content">
-                                    <div class="mb-3">
+                                    <div class="form-header">
+                                        <div class="mb-3">
                                         <label class="form-label fw-semibold">Date</label>
-                                        <input type="date" id="reportDate" class="form-control" readonly>
-                                    </div>
-                                    <div class="mb-3">
-                                        <label class="form-label fw-semibold">Name</label>
-                                        <input type="text" id="reportName" class="form-control" readonly>
-                                    </div>
-                                    <div class="mb-3">
-                                        <label class="form-label fw-semibold">Department & Position</label>
-                                        <input type="text" id="reportDeptPos" class="form-control" readonly>
-                                    </div>
-                                    <div class="mb-4">
+                                        <input type="text" id="reportDate" class="form-control" readonly>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label class="form-label fw-semibold">Name</label>
+                                            <input type="text" id="reportName" class="form-control" readonly>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label class="form-label fw-semibold">Department & Position</label>
+                                            <input type="text" id="reportDeptPos" class="form-control" readonly>
+                                        </div>
                                         <label class="form-label fw-semibold">Tasks</label>
+                                    </div>
+                                    <div class="tasks-scroll-wrapper">
                                         <div id="tasksContainer" class="d-flex flex-column gap-2"></div>
                                         <button type="button" class="btn btn-sm btn-outline-secondary mt-2" onclick="addTask()">
                                             <i class="bi bi-plus"></i> Add Task
                                         </button>
                                     </div>
                                 </div>
-                                <button type="submit" class="btn btn-dlg-blue w-100 rounded-pill py-3 fw-semibold">
-                                    Submit Report
-                                </button>
+                                <div class="form-submit">
+                                    <button type="submit" class="btn btn-dlg-blue w-100 rounded-pill py-3 fw-semibold">
+                                        Submit Report
+                                    </button>
+                                </div>
                             </form>
                         </div>
                     </div>
@@ -224,7 +253,9 @@
                 <div class="col-lg-6">
                     <div class="card border-0 shadow-sm rounded-4 history-card">
                         <div class="card-body p-4">
-                            <h6 class="fw-bold mb-3">Report History</h6>
+                            <div class="history-header">
+                                <h6 class="fw-bold mb-0">Report History</h6>
+                            </div>
                             <div id="reportHistoryBody" class="history-scroll-container"></div>
                         </div>
                     </div>
@@ -318,6 +349,13 @@
         async function loadPositionsMap(){try{const snap=await getDocs(collection(db,'positions'));snap.forEach(d=>{positionsMap[d.id]=d.data().name||d.data().label||d.id;});}catch(e){console.warn('Failed to load positions:',e);}}
         function resolvePositionName(posId){return positionsMap[posId]||posId;}
         function todayKey(){return new Date().toISOString().split('T')[0];}
+        function formatDateDisplay(dateStr){
+            if(!dateStr||dateStr==='-')return '-';
+            const d=new Date(dateStr+'T00:00:00');
+            const days=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+            const months=['January','February','March','April','May','June','July','August','September','October','November','December'];
+            return days[d.getDay()]+', '+String(d.getDate()).padStart(2,'0')+' '+months[d.getMonth()]+' '+d.getFullYear();
+        }
         
         window.addTask=()=>{
             const c=document.getElementById('tasksContainer');
@@ -362,7 +400,7 @@
             currentTasksToSubmit = tasks;
             
             // Populate review modal
-            document.getElementById('reviewDate').textContent = document.getElementById('reportDate').value;
+            document.getElementById('reviewDate').textContent = formatDateDisplay(document.getElementById('reportDate').value);
             document.getElementById('reviewName').textContent = document.getElementById('reportName').value;
             document.getElementById('reviewDeptPos').textContent = document.getElementById('reportDeptPos').value;
             
@@ -394,7 +432,7 @@
                     name:currentUserData.name,
                     department:currentUserData.department,
                     position:currentUserData.positionName,
-                    report_date:document.getElementById('reportDate').value,
+                    report_date:todayKey(),
                     tasks: currentTasksToSubmit,
                     status:'Pending Review',
                     submitted_at:serverTimestamp(),
@@ -428,7 +466,7 @@
         }
         
         function initForm(){
-            document.getElementById('reportDate').value=todayKey();
+            document.getElementById('reportDate').value=formatDateDisplay(todayKey());
             document.getElementById('tasksContainer').innerHTML='';
             window.addTask();
             
@@ -467,26 +505,62 @@
                 reports.forEach(item=>{
                     const x=item.data;
                     console.log('Report data:', x);
-                    let statusBadgeClass='';
-                    let statusText='';
-                    if(x.status==='Approved'){
-                        statusBadgeClass='bg-primary';
-                        statusText='Approved';
-                    } else if(x.status==='Rejected'){
-                        statusBadgeClass='bg-danger';
-                        statusText='Rejected';
+                    
+                    let statusBadgeClass = '';
+                    let statusText = '';
+
+                    if (x.tasks && x.tasks.length > 0) {
+                        // Check if tasks have status property at all
+                        const hasStatus = x.tasks.some(t => t.status !== undefined);
+                        
+                        if (!hasStatus) {
+                            // No status at all means no review has been done
+                            statusBadgeClass = 'bg-warning text-dark';
+                            statusText = 'Pending Review';
+                        } else {
+                            const approved = x.tasks.filter(t => t.status === 'Approved').length;
+                            const rejected = x.tasks.filter(t => t.status === 'Rejected').length;
+                            const pending = x.tasks.filter(t => t.status === 'Pending').length;
+
+                            if (approved === x.tasks.length) {
+                                statusBadgeClass = 'bg-primary';
+                                statusText = 'Approved';
+                            } else if (rejected === x.tasks.length) {
+                                statusBadgeClass = 'bg-danger';
+                                statusText = 'Rejected';
+                            } else if (pending === x.tasks.length && rejected === 0) {
+                                statusBadgeClass = 'bg-warning text-dark';
+                                statusText = 'Pending Review';
+                            } else {
+                                statusBadgeClass = 'bg-info text-dark';
+                                statusText = 'After Review';
+                            }
+                        }
                     } else {
-                        statusBadgeClass='bg-warning text-dark';
-                        statusText='Pending Review';
+                        statusBadgeClass = 'bg-warning text-dark';
+                        statusText = 'Pending Review';
                     }
+
                     let tasksHtml = '';
                     if (x.tasks && x.tasks.length > 0) {
                         const items = x.tasks.map(t => {
                             if (typeof t === 'object' && t !== null) {
+                                let iconHtml = '';
+                                switch (t.status) {
+                                    case 'Approved':
+                                        iconHtml = '<i class="bi bi-check-circle-fill me-2 text-success mt-1"></i>';
+                                        break;
+                                    case 'Rejected':
+                                        iconHtml = '<i class="bi bi-x-circle-fill me-2 text-danger mt-1"></i>';
+                                        break;
+                                    default: // Pending
+                                        iconHtml = '<i class="bi bi-clock-history me-2 text-muted mt-1"></i>';
+                                        break;
+                                }
                                 return `
                                     <li class="mb-2">
                                         <div class="d-flex align-items-start">
-                                            <i class="bi bi-check-circle-fill me-2 text-success mt-1"></i>
+                                            ${iconHtml}
                                             <div>
                                                 <strong>${t.task}</strong>
                                                 ${t.note ? `<div class="small text-muted mt-1">${t.note}</div>` : ''}
@@ -495,6 +569,7 @@
                                     </li>
                                 `;
                             } else {
+                                // Fallback for old data structure without status
                                 return `<li><i class="bi bi-check-circle-fill me-1 text-success"></i>${t}</li>`;
                             }
                         }).join('');
@@ -503,7 +578,7 @@
                     wrap.insertAdjacentHTML('beforeend',`
                         <div class="history-item">
                             <div class="d-flex justify-content-between align-items-center mb-2">
-                                <strong>${x.report_date||'-'}</strong>
+                                <strong>${formatDateDisplay(x.report_date)||'-'}</strong>
                                 <span class="badge ${statusBadgeClass}">${statusText}</span>
                             </div>
                             ${tasksHtml}
