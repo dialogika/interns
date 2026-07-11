@@ -101,6 +101,22 @@
             opacity: 1;
             pointer-events: auto;
         }
+
+        .piket-notice-card {
+            border-radius: 22px;
+            background: linear-gradient(135deg, #eff6ff 0%, #ffffff 100%);
+            border: 1px solid #bfdbfe;
+            box-shadow: 0 12px 34px rgba(37, 99, 235, 0.08);
+        }
+        .piket-notice-card .badge-piket {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 12px;
+            border-radius: 999px;
+            font-size: 12px;
+            font-weight: 700;
+        }
     </style>
 </head>
 <body>
@@ -116,8 +132,10 @@
             
             <div class="mb-4">
                 <h4 id="welcomeMessage" class="fw-bold mb-0">Welcome!</h4>
-                <small class="text-muted">Here is your daily update.</small>    
+                <small class="text-muted">Here is your daily update.</small>
             </div>
+
+            <div id="piketNoticeHome" class="d-none"></div>
 
             <div class="d-flex justify-content-between align-items-center mb-2">
                 <h6 class="fw-bold text-muted text-uppercase small">Who is Online</h6>
@@ -385,6 +403,7 @@
                 listenToTasks();
                 startPresenceTracking();
                 listenToOnlineUsers();
+                listenToPiketSchedules();
             } else {
                 window.location.href = "index.html";
             }
@@ -949,6 +968,87 @@
                 saveBtn.innerText = "Save changes";
             }
         };
+
+        // --- PIKET NOTIFICATION ---
+        let piketScheduleUnsub = null;
+        function listenToPiketSchedules() {
+            if (piketScheduleUnsub) piketScheduleUnsub();
+            try {
+                piketScheduleUnsub = onSnapshot(query(collection(db, "duty_schedules"), orderBy("start_date", "desc")), (snapshot) => {
+                    const schedules = [];
+                    snapshot.forEach(docSnap => schedules.push({ id: docSnap.id, ...docSnap.data() }));
+                    renderPiketNotice(schedules);
+                });
+            } catch (e) {
+                console.error("Failed to listen piket schedules", e);
+            }
+        }
+
+        function renderPiketNotice(schedules) {
+            const container = document.getElementById('piketNoticeHome');
+            if (!container || !currentUser) return;
+
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+
+            const myDutiesToday = [];
+
+            schedules.forEach(schedule => {
+                if (schedule.status === 'archived' || schedule.status === 'cancelled') return;
+                const assignments = Array.isArray(schedule.assignments) ? schedule.assignments : [];
+                assignments.forEach(item => {
+                    if (item.user_id !== currentUser.uid) return;
+                    const dateVal = item.assignment_date || schedule.start_date;
+                    let d;
+                    if (dateVal && dateVal.toDate) d = dateVal.toDate();
+                    else d = new Date(dateVal);
+                    if (isNaN(d.getTime())) return;
+                    d.setHours(0, 0, 0, 0);
+                    if (d.getTime() === today.getTime()) {
+                        myDutiesToday.push({ schedule, item });
+                    }
+                });
+            });
+
+            if (myDutiesToday.length > 0) {
+                const badges = myDutiesToday.map(({ schedule, item }) => {
+                    const color = schedule.type_color || '#0B2B6A';
+                    const typeName = schedule.type_name || 'Piket';
+                    return `<span class="badge-piket" style="background:${hexToRgba(color, 0.15)}; color:${escapeHtml(color)}"><i class="bi bi-person-check-fill me-1"></i>${escapeHtml(typeName)}</span>`;
+                }).join('');
+
+                container.innerHTML = `
+                    <div class="piket-notice-card p-3 p-lg-4 mb-4">
+                        <div class="d-flex flex-column flex-lg-row align-items-lg-center justify-content-between gap-3">
+                            <div>
+                                <h6 class="fw-bold mb-1"><i class="bi bi-bell-fill text-primary me-2"></i>Anda memiliki jadwal piket hari ini!</h6>
+                                <p class="text-muted mb-0 small">Buka halaman Piket Branding untuk melihat detail tugas Anda.</p>
+                            </div>
+                            <div class="d-flex flex-wrap gap-2">
+                                ${badges}
+                                <a href="data/piket-branding.html" class="btn btn-primary btn-sm rounded-pill px-3">Lihat Detail</a>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                container.classList.remove('d-none');
+            } else {
+                container.classList.add('d-none');
+            }
+        }
+
+        function hexToRgba(hex, alpha) {
+            const h = String(hex || '#0B2B6A').replace('#', '');
+            const bigint = parseInt(h.length === 3 ? h.split('').map(c => c + c).join('') : h, 16);
+            const r = (bigint >> 16) & 255;
+            const g = (bigint >> 8) & 255;
+            const b = bigint & 255;
+            return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+        }
+
+        function escapeHtml(value) {
+            return String(value ?? '').replace(/[&<>'"]/g, ch => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[ch]));
+        }
 
         // --- 6. LOGOUT ---
         window.logout = async () => {

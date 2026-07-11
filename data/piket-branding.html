@@ -159,14 +159,32 @@
             color: #64748b;
         }
 
-        .today-strip {
+            .today-strip {
             border-radius: 22px;
             background: #ffffff;
             border: 1px solid #dbeafe;
             box-shadow: 0 12px 34px rgba(37, 99, 235, 0.06);
         }
 
+        .user-duty-notice {
+            border-radius: 22px;
+            background: linear-gradient(135deg, #eff6ff 0%, #ffffff 100%);
+            border: 1px solid #bfdbfe;
+            box-shadow: 0 12px 34px rgba(37, 99, 235, 0.08);
+        }
+
+        .user-duty-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 12px;
+            border-radius: 999px;
+            font-size: 12px;
+            font-weight: 700;
+        }
+
         .today-duty-card {
+
             border: 1px solid #e2e8f0;
             border-radius: 14px;
             background: #f8fafc;
@@ -182,6 +200,10 @@
         .today-duty-card:hover {
             transform: translateY(-2px);
             box-shadow: 0 10px 24px rgba(15, 23, 42, 0.08);
+        }
+
+        .today-duty-card.border-2 {
+            box-shadow: 0 4px 16px rgba(37, 99, 235, 0.15);
         }
 
         .today-grid {
@@ -293,6 +315,8 @@
                 </div>
             </section>
 
+            <section class="user-duty-notice p-3 p-lg-4 mb-3 d-none" id="userDutyNotice"></section>
+
             <section class="today-strip p-2 p-lg-3 mb-3" id="todaySection">
                 <div class="d-flex flex-column flex-lg-row justify-content-between gap-1 align-items-lg-center mb-2">
                     <div>
@@ -375,6 +399,7 @@
 
         let dutyTypes = [];
         let schedules = [];
+        let currentUser = null;
         let typeUnsubscribe = null;
         let scheduleUnsubscribe = null;
 
@@ -384,7 +409,8 @@
             typeFilter: document.getElementById('typeFilter'),
             periodFilter: document.getElementById('periodFilter'),
             statusFilter: document.getElementById('statusFilter'),
-            searchInput: document.getElementById('searchInput')
+            searchInput: document.getElementById('searchInput'),
+            userDutyNotice: document.getElementById('userDutyNotice')
         };
 
         document.getElementById('todayLabel').textContent = formatFullDate(new Date());
@@ -395,6 +421,7 @@
                 return;
             }
 
+            currentUser = user;
             startListeners();
         });
 
@@ -442,6 +469,7 @@
             const filtered = getFilteredSchedules();
             updateStats(filtered);
             renderTodayList();
+            renderUserNotice();
 
             if (!filtered.length) {
                 els.scheduleList.innerHTML = `
@@ -481,15 +509,17 @@
                 const type = getType(schedule.type_id);
                 const color = type?.color || schedule.type_color || '#0B2B6A';
                 const tasks = Array.isArray(item.tasks) ? item.tasks : [];
+                const isMe = currentUser && item.user_id === currentUser.uid;
 
                 return `
-                    <div class="today-duty-card">
+                    <div class="today-duty-card${isMe ? ' border-primary border-2' : ''}"${isMe ? ' style="background:#f0f7ff;"' : ''}>
                         <div>
                             <div class="d-flex align-items-start gap-2 mb-2">
                                 <div class="d-flex align-items-start gap-2 min-w-0 flex-grow-1">
                                     <img class="member-avatar today-avatar" src="${escapeAttr(item.photo || `https://i.pravatar.cc/120?u=${item.user_id || item.name || 'member'}`)}" alt="">
                                     <div class="today-member-name">${escapeHtml(item.name || 'Tanpa Nama')}</div>
                                 </div>
+                                ${isMe ? '<span class="badge bg-primary rounded-pill" style="font-size:9px;">Anda</span>' : ''}
                             </div>
                             <span class="type-pill today-type-pill mb-2" style="background:${hexToRgba(color, 0.12)}; color:${escapeAttr(color)}">${escapeHtml(schedule.type_name || type?.name || 'Jenis Piket')}</span>
                             <div class="fw-semibold today-task-clamp" style="font-size: 12px; line-height: 1.35;">${escapeHtml(schedule.title || 'Tanpa Judul')}</div>
@@ -499,6 +529,55 @@
                         </div>
                 `;
             }).join('');
+        }
+
+        function renderUserNotice() {
+            if (!currentUser) return;
+
+            const today = startOfDay(new Date());
+            const userAssignmentsToday = [];
+
+            schedules.forEach(schedule => {
+                if (schedule.status === 'archived' || schedule.status === 'cancelled') return;
+                const assignments = Array.isArray(schedule.assignments) ? schedule.assignments : [];
+                assignments.forEach(item => {
+                    if (item.user_id !== currentUser.uid) return;
+
+                    const assignmentDate = startOfDay(toDate(item.assignment_date || schedule.start_date));
+                    if (assignmentDate.getTime() === today.getTime()) {
+                        userAssignmentsToday.push({ schedule, item });
+                    }
+                });
+            });
+
+            if (userAssignmentsToday.length > 0) {
+                const noticeEl = els.userDutyNotice;
+                const dutyInfo = userAssignmentsToday.map(({ schedule, item }) => {
+                    const type = getType(schedule.type_id);
+                    const color = type?.color || schedule.type_color || '#0B2B6A';
+                    return `
+                        <div class="user-duty-badge" style="background:${hexToRgba(color, 0.15)}; color:${escapeAttr(color)}">
+                            <i class="bi bi-person-check-fill"></i>
+                            <span>${escapeHtml(schedule.type_name || type?.name || 'Piket')}</span>
+                        </div>
+                    `;
+                }).join('');
+
+                noticeEl.innerHTML = `
+                    <div class="d-flex flex-column flex-lg-row align-items-lg-center justify-content-between gap-3">
+                        <div class="flex-grow-1">
+                            <h5 class="fw-bold mb-1">Anda memiliki jadwal piket hari ini!</h5>
+                            <p class="text-muted mb-0">Anda ditugaskan untuk piket berikut. Pastikan untuk memeriksa detail dan menyelesaikan tugas Anda.</p>
+                        </div>
+                        <div class="d-flex flex-wrap gap-2 align-self-start align-self-lg-center">
+                            ${dutyInfo}
+                        </div>
+                    </div>
+                `;
+                noticeEl.classList.remove('d-none');
+            } else {
+                els.userDutyNotice.classList.add('d-none');
+            }
         }
 
         function getFilteredSchedules() {
@@ -573,14 +652,19 @@
 
         function renderAssignmentItem(item, color) {
             const tasks = Array.isArray(item.tasks) ? item.tasks : [];
+            const isMe = currentUser && item.user_id === currentUser.uid;
+            
             return `
-                <div class="assignment-member-item">
-                    <div class="d-flex align-items-center gap-2">
-                        <img class="member-avatar" src="${escapeAttr(item.photo || `https://i.pravatar.cc/120?u=${item.user_id || item.name || 'member'}`)}" alt="">
-                        <div>
-                            <div class="fw-semibold assignment-member-name">${escapeHtml(item.name || 'Tanpa Nama')}</div>
-                            ${item.role_label ? `<div class="text-muted assignment-role-label">${escapeHtml(item.role_label)}</div>` : ''}
+                <div class="assignment-member-item${isMe ? ' border-primary' : ''}"${isMe ? ' style="border:1px solid #0d6efd; background:#f0f7ff; border-radius:14px; padding:10px;"' : ''}>
+                    <div class="d-flex align-items-center justify-content-between gap-2">
+                        <div class="d-flex align-items-center gap-2">
+                            <img class="member-avatar" src="${escapeAttr(item.photo || `https://i.pravatar.cc/120?u=${item.user_id || item.name || 'member'}`)}" alt="">
+                            <div>
+                                <div class="fw-semibold assignment-member-name">${escapeHtml(item.name || 'Tanpa Nama')}</div>
+                                ${item.role_label ? `<div class="text-muted assignment-role-label">${escapeHtml(item.role_label)}</div>` : ''}
+                            </div>
                         </div>
+                        ${isMe ? '<span class="badge bg-primary rounded-pill" style="font-size:9px;">Anda</span>' : ''}
                     </div>
                     ${tasks.length ? tasks.map(task => `
                         <div class="task-bullet" style="border-color:${escapeAttr(color)}">
