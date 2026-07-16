@@ -277,7 +277,7 @@ export function renderSidebar(target) {
                         <div class="filter-top"><div class="filter-icon" style="background-color: var(--dlg-yellow);"><i class="bi bi-archive-fill"></i></div><div class="filter-count" id="sideQuestCount">0</div></div>
                         <div class="filter-label">Side Quest</div>
                     </a>
-                    <a href="/home.html" class="filter-card">
+                    <a href="/project/project.html" class="filter-card">
                         <div class="filter-top"><div class="filter-icon" style="background-color: var(--dlg-purple);"><i class="bi bi-calendar-event-fill"></i></div><div class="filter-count" id="projectTasksTotalCount">0</div></div>
                         <div class="filter-label">Project</div>
                     </a>
@@ -290,7 +290,7 @@ export function renderSidebar(target) {
 
                 <!-- Navigation Links -->
                 <div class="nav-category">Main Navigation</div>
-                <a href="javascript:void(0)" class="sidebar-link active" onclick="window.toggleDashboardMenu(this)">
+                <a href="home.html" class="sidebar-link active" onclick="window.toggleDashboardMenu(this)">
                     <i class="bi bi-columns-gap"></i> Dashboard 
                     <span class="sidebar-badge">
                         <i class="bi bi-arrow-left-square-fill" id="dashboardIcon"></i>
