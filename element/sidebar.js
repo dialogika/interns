@@ -1,80 +1,83 @@
 export function renderSidebar(target) {
-    if (!target) return;
+  if (!target) return;
 
-    // --- INITIALIZE GLOBAL DATA ---
-    if (typeof window !== 'undefined') {
-        if (!window.questTasksById) window.questTasksById = {};
-        if (!window.questUsersById) window.questUsersById = {};
+  // --- INITIALIZE GLOBAL DATA ---
+  if (typeof window !== "undefined") {
+    if (!window.questTasksById) window.questTasksById = {};
+    if (!window.questUsersById) window.questUsersById = {};
 
-        var USERS_CACHE_KEY = 'questUsersCache_v1';
-        var USERS_CACHE_TTL_MS = 10 * 60 * 1000;
+    var USERS_CACHE_KEY = "questUsersCache_v1";
+    var USERS_CACHE_TTL_MS = 10 * 60 * 1000;
 
-        function readUsersCache() {
-            try {
-                var raw = window.sessionStorage.getItem(USERS_CACHE_KEY);
-                if (!raw) return null;
-                var parsed = JSON.parse(raw);
-                if (!parsed || typeof parsed !== 'object') return null;
-                if (!parsed.ts || !parsed.users) return null;
-                if ((Date.now() - parsed.ts) > USERS_CACHE_TTL_MS) return null;
-                return parsed.users;
-            } catch (e) {
-                return null;
-            }
-        }
-
-        function writeUsersCache(usersMap) {
-            try {
-                window.sessionStorage.setItem(USERS_CACHE_KEY, JSON.stringify({
-                    ts: Date.now(),
-                    users: usersMap
-                }));
-            } catch (e) {}
-        }
-        
-        // Expose helper to fetch users once and share it
-        window.initGlobalUsers = async function() {
-            var w = window.parent && window.parent.db ? window.parent : window;
-            if (!w.db || !w.getDocs || !w.collection) return;
-            if (window.questUsersById && Object.keys(window.questUsersById).length) {
-                return window.questUsersById;
-            }
-            var cached = readUsersCache();
-            if (cached && Object.keys(cached).length) {
-                window.questUsersById = cached;
-                if (window.parent && window.parent !== window) {
-                    window.parent.questUsersById = cached;
-                }
-                return cached;
-            }
-            try {
-                const snap = await w.getDocs(w.collection(w.db, 'users'));
-                var usersMap = {};
-                snap.forEach(docSnap => {
-                    var d = docSnap.data() || {};
-                    usersMap[docSnap.id] = {
-                        uid: docSnap.id,
-                        name: d.name || d.email || 'Unknown',
-                        email: d.email || '',
-                        photo: d.photo || ''
-                    };
-                });
-                window.questUsersById = usersMap;
-                if (window.parent && window.parent !== window) {
-                    window.parent.questUsersById = usersMap;
-                }
-                writeUsersCache(usersMap);
-                console.log('Global users initialized:', Object.keys(usersMap).length);
-            } catch (e) {
-                console.error('Failed to init global users:', e);
-            }
-        };
-
-        // Trigger initialization immediately
-        window.initGlobalUsers();
+    function readUsersCache() {
+      try {
+        var raw = window.sessionStorage.getItem(USERS_CACHE_KEY);
+        if (!raw) return null;
+        var parsed = JSON.parse(raw);
+        if (!parsed || typeof parsed !== "object") return null;
+        if (!parsed.ts || !parsed.users) return null;
+        if (Date.now() - parsed.ts > USERS_CACHE_TTL_MS) return null;
+        return parsed.users;
+      } catch (e) {
+        return null;
+      }
     }
 
-    target.innerHTML = `
+    function writeUsersCache(usersMap) {
+      try {
+        window.sessionStorage.setItem(
+          USERS_CACHE_KEY,
+          JSON.stringify({
+            ts: Date.now(),
+            users: usersMap,
+          }),
+        );
+      } catch (e) {}
+    }
+
+    // Expose helper to fetch users once and share it
+    window.initGlobalUsers = async function () {
+      var w = window.parent && window.parent.db ? window.parent : window;
+      if (!w.db || !w.getDocs || !w.collection) return;
+      if (window.questUsersById && Object.keys(window.questUsersById).length) {
+        return window.questUsersById;
+      }
+      var cached = readUsersCache();
+      if (cached && Object.keys(cached).length) {
+        window.questUsersById = cached;
+        if (window.parent && window.parent !== window) {
+          window.parent.questUsersById = cached;
+        }
+        return cached;
+      }
+      try {
+        const snap = await w.getDocs(w.collection(w.db, "users"));
+        var usersMap = {};
+        snap.forEach((docSnap) => {
+          var d = docSnap.data() || {};
+          usersMap[docSnap.id] = {
+            uid: docSnap.id,
+            name: d.name || d.email || "Unknown",
+            email: d.email || "",
+            photo: d.photo || "",
+          };
+        });
+        window.questUsersById = usersMap;
+        if (window.parent && window.parent !== window) {
+          window.parent.questUsersById = usersMap;
+        }
+        writeUsersCache(usersMap);
+        console.log("Global users initialized:", Object.keys(usersMap).length);
+      } catch (e) {
+        console.error("Failed to init global users:", e);
+      }
+    };
+
+    // Trigger initialization immediately
+    window.initGlobalUsers();
+  }
+
+  target.innerHTML = `
         <style>
             #questBoardModal,
             #reportBoardModal {
@@ -274,7 +277,7 @@ export function renderSidebar(target) {
                         <div class="filter-top"><div class="filter-icon" style="background-color: var(--dlg-yellow);"><i class="bi bi-archive-fill"></i></div><div class="filter-count" id="sideQuestCount">0</div></div>
                         <div class="filter-label">Side Quest</div>
                     </a>
-                    <a href="/home.html" class="filter-card">
+                    <a href="/project/project.html" class="filter-card">
                         <div class="filter-top"><div class="filter-icon" style="background-color: var(--dlg-purple);"><i class="bi bi-calendar-event-fill"></i></div><div class="filter-count" id="projectTasksTotalCount">0</div></div>
                         <div class="filter-label">Project</div>
                     </a>
@@ -287,7 +290,7 @@ export function renderSidebar(target) {
 
                 <!-- Navigation Links -->
                 <div class="nav-category">Main Navigation</div>
-                <a href="javascript:void(0)" class="sidebar-link active" onclick="window.toggleDashboardMenu(this)">
+                <a href="home.html" class="sidebar-link active" onclick="window.toggleDashboardMenu(this)">
                     <i class="bi bi-columns-gap"></i> Dashboard 
                     <span class="sidebar-badge">
                         <i class="bi bi-arrow-left-square-fill" id="dashboardIcon"></i>
@@ -377,386 +380,433 @@ export function renderSidebar(target) {
         </div>
         `;
 
-        // PANGGIL LANGSUNG SETELAH target.innerHTML
-initLogoutModal();
-initSidebarController();
+  // PANGGIL LANGSUNG SETELAH target.innerHTML
+  initLogoutModal();
+  initSidebarController();
 
-function initLogoutModal() {
-    const logoutBtn = document.getElementById('logoutBtn');
-    const confirmLogout = document.getElementById('confirmLogout');
-    const modalEl = document.getElementById('logoutModal');
+  function initLogoutModal() {
+    const logoutBtn = document.getElementById("logoutBtn");
+    const confirmLogout = document.getElementById("confirmLogout");
+    const modalEl = document.getElementById("logoutModal");
 
     console.log(logoutBtn, confirmLogout, modalEl);
 
     if (!logoutBtn || !confirmLogout || !modalEl) {
-        console.error('Logout modal element not found');
-        return;
+      console.error("Logout modal element not found");
+      return;
     }
 
-    if (typeof bootstrap === 'undefined' || !bootstrap.Modal) {
-        logoutBtn.addEventListener('click', function (e) {
-            e.preventDefault();
-            if (window.confirm('Apakah Anda yakin ingin logout?')) {
-                localStorage.removeItem('userData');
-                sessionStorage.clear();
-                window.location.href = '/index.html';
-            }
-        });
-        return;
+    if (typeof bootstrap === "undefined" || !bootstrap.Modal) {
+      logoutBtn.addEventListener("click", function (e) {
+        e.preventDefault();
+        if (window.confirm("Apakah Anda yakin ingin logout?")) {
+          localStorage.removeItem("userData");
+          sessionStorage.clear();
+          window.location.href = "/index.html";
+        }
+      });
+      return;
     }
 
     const logoutModal = new bootstrap.Modal(modalEl);
 
-    logoutBtn.addEventListener('click', function (e) {
-        e.preventDefault();
-        logoutModal.show();
+    logoutBtn.addEventListener("click", function (e) {
+      e.preventDefault();
+      logoutModal.show();
     });
 
-    confirmLogout.addEventListener('click', function () {
-        localStorage.removeItem('userData');
-        sessionStorage.clear();
-        window.location.href = '/index.html';
+    confirmLogout.addEventListener("click", function () {
+      localStorage.removeItem("userData");
+      sessionStorage.clear();
+      window.location.href = "/index.html";
     });
-}
+  }
 
-function initSidebarController() {
-    const sidebar = document.getElementById('sidebarNav');
-    const closeBtn = document.getElementById('sidebarCloseBtn');
-    const backdrop = document.getElementById('sidebarBackdrop');
-    const stateKey = 'dlg.sidebar.state.v1';
+  function initSidebarController() {
+    const sidebar = document.getElementById("sidebarNav");
+    const closeBtn = document.getElementById("sidebarCloseBtn");
+    const backdrop = document.getElementById("sidebarBackdrop");
+    const stateKey = "dlg.sidebar.state.v1";
     if (!sidebar) return;
 
     function isMobile() {
-        return window.matchMedia('(max-width: 991px)').matches;
+      return window.matchMedia("(max-width: 991px)").matches;
     }
 
     function persistState(isOpen) {
-        try {
-            localStorage.setItem(stateKey, isOpen ? 'open' : 'closed');
-        } catch (e) {}
+      try {
+        localStorage.setItem(stateKey, isOpen ? "open" : "closed");
+      } catch (e) {}
     }
 
     function getToggleButtons() {
-        return Array.prototype.slice.call(
-            document.querySelectorAll('[data-sidebar-toggle], .mobile-toggle')
-        );
+      return Array.prototype.slice.call(
+        document.querySelectorAll("[data-sidebar-toggle], .mobile-toggle"),
+      );
     }
 
     function prepareToggleButton(btn) {
-        if (!btn) return;
-        btn.setAttribute('aria-controls', 'sidebarNav');
-        if (!btn.getAttribute('type')) {
-            btn.setAttribute('type', 'button');
-        }
-        if (btn.getAttribute('onclick')) {
-            btn.removeAttribute('onclick');
-        }
+      if (!btn) return;
+      btn.setAttribute("aria-controls", "sidebarNav");
+      if (!btn.getAttribute("type")) {
+        btn.setAttribute("type", "button");
+      }
+      if (btn.getAttribute("onclick")) {
+        btn.removeAttribute("onclick");
+      }
     }
 
     function syncToggleButtons(isOpen) {
-        var buttons = getToggleButtons();
-        buttons.forEach(function (btn) {
-            prepareToggleButton(btn);
-            btn.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
-        });
+      var buttons = getToggleButtons();
+      buttons.forEach(function (btn) {
+        prepareToggleButton(btn);
+        btn.setAttribute("aria-expanded", isOpen ? "true" : "false");
+      });
     }
 
     function applyState(isOpen, shouldPersist) {
-        const mobile = isMobile();
-        if (mobile) {
-            sidebar.classList.toggle('show', !!isOpen);
-            sidebar.classList.remove('is-closed-desktop');
-            if (backdrop) backdrop.classList.toggle('show', !!isOpen);
-            document.body.classList.remove('sidebar-collapsed');
-        } else {
-            sidebar.classList.remove('show');
-            if (backdrop) backdrop.classList.remove('show');
-            sidebar.classList.toggle('is-closed-desktop', !isOpen);
-            document.body.classList.toggle('sidebar-collapsed', !isOpen);
-        }
-        sidebar.setAttribute('aria-hidden', isOpen ? 'false' : 'true');
-        syncToggleButtons(!!isOpen);
-        if (shouldPersist !== false) {
-            persistState(!!isOpen);
-        }
+      const mobile = isMobile();
+      if (mobile) {
+        sidebar.classList.toggle("show", !!isOpen);
+        sidebar.classList.remove("is-closed-desktop");
+        if (backdrop) backdrop.classList.toggle("show", !!isOpen);
+        document.body.classList.remove("sidebar-collapsed");
+      } else {
+        sidebar.classList.remove("show");
+        if (backdrop) backdrop.classList.remove("show");
+        sidebar.classList.toggle("is-closed-desktop", !isOpen);
+        document.body.classList.toggle("sidebar-collapsed", !isOpen);
+      }
+      sidebar.setAttribute("aria-hidden", isOpen ? "false" : "true");
+      syncToggleButtons(!!isOpen);
+      if (shouldPersist !== false) {
+        persistState(!!isOpen);
+      }
     }
 
     function isSidebarOpen() {
-        if (isMobile()) {
-            return sidebar.classList.contains('show');
-        }
-        return !sidebar.classList.contains('is-closed-desktop');
+      if (isMobile()) {
+        return sidebar.classList.contains("show");
+      }
+      return !sidebar.classList.contains("is-closed-desktop");
     }
 
     function openSidebar() {
-        applyState(true, true);
+      applyState(true, true);
     }
 
     function closeSidebar() {
-        applyState(false, true);
+      applyState(false, true);
     }
 
     function toggleSidebar() {
-        applyState(!isSidebarOpen(), true);
+      applyState(!isSidebarOpen(), true);
     }
 
     function handleToggleClick(ev) {
-        const toggleEl = ev.target && ev.target.closest
-            ? ev.target.closest('[data-sidebar-toggle], .mobile-toggle')
-            : null;
-        if (!toggleEl) return;
-        ev.preventDefault();
-        ev.stopPropagation();
-        toggleSidebar();
+      const toggleEl =
+        ev.target && ev.target.closest
+          ? ev.target.closest("[data-sidebar-toggle], .mobile-toggle")
+          : null;
+      if (!toggleEl) return;
+      ev.preventDefault();
+      ev.stopPropagation();
+      toggleSidebar();
     }
 
     let initialState = null;
     try {
-        initialState = localStorage.getItem(stateKey);
+      initialState = localStorage.getItem(stateKey);
     } catch (e) {}
-    if (initialState === 'closed') {
-        applyState(false, false);
-    } else if (initialState === 'open') {
-        applyState(true, false);
+    if (initialState === "closed") {
+      applyState(false, false);
+    } else if (initialState === "open") {
+      applyState(true, false);
     } else {
-        applyState(!isMobile(), false);
+      applyState(!isMobile(), false);
     }
 
     if (closeBtn) {
-        closeBtn.addEventListener('click', function (ev) {
-            ev.preventDefault();
-            closeSidebar();
-        });
+      closeBtn.addEventListener("click", function (ev) {
+        ev.preventDefault();
+        closeSidebar();
+      });
     }
 
     if (backdrop) {
-        backdrop.addEventListener('click', function (ev) {
-            ev.preventDefault();
-            closeSidebar();
-        });
+      backdrop.addEventListener("click", function (ev) {
+        ev.preventDefault();
+        closeSidebar();
+      });
     }
 
-    document.addEventListener('click', function (ev) {
-        if (!isMobile() || !isSidebarOpen()) return;
-        const clickedToggle = ev.target && ev.target.closest
-            ? ev.target.closest('[data-sidebar-toggle], .mobile-toggle')
-            : null;
-        if (clickedToggle) return;
-        if (!sidebar.contains(ev.target)) {
-            closeSidebar();
-        }
+    document.addEventListener("click", function (ev) {
+      if (!isMobile() || !isSidebarOpen()) return;
+      const clickedToggle =
+        ev.target && ev.target.closest
+          ? ev.target.closest("[data-sidebar-toggle], .mobile-toggle")
+          : null;
+      if (clickedToggle) return;
+      if (!sidebar.contains(ev.target)) {
+        closeSidebar();
+      }
     });
 
     if (!window.__dlgSidebarToggleHandlerBound) {
-        document.addEventListener('click', handleToggleClick, true);
-        window.__dlgSidebarToggleHandlerBound = true;
+      document.addEventListener("click", handleToggleClick, true);
+      window.__dlgSidebarToggleHandlerBound = true;
     }
 
-    document.addEventListener('keydown', function (ev) {
-        if (ev.key === 'Escape' && isSidebarOpen()) {
-            closeSidebar();
-        }
+    document.addEventListener("keydown", function (ev) {
+      if (ev.key === "Escape" && isSidebarOpen()) {
+        closeSidebar();
+      }
     });
 
-    window.addEventListener('resize', function () {
-        applyState(isSidebarOpen(), false);
+    window.addEventListener("resize", function () {
+      applyState(isSidebarOpen(), false);
     });
 
     window.openSidebar = openSidebar;
     window.closeSidebar = closeSidebar;
     window.toggleSidebar = toggleSidebar;
-}
+  }
 
+  var cachedTasks = null;
+  var cachedTasksTime = 0;
 
-    var cachedTasks = null;
-    var cachedTasksTime = 0;
-
-    async function getTasksCached(w) {
-        var now = Date.now();
-        if (cachedTasks && (now - cachedTasksTime < 5000)) {
-            return cachedTasks;
-        }
-        var snap = await w.getDocs(w.collection(w.db, 'tasks'));
-        cachedTasks = snap;
-        cachedTasksTime = now;
-        return snap;
+  async function getTasksCached(w) {
+    var now = Date.now();
+    if (cachedTasks && now - cachedTasksTime < 5000) {
+      return cachedTasks;
     }
-    window.getTasksCached = getTasksCached;
+    var snap = await w.getDocs(w.collection(w.db, "tasks"));
+    cachedTasks = snap;
+    cachedTasksTime = now;
+    return snap;
+  }
+  window.getTasksCached = getTasksCached;
 
-    async function refreshSidebarCounts(snapshotOrAttempt) {
-        var mainCountEl = document.getElementById('mainQuestCount');
-        var sideCountEl = document.getElementById('sideQuestCount');
-        var reportCountEl = document.getElementById('reportPendingApprovalCount');
-        
-        var w = window;
-        if (!w || !w.db || !w.collection || !w.getDocs) {
-            var attempt = typeof snapshotOrAttempt === 'number' ? snapshotOrAttempt : 0;
-            var nextAttempt = attempt + 1;
-            if (nextAttempt <= 30) {
-                setTimeout(function () { refreshSidebarCounts(nextAttempt); }, 500);
-            }
-            return;
-        }
+  async function refreshSidebarCounts(snapshotOrAttempt) {
+    var mainCountEl = document.getElementById("mainQuestCount");
+    var sideCountEl = document.getElementById("sideQuestCount");
+    var reportCountEl = document.getElementById("reportPendingApprovalCount");
 
-        try {
-            var tasksSnap;
-            if (snapshotOrAttempt && typeof snapshotOrAttempt === 'object' && typeof snapshotOrAttempt.forEach === 'function') {
-                tasksSnap = snapshotOrAttempt;
-                // Update cache
-                cachedTasks = tasksSnap;
-                cachedTasksTime = Date.now();
-            } else {
-                tasksSnap = await getTasksCached(w);
-            }
-
-            var totalMain = 0;
-            var totalSide = 0;
-            var completeIds = [];
-            var completeSet = {};
-
-            tasksSnap.forEach(function (docSnap) {
-                var data = docSnap.data() || {};
-                // Projects have project_id, Quests do not.
-                if (data.project_id || data.projectId) return;
-
-                var archived = !!(data.archived || data.is_archived);
-                
-                // Status normalization
-                var statusRaw = '';
-                if (typeof data.status === 'string') statusRaw = data.status;
-                else if (data.status && typeof data.status === 'object') statusRaw = data.status.name || data.status.label || '';
-                var normStatus = String(statusRaw || '').trim().toLowerCase().replace(/[\s_]/g, '');
-                
-                // Task Status normalization
-                var tsRaw = '';
-                if (typeof data.task_status === 'string') tsRaw = data.task_status;
-                else if (data.task_status && typeof data.task_status === 'object') tsRaw = data.task_status.name || data.task_status.label || '';
-                var normTaskStatus = String(tsRaw || '').trim().toLowerCase().replace(/[\s_]/g, '');
-
-                var isComplete = normStatus === 'complete' || normStatus === 'done' || normTaskStatus === 'complete' || normTaskStatus === 'done';
-
-                // Count Main Quest (Recurring tasks that are not complete/archived)
-                if (data.recur && !isComplete && !archived) {
-                    totalMain++;
-                }
-
-                // Count Side Quest (Tasks with type sidequest OR has task_status, and not complete/archived)
-                var rawType = String(data.type || '').toLowerCase();
-                var isSideQuest = rawType === 'sidequest' || rawType === 'side-quest' || normStatus === 'sidequest' || !!data.task_status;
-                if (isSideQuest && !isComplete && !archived) {
-                    totalSide++;
-                }
-
-                if (isComplete && !archived) {
-                    completeIds.push(docSnap.id);
-                    completeSet[docSnap.id] = true;
-                }
-            });
-
-            if (mainCountEl) mainCountEl.innerText = String(totalMain);
-            if (sideCountEl) sideCountEl.innerText = String(totalSide);
-
-            // Report Pending Approval Logic
-            if (reportCountEl) {
-                function timeKey(v) {
-                    if (!v) return '';
-                    if (v.toDate && typeof v.toDate === 'function') {
-                        var d = v.toDate();
-                        if (!isNaN(d.getTime())) return d.toISOString();
-                        return '';
-                    }
-                    if (typeof v === 'number') {
-                        var d2 = new Date(v);
-                        if (!isNaN(d2.getTime())) return d2.toISOString();
-                        return '';
-                    }
-                    return String(v);
-                }
-
-                var rootSnap = await w.getDocs(w.collection(w.db, 'quest_reports'));
-                var latestByTaskId = {};
-                rootSnap.forEach(function (repSnap) {
-                    var rdataRoot = repSnap.data() || {};
-                    var taskIdRoot = rdataRoot.taskId || rdataRoot.task_id || '';
-                    if (!taskIdRoot || !completeSet[taskIdRoot]) return;
-                    var prevRoot = latestByTaskId[taskIdRoot];
-                    var prevTimeRoot = prevRoot ? String(prevRoot._time || '') : '';
-                    var currTimeRoot = timeKey(rdataRoot.submittedAt || rdataRoot.createdAt || rdataRoot.timestamp || '');
-                    if (!prevRoot || currTimeRoot > prevTimeRoot) {
-                        latestByTaskId[taskIdRoot] = { data: rdataRoot, _time: currTimeRoot };
-                    }
-                });
-
-                var tasksToFetchSub = completeIds.filter(id => !latestByTaskId[id]);
-                if (tasksToFetchSub.length > 0) {
-                    const batchSize = 10;
-                    for (let i = 0; i < tasksToFetchSub.length; i += batchSize) {
-                        const batch = tasksToFetchSub.slice(i, i + batchSize);
-                        await Promise.all(batch.map(async (taskId) => {
-                            try {
-                                var repSnap0 = await w.getDocs(w.collection(w.db, 'tasks', taskId, 'reports'));
-                                repSnap0.forEach(function (docRep) {
-                                    var rdata = docRep.data() || {};
-                                    var prev = latestByTaskId[taskId];
-                                    var prevTime = prev ? String(prev._time || '') : '';
-                                    var currTime = timeKey(rdata.submittedAt || rdata.createdAt || rdata.timestamp || '');
-                                    if (!prev || currTime > prevTime) {
-                                        latestByTaskId[taskId] = { data: rdata, _time: currTime };
-                                    }
-                                });
-                            } catch (eSub) {}
-                        }));
-                    }
-                }
-
-                var pendingCount = 0;
-                for (var j = 0; j < completeIds.length; j++) {
-                    var tid = completeIds[j];
-                    var entry = latestByTaskId[tid];
-                    if (!entry || !entry.data) continue;
-                    var appr = (entry.data.approval_status || entry.data.approvalStatus || '').toLowerCase();
-                    if (appr !== 'approved') pendingCount++;
-                }
-                reportCountEl.innerText = String(pendingCount);
-            }
-        } catch (e) {
-            console.error('Error refreshing sidebar counts:', e);
-        }
+    var w = window;
+    if (!w || !w.db || !w.collection || !w.getDocs) {
+      var attempt =
+        typeof snapshotOrAttempt === "number" ? snapshotOrAttempt : 0;
+      var nextAttempt = attempt + 1;
+      if (nextAttempt <= 30) {
+        setTimeout(function () {
+          refreshSidebarCounts(nextAttempt);
+        }, 500);
+      }
+      return;
     }
 
-    window.refreshSidebarCounts = refreshSidebarCounts;
+    try {
+      var tasksSnap;
+      if (
+        snapshotOrAttempt &&
+        typeof snapshotOrAttempt === "object" &&
+        typeof snapshotOrAttempt.forEach === "function"
+      ) {
+        tasksSnap = snapshotOrAttempt;
+        // Update cache
+        cachedTasks = tasksSnap;
+        cachedTasksTime = Date.now();
+      } else {
+        tasksSnap = await getTasksCached(w);
+      }
 
-    refreshSidebarCounts(0);
+      var totalMain = 0;
+      var totalSide = 0;
+      var completeIds = [];
+      var completeSet = {};
 
-    const questCard = target.querySelector('.smart-filters-grid .filter-card');
-    if (questCard) {
-        questCard.addEventListener('click', (e) => {
-            e.preventDefault();
-            if (typeof window.closeReportBoardModal === 'function') {
-                try { window.closeReportBoardModal(); } catch (err) {}
-            } else {
-                try {
-                    var rbm = document.getElementById('reportBoardModal');
-                    if (rbm && typeof bootstrap !== "undefined" && bootstrap.Modal) {
-                        bootstrap.Modal.getOrCreateInstance(rbm).hide();
-                    }
-                    var ov0 = document.getElementById('questBoardOverlay');
-                    if (ov0) ov0.classList.remove('show');
-                } catch (err2) {}
-            }
-            const modalEl = document.getElementById('questBoardModal');
-            const frame = document.getElementById('questBoardFrame');
-            window.closeQuestBoardModal = function () {
-                const overlay = document.getElementById('questBoardOverlay');
-                if (overlay) {
-                    overlay.classList.remove('show');
-                }
-                if (modalEl && typeof bootstrap !== "undefined" && bootstrap.Modal) {
-                    const instance = bootstrap.Modal.getOrCreateInstance(modalEl);
-                    instance.hide();
-                }
+      tasksSnap.forEach(function (docSnap) {
+        var data = docSnap.data() || {};
+        // Projects have project_id, Quests do not.
+        if (data.project_id || data.projectId) return;
+
+        var archived = !!(data.archived || data.is_archived);
+
+        // Status normalization
+        var statusRaw = "";
+        if (typeof data.status === "string") statusRaw = data.status;
+        else if (data.status && typeof data.status === "object")
+          statusRaw = data.status.name || data.status.label || "";
+        var normStatus = String(statusRaw || "")
+          .trim()
+          .toLowerCase()
+          .replace(/[\s_]/g, "");
+
+        // Task Status normalization
+        var tsRaw = "";
+        if (typeof data.task_status === "string") tsRaw = data.task_status;
+        else if (data.task_status && typeof data.task_status === "object")
+          tsRaw = data.task_status.name || data.task_status.label || "";
+        var normTaskStatus = String(tsRaw || "")
+          .trim()
+          .toLowerCase()
+          .replace(/[\s_]/g, "");
+
+        var isComplete =
+          normStatus === "complete" ||
+          normStatus === "done" ||
+          normTaskStatus === "complete" ||
+          normTaskStatus === "done";
+
+        // Count Main Quest (Recurring tasks that are not complete/archived)
+        if (data.recur && !isComplete && !archived) {
+          totalMain++;
+        }
+
+        // Count Side Quest (Tasks with type sidequest OR has task_status, and not complete/archived)
+        var rawType = String(data.type || "").toLowerCase();
+        var isSideQuest =
+          rawType === "sidequest" ||
+          rawType === "side-quest" ||
+          normStatus === "sidequest" ||
+          !!data.task_status;
+        if (isSideQuest && !isComplete && !archived) {
+          totalSide++;
+        }
+
+        if (isComplete && !archived) {
+          completeIds.push(docSnap.id);
+          completeSet[docSnap.id] = true;
+        }
+      });
+
+      if (mainCountEl) mainCountEl.innerText = String(totalMain);
+      if (sideCountEl) sideCountEl.innerText = String(totalSide);
+
+      // Report Pending Approval Logic
+      if (reportCountEl) {
+        function timeKey(v) {
+          if (!v) return "";
+          if (v.toDate && typeof v.toDate === "function") {
+            var d = v.toDate();
+            if (!isNaN(d.getTime())) return d.toISOString();
+            return "";
+          }
+          if (typeof v === "number") {
+            var d2 = new Date(v);
+            if (!isNaN(d2.getTime())) return d2.toISOString();
+            return "";
+          }
+          return String(v);
+        }
+
+        var rootSnap = await w.getDocs(w.collection(w.db, "quest_reports"));
+        var latestByTaskId = {};
+        rootSnap.forEach(function (repSnap) {
+          var rdataRoot = repSnap.data() || {};
+          var taskIdRoot = rdataRoot.taskId || rdataRoot.task_id || "";
+          if (!taskIdRoot || !completeSet[taskIdRoot]) return;
+          var prevRoot = latestByTaskId[taskIdRoot];
+          var prevTimeRoot = prevRoot ? String(prevRoot._time || "") : "";
+          var currTimeRoot = timeKey(
+            rdataRoot.submittedAt ||
+              rdataRoot.createdAt ||
+              rdataRoot.timestamp ||
+              "",
+          );
+          if (!prevRoot || currTimeRoot > prevTimeRoot) {
+            latestByTaskId[taskIdRoot] = {
+              data: rdataRoot,
+              _time: currTimeRoot,
             };
-            const html = `
+          }
+        });
+
+        var tasksToFetchSub = completeIds.filter((id) => !latestByTaskId[id]);
+        if (tasksToFetchSub.length > 0) {
+          const batchSize = 10;
+          for (let i = 0; i < tasksToFetchSub.length; i += batchSize) {
+            const batch = tasksToFetchSub.slice(i, i + batchSize);
+            await Promise.all(
+              batch.map(async (taskId) => {
+                try {
+                  var repSnap0 = await w.getDocs(
+                    w.collection(w.db, "tasks", taskId, "reports"),
+                  );
+                  repSnap0.forEach(function (docRep) {
+                    var rdata = docRep.data() || {};
+                    var prev = latestByTaskId[taskId];
+                    var prevTime = prev ? String(prev._time || "") : "";
+                    var currTime = timeKey(
+                      rdata.submittedAt ||
+                        rdata.createdAt ||
+                        rdata.timestamp ||
+                        "",
+                    );
+                    if (!prev || currTime > prevTime) {
+                      latestByTaskId[taskId] = { data: rdata, _time: currTime };
+                    }
+                  });
+                } catch (eSub) {}
+              }),
+            );
+          }
+        }
+
+        var pendingCount = 0;
+        for (var j = 0; j < completeIds.length; j++) {
+          var tid = completeIds[j];
+          var entry = latestByTaskId[tid];
+          if (!entry || !entry.data) continue;
+          var appr = (
+            entry.data.approval_status ||
+            entry.data.approvalStatus ||
+            ""
+          ).toLowerCase();
+          if (appr !== "approved") pendingCount++;
+        }
+        reportCountEl.innerText = String(pendingCount);
+      }
+    } catch (e) {
+      console.error("Error refreshing sidebar counts:", e);
+    }
+  }
+
+  window.refreshSidebarCounts = refreshSidebarCounts;
+
+  refreshSidebarCounts(0);
+
+  const questCard = target.querySelector(".smart-filters-grid .filter-card");
+  if (questCard) {
+    questCard.addEventListener("click", (e) => {
+      e.preventDefault();
+      if (typeof window.closeReportBoardModal === "function") {
+        try {
+          window.closeReportBoardModal();
+        } catch (err) {}
+      } else {
+        try {
+          var rbm = document.getElementById("reportBoardModal");
+          if (rbm && typeof bootstrap !== "undefined" && bootstrap.Modal) {
+            bootstrap.Modal.getOrCreateInstance(rbm).hide();
+          }
+          var ov0 = document.getElementById("questBoardOverlay");
+          if (ov0) ov0.classList.remove("show");
+        } catch (err2) {}
+      }
+      const modalEl = document.getElementById("questBoardModal");
+      const frame = document.getElementById("questBoardFrame");
+      window.closeQuestBoardModal = function () {
+        const overlay = document.getElementById("questBoardOverlay");
+        if (overlay) {
+          overlay.classList.remove("show");
+        }
+        if (modalEl && typeof bootstrap !== "undefined" && bootstrap.Modal) {
+          const instance = bootstrap.Modal.getOrCreateInstance(modalEl);
+          instance.hide();
+        }
+      };
+      const html = `
 <!DOCTYPE html>
 <html lang="id">
 <head>
@@ -4974,71 +5024,80 @@ function initSidebarController() {
 </body>
 </html>`;
 
-            if (frame) {
-                frame.removeAttribute('src');
-                frame.onload = function() {
-                    try {
-                        if (frame.contentWindow) {
-                            if (window.openSideQuestDescription) {
-                                frame.contentWindow.openSideQuestDescription = window.openSideQuestDescription;
-                                console.log('Injected openSideQuestDescription into iframe');
-                            } else {
-                                console.warn('window.openSideQuestDescription not available to inject');
-                            }
-                        }
-                    } catch (e) {
-                        console.error('Failed to inject openSideQuestDescription', e);
-                    }
-                };
-                frame.srcdoc = html;
+      if (frame) {
+        frame.removeAttribute("src");
+        frame.onload = function () {
+          try {
+            if (frame.contentWindow) {
+              if (window.openSideQuestDescription) {
+                frame.contentWindow.openSideQuestDescription =
+                  window.openSideQuestDescription;
+                console.log("Injected openSideQuestDescription into iframe");
+              } else {
+                console.warn(
+                  "window.openSideQuestDescription not available to inject",
+                );
+              }
             }
-            if (modalEl && typeof bootstrap !== "undefined" && bootstrap.Modal) {
-                const overlay = document.getElementById('questBoardOverlay');
-                if (overlay) {
-                    overlay.classList.add('show');
-                }
-                modalEl.addEventListener('hidden.bs.modal', () => {
-                    const ov = document.getElementById('questBoardOverlay');
-                    if (ov) {
-                        ov.classList.remove('show');
-                    }
-                }, { once: true });
-                const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
-                modal.show();
-            } else {
-                var newWin = window.open('', '_blank');
-                if (newWin && newWin.document) {
-                    newWin.document.open();
-                    newWin.document.write(html);
-                    newWin.document.close();
-                }
+          } catch (e) {
+            console.error("Failed to inject openSideQuestDescription", e);
+          }
+        };
+        frame.srcdoc = html;
+      }
+      if (modalEl && typeof bootstrap !== "undefined" && bootstrap.Modal) {
+        const overlay = document.getElementById("questBoardOverlay");
+        if (overlay) {
+          overlay.classList.add("show");
+        }
+        modalEl.addEventListener(
+          "hidden.bs.modal",
+          () => {
+            const ov = document.getElementById("questBoardOverlay");
+            if (ov) {
+              ov.classList.remove("show");
             }
-        });
-    }
+          },
+          { once: true },
+        );
+        const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
+        modal.show();
+      } else {
+        var newWin = window.open("", "_blank");
+        if (newWin && newWin.document) {
+          newWin.document.open();
+          newWin.document.write(html);
+          newWin.document.close();
+        }
+      }
+    });
+  }
 
-    const reportCard = target.querySelector('#reportFilterCard');
-    if (reportCard) {
-        reportCard.addEventListener('click', (e) => {
-            e.preventDefault();
-            if (typeof refreshSidebarCounts === 'function') {
-                refreshSidebarCounts(0);
-            }
-            if (typeof window.closeQuestBoardModal === 'function') {
-                try { window.closeQuestBoardModal(); } catch (err) {}
-            }
-            const modalEl = document.getElementById('reportBoardModal');
-            const frame = document.getElementById('reportBoardFrame');
-            window.closeReportBoardModal = function () {
-                const overlay = document.getElementById('questBoardOverlay');
-                if (overlay) {
-                    overlay.classList.remove('show');
-                }
-                if (modalEl && typeof bootstrap !== "undefined" && bootstrap.Modal) {
-                    const instance = bootstrap.Modal.getOrCreateInstance(modalEl);
-                    instance.hide();
-                }
-            };
-            const html = `<!DOCTYPE html>
+  const reportCard = target.querySelector("#reportFilterCard");
+  if (reportCard) {
+    reportCard.addEventListener("click", (e) => {
+      e.preventDefault();
+      if (typeof refreshSidebarCounts === "function") {
+        refreshSidebarCounts(0);
+      }
+      if (typeof window.closeQuestBoardModal === "function") {
+        try {
+          window.closeQuestBoardModal();
+        } catch (err) {}
+      }
+      const modalEl = document.getElementById("reportBoardModal");
+      const frame = document.getElementById("reportBoardFrame");
+      window.closeReportBoardModal = function () {
+        const overlay = document.getElementById("questBoardOverlay");
+        if (overlay) {
+          overlay.classList.remove("show");
+        }
+        if (modalEl && typeof bootstrap !== "undefined" && bootstrap.Modal) {
+          const instance = bootstrap.Modal.getOrCreateInstance(modalEl);
+          instance.hide();
+        }
+      };
+      const html = `<!DOCTYPE html>
 <html lang="id">
 <head>
     <meta charset="UTF-8">
@@ -6729,55 +6788,63 @@ function initSidebarController() {
 </script>
 </body>
 </html>`;
-            if (frame) {
-                frame.removeAttribute('src');
-                frame.srcdoc = html;
+      if (frame) {
+        frame.removeAttribute("src");
+        frame.srcdoc = html;
+      }
+      if (modalEl && typeof bootstrap !== "undefined" && bootstrap.Modal) {
+        const overlay = document.getElementById("questBoardOverlay");
+        if (overlay) {
+          overlay.classList.add("show");
+        }
+        modalEl.addEventListener(
+          "hidden.bs.modal",
+          () => {
+            const ov = document.getElementById("questBoardOverlay");
+            if (ov) {
+              ov.classList.remove("show");
             }
-            if (modalEl && typeof bootstrap !== "undefined" && bootstrap.Modal) {
-                const overlay = document.getElementById('questBoardOverlay');
-                if (overlay) {
-                    overlay.classList.add('show');
-                }
-                modalEl.addEventListener('hidden.bs.modal', () => {
-                    const ov = document.getElementById('questBoardOverlay');
-                    if (ov) {
-                        ov.classList.remove('show');
-                    }
-                }, { once: true });
-                const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
-                modal.show();
-            }
-        });
-    }
-    const sideQuestCard = target.querySelectorAll('.smart-filters-grid .filter-card')[1];
-    if (sideQuestCard) {
-        sideQuestCard.addEventListener('click', (e) => {
-            e.preventDefault();
-            if (typeof window.closeReportBoardModal === 'function') {
-                try { window.closeReportBoardModal(); } catch (err) {}
-            } else {
-                try {
-                    var rbm1 = document.getElementById('reportBoardModal');
-                    if (rbm1 && typeof bootstrap !== "undefined" && bootstrap.Modal) {
-                        bootstrap.Modal.getOrCreateInstance(rbm1).hide();
-                    }
-                    var ov1 = document.getElementById('questBoardOverlay');
-                    if (ov1) ov1.classList.remove('show');
-                } catch (err3) {}
-            }
-            const modalEl = document.getElementById('questBoardModal');
-            const frame = document.getElementById('questBoardFrame');
-            window.closeQuestBoardModal = function () {
-                const overlay = document.getElementById('questBoardOverlay');
-                if (overlay) {
-                    overlay.classList.remove('show');
-                }
-                if (modalEl && typeof bootstrap !== "undefined" && bootstrap.Modal) {
-                    const instance = bootstrap.Modal.getOrCreateInstance(modalEl);
-                    instance.hide();
-                }
-            };
-            const html = `<!DOCTYPE html>
+          },
+          { once: true },
+        );
+        const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
+        modal.show();
+      }
+    });
+  }
+  const sideQuestCard = target.querySelectorAll(
+    ".smart-filters-grid .filter-card",
+  )[1];
+  if (sideQuestCard) {
+    sideQuestCard.addEventListener("click", (e) => {
+      e.preventDefault();
+      if (typeof window.closeReportBoardModal === "function") {
+        try {
+          window.closeReportBoardModal();
+        } catch (err) {}
+      } else {
+        try {
+          var rbm1 = document.getElementById("reportBoardModal");
+          if (rbm1 && typeof bootstrap !== "undefined" && bootstrap.Modal) {
+            bootstrap.Modal.getOrCreateInstance(rbm1).hide();
+          }
+          var ov1 = document.getElementById("questBoardOverlay");
+          if (ov1) ov1.classList.remove("show");
+        } catch (err3) {}
+      }
+      const modalEl = document.getElementById("questBoardModal");
+      const frame = document.getElementById("questBoardFrame");
+      window.closeQuestBoardModal = function () {
+        const overlay = document.getElementById("questBoardOverlay");
+        if (overlay) {
+          overlay.classList.remove("show");
+        }
+        if (modalEl && typeof bootstrap !== "undefined" && bootstrap.Modal) {
+          const instance = bootstrap.Modal.getOrCreateInstance(modalEl);
+          instance.hide();
+        }
+      };
+      const html = `<!DOCTYPE html>
 <html lang="id">
 <head>
     <meta charset="UTF-8">
@@ -9195,45 +9262,57 @@ function initSidebarController() {
     </script>
 </body>
 </html>`;
-            if (frame) {
-                frame.removeAttribute('src');
-                frame.onload = function() {
-                    try {
-                        if (frame.contentWindow) {
-                            if (window.openSideQuestDescription) {
-                                frame.contentWindow.openSideQuestDescription = window.openSideQuestDescription;
-                                console.log('Injected openSideQuestDescription into Side Quest iframe (instance 3)');
-                            } else {
-                                console.warn('window.openSideQuestDescription not available to inject into Side Quest iframe');
-                            }
-                        }
-                    } catch (e) {
-                        console.error('Failed to inject openSideQuestDescription into Side Quest iframe', e);
-                    }
-                };
-                frame.srcdoc = html;
+      if (frame) {
+        frame.removeAttribute("src");
+        frame.onload = function () {
+          try {
+            if (frame.contentWindow) {
+              if (window.openSideQuestDescription) {
+                frame.contentWindow.openSideQuestDescription =
+                  window.openSideQuestDescription;
+                console.log(
+                  "Injected openSideQuestDescription into Side Quest iframe (instance 3)",
+                );
+              } else {
+                console.warn(
+                  "window.openSideQuestDescription not available to inject into Side Quest iframe",
+                );
+              }
             }
-            if (modalEl && typeof bootstrap !== "undefined" && bootstrap.Modal) {
-                const overlay = document.getElementById('questBoardOverlay');
-                if (overlay) {
-                    overlay.classList.add('show');
-                }
-                modalEl.addEventListener('hidden.bs.modal', () => {
-                    const ov = document.getElementById('questBoardOverlay');
-                    if (ov) {
-                        ov.classList.remove('show');
-                    }
-                }, { once: true });
-                const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
-                modal.show();
-            } else {
-                var newWin = window.open('', '_blank');
-                if (newWin && newWin.document) {
-                    newWin.document.open();
-                    newWin.document.write(html);
-                    newWin.document.close();
-                }
+          } catch (e) {
+            console.error(
+              "Failed to inject openSideQuestDescription into Side Quest iframe",
+              e,
+            );
+          }
+        };
+        frame.srcdoc = html;
+      }
+      if (modalEl && typeof bootstrap !== "undefined" && bootstrap.Modal) {
+        const overlay = document.getElementById("questBoardOverlay");
+        if (overlay) {
+          overlay.classList.add("show");
+        }
+        modalEl.addEventListener(
+          "hidden.bs.modal",
+          () => {
+            const ov = document.getElementById("questBoardOverlay");
+            if (ov) {
+              ov.classList.remove("show");
             }
-        });
-    }
+          },
+          { once: true },
+        );
+        const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
+        modal.show();
+      } else {
+        var newWin = window.open("", "_blank");
+        if (newWin && newWin.document) {
+          newWin.document.open();
+          newWin.document.write(html);
+          newWin.document.close();
+        }
+      }
+    });
+  }
 }
