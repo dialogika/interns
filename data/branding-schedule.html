@@ -105,6 +105,7 @@
             margin-bottom: 2px;
         }
         .bg-milestone-script { background-color: #e0f2fe; color: #0369a1; border: 1px solid #bae6fd; }
+        .bg-milestone-design { background-color: #fce7f3; color: #be185d; border: 1px solid #fbcfe8; }
         .bg-milestone-take { background-color: #fef3c7; color: #b45309; border: 1px solid #fde047; }
         .bg-milestone-edit { background-color: #f3e8ff; color: #6b21a8; border: 1px solid #e9d5ff; }
         .bg-milestone-publish { background-color: #dcfce7; color: #15803d; border: 1px solid #bbf7d0; }
@@ -329,12 +330,13 @@
                     <label class="form-label small text-muted mb-1">Nama Milestone</label>
                     <select class="form-select rounded-3 milestone-name" required>
                         <option value="Script Writing" ${name === 'Script Writing' ? 'selected' : ''}>Script Writing</option>
+                        <option value="Design" ${name === 'Design' ? 'selected' : ''}>Design</option>
                         <option value="Take Video" ${name === 'Take Video' ? 'selected' : ''}>Take Video</option>
                         <option value="Video Editing" ${name === 'Video Editing' ? 'selected' : ''}>Video Editing</option>
                         <option value="Publish" ${name === 'Publish' ? 'selected' : ''}>Publish</option>
-                        <option value="Lainnya" ${['Script Writing', 'Take Video', 'Video Editing', 'Publish'].indexOf(name) === -1 && name ? 'selected' : ''}>Lainnya</option>
+                        <option value="Lainnya" ${['Script Writing', 'Design', 'Take Video', 'Video Editing', 'Publish'].indexOf(name) === -1 && name ? 'selected' : ''}>Lainnya</option>
                     </select>
-                    <input type="text" class="form-control rounded-3 mt-1 milestone-custom-name ${['Script Writing', 'Take Video', 'Video Editing', 'Publish'].indexOf(name) === -1 && name ? '' : 'd-none'}" placeholder="Nama custom..." value="${['Script Writing', 'Take Video', 'Video Editing', 'Publish'].indexOf(name) === -1 ? name : ''}">
+                    <input type="text" class="form-control rounded-3 mt-1 milestone-custom-name ${['Script Writing', 'Design', 'Take Video', 'Video Editing', 'Publish'].indexOf(name) === -1 && name ? '' : 'd-none'}" placeholder="Nama custom..." value="${['Script Writing', 'Design', 'Take Video', 'Video Editing', 'Publish'].indexOf(name) === -1 ? name : ''}">
                 </div>
                 <div class="col-md-4">
                     <label class="form-label small text-muted mb-1">Tanggal Deadline</label>
@@ -454,6 +456,7 @@
                         if (mDate.toDateString() === cellDate.toDateString()) {
                             let badgeClass = 'bg-milestone-other';
                             if (milestone.name === 'Script Writing') badgeClass = 'bg-milestone-script';
+                            else if (milestone.name === 'Design') badgeClass = 'bg-milestone-design';
                             else if (milestone.name === 'Take Video') badgeClass = 'bg-milestone-take';
                             else if (milestone.name === 'Video Editing') badgeClass = 'bg-milestone-edit';
                             else if (milestone.name === 'Publish') badgeClass = 'bg-milestone-publish';
