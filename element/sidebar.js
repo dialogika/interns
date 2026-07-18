@@ -6,74 +6,218 @@ export function renderSidebar(target) {
     if (!window.questTasksById) window.questTasksById = {};
     if (!window.questUsersById) window.questUsersById = {};
 
-    var USERS_CACHE_KEY = "questUsersCache_v1";
-    var USERS_CACHE_TTL_MS = 10 * 60 * 1000;
+    var FIRESTORE_MASTER_CACHE_KEY = "dlgFirestoreMasterCache_v1";
+    var FIRESTORE_MASTER_CACHE_TTL_MS = 10 * 60 * 1000;
+    if (!window.__dlgFirestoreMasterCache) {
+      window.__dlgFirestoreMasterCache = {
+        memory: {},
+        inflight: {},
+      };
+    }
 
-    function readUsersCache() {
+    function readMasterCache() {
       try {
-        var raw = window.sessionStorage.getItem(USERS_CACHE_KEY);
-        if (!raw) return null;
+        var raw = window.sessionStorage.getItem(FIRESTORE_MASTER_CACHE_KEY);
+        if (!raw) return {};
         var parsed = JSON.parse(raw);
-        if (!parsed || typeof parsed !== "object") return null;
-        if (!parsed.ts || !parsed.users) return null;
-        if (Date.now() - parsed.ts > USERS_CACHE_TTL_MS) return null;
-        return parsed.users;
+        if (!parsed || typeof parsed !== "object") return {};
+        if (!parsed.ts || typeof parsed.data !== "object") return {};
+        if (Date.now() - parsed.ts > FIRESTORE_MASTER_CACHE_TTL_MS) return {};
+        return parsed.data;
       } catch (e) {
-        return null;
+        return {};
       }
     }
 
-    function writeUsersCache(usersMap) {
+    function writeMasterCache(data) {
       try {
         window.sessionStorage.setItem(
-          USERS_CACHE_KEY,
-          JSON.stringify({
-            ts: Date.now(),
-            users: usersMap,
-          }),
+          FIRESTORE_MASTER_CACHE_KEY,
+          JSON.stringify({ ts: Date.now(), data: data }),
         );
       } catch (e) {}
     }
 
-    // Expose helper to fetch users once and share it
-    window.initGlobalUsers = async function () {
-      var w = window.parent && window.parent.db ? window.parent : window;
-      if (!w.db || !w.getDocs || !w.collection) return;
-      if (window.questUsersById && Object.keys(window.questUsersById).length) {
-        return window.questUsersById;
+    function getMasterStore() {
+      var store = window.__dlgFirestoreMasterCache;
+      if (!store.memory.__hydrated) {
+        var cached = readMasterCache();
+        Object.keys(cached).forEach(function (key) {
+          store.memory[key] = cached[key];
+        });
+        store.memory.__hydrated = true;
       }
-      var cached = readUsersCache();
-      if (cached && Object.keys(cached).length) {
-        window.questUsersById = cached;
-        if (window.parent && window.parent !== window) {
-          window.parent.questUsersById = cached;
-        }
-        return cached;
+      return store;
+    }
+
+    function normalizeCollectionName(name) {
+      if (name === "position") return "positions";
+      if (name === "department") return "departments";
+      return name;
+    }
+
+    function mapCollectionSnapshot(snap, mapper) {
+      var rows = [];
+      if (!snap || !snap.forEach) return rows;
+      snap.forEach(function (docSnap) {
+        rows.push(mapper(docSnap));
+      });
+      return rows;
+    }
+
+    function cacheRows(key, rows) {
+      var store = getMasterStore();
+      store.memory[key] = { ts: Date.now(), rows: rows };
+      var persisted = {};
+      Object.keys(store.memory).forEach(function (cacheKey) {
+        if (cacheKey === "__hydrated") return;
+        persisted[cacheKey] = store.memory[cacheKey];
+      });
+      writeMasterCache(persisted);
+      return rows;
+    }
+
+    window.getFirestoreMasterRows = async function (sourceName, fetcher) {
+      var key = normalizeCollectionName(sourceName);
+      var store = getMasterStore();
+      var existing = store.memory[key];
+      if (existing && existing.rows && Date.now() - existing.ts <= FIRESTORE_MASTER_CACHE_TTL_MS) {
+        return existing.rows;
       }
+      if (store.inflight[key]) return store.inflight[key];
+      var pending = (async function () {
+        var rows = await fetcher();
+        return cacheRows(key, rows || []);
+      })();
+      store.inflight[key] = pending;
       try {
-        const snap = await w.getDocs(w.collection(w.db, "users"));
-        var usersMap = {};
-        snap.forEach((docSnap) => {
+        return await pending;
+      } finally {
+        delete store.inflight[key];
+      }
+    };
+
+    window.getFirestoreUsersMap = async function () {
+      var rows = await window.getFirestoreMasterRows("users", async function () {
+        var w = window.parent && window.parent.db ? window.parent : window;
+        if (!w.db || !w.getDocs || !w.collection) return [];
+        var snap = await w.getDocs(w.collection(w.db, "users"));
+        return mapCollectionSnapshot(snap, function (docSnap) {
           var d = docSnap.data() || {};
-          usersMap[docSnap.id] = {
+          return {
             uid: docSnap.id,
             name: d.name || d.email || "Unknown",
             email: d.email || "",
             photo: d.photo || "",
           };
         });
+      });
+      var usersMap = {};
+      rows.forEach(function (row) {
+        usersMap[row.uid] = row;
+      });
+      return usersMap;
+    };
+
+    window.initGlobalUsers = async function () {
+      try {
+        var usersMap = await window.getFirestoreUsersMap();
         window.questUsersById = usersMap;
         if (window.parent && window.parent !== window) {
           window.parent.questUsersById = usersMap;
         }
-        writeUsersCache(usersMap);
         console.log("Global users initialized:", Object.keys(usersMap).length);
+        return usersMap;
       } catch (e) {
         console.error("Failed to init global users:", e);
+        return {};
       }
     };
 
-    // Trigger initialization immediately
+    window.getFirestoreDepartments = async function () {
+      return window.getFirestoreMasterRows("departments", async function () {
+        var w = window.parent && window.parent.db ? window.parent : window;
+        if (!w.db || !w.getDocs || !w.collection) return [];
+        var snap = await w.getDocs(w.collection(w.db, "departments"));
+        return mapCollectionSnapshot(snap, function (docSnap) {
+          var d = docSnap.data() || {};
+          return {
+            id: docSnap.id,
+            name: d.name || "Untitled",
+            color: d.color || "#e5e7eb",
+          };
+        });
+      });
+    };
+
+    window.getFirestorePositions = async function () {
+      return window.getFirestoreMasterRows("positions", async function () {
+        var w = window.parent && window.parent.db ? window.parent : window;
+        if (!w.db || !w.getDocs || !w.collection) return [];
+        var snap = await w.getDocs(w.collection(w.db, "positions"));
+        if (!snap || !snap.empty) {
+          return mapCollectionSnapshot(snap, function (docSnap) {
+            var d = docSnap.data() || {};
+            return {
+              id: docSnap.id,
+              name: d.name || d.label || d.title || d.position || docSnap.id,
+            };
+          });
+        }
+        try {
+          var altSnap = await w.getDocs(w.collection(w.db, "position"));
+          return mapCollectionSnapshot(altSnap, function (docSnap) {
+            var d = docSnap.data() || {};
+            return {
+              id: docSnap.id,
+              name: d.name || d.label || d.title || d.position || docSnap.id,
+            };
+          });
+        } catch (e) {
+          return [];
+        }
+      });
+    };
+
+    window.getFirestoreRoles = async function () {
+      return window.getFirestoreMasterRows("roles", async function () {
+        var w = window.parent && window.parent.db ? window.parent : window;
+        if (!w.db || !w.getDocs || !w.collection) return [];
+        var snap = await w.getDocs(w.collection(w.db, "roles"));
+        return mapCollectionSnapshot(snap, function (docSnap) {
+          var d = docSnap.data() || {};
+          return {
+            id: docSnap.id,
+            name: d.name || d.label || d.title || docSnap.id,
+          };
+        });
+      });
+    };
+
+    window.getFirestoreLeadsSettingsAdsChannels = async function () {
+      return window.getFirestoreMasterRows("leads_settings_ads_channels", async function () {
+        var w = window.parent && window.parent.db ? window.parent : window;
+        if (!w.db || !w.getDocs || !w.collection) return [];
+        var snap = await w.getDocs(w.collection(w.db, "leads_settings_ads_channels"));
+        return mapCollectionSnapshot(snap, function (docSnap) {
+          var d = docSnap.data() || {};
+          return { id: docSnap.id, name: d.name || "" };
+        });
+      });
+    };
+
+    window.getFirestoreLeadsSettingsInterests = async function () {
+      return window.getFirestoreMasterRows("leads_settings_interests", async function () {
+        var w = window.parent && window.parent.db ? window.parent : window;
+        if (!w.db || !w.getDocs || !w.collection) return [];
+        var snap = await w.getDocs(w.collection(w.db, "leads_settings_interests"));
+        return mapCollectionSnapshot(snap, function (docSnap) {
+          var d = docSnap.data() || {};
+          return { id: docSnap.id, name: d.name || "", ads_channel_id: d.ads_channel_id || "" };
+        });
+      });
+    };
+
     window.initGlobalUsers();
   }
 
@@ -597,10 +741,11 @@ export function renderSidebar(target) {
       var attempt =
         typeof snapshotOrAttempt === "number" ? snapshotOrAttempt : 0;
       var nextAttempt = attempt + 1;
-      if (nextAttempt <= 30) {
+      if (nextAttempt <= 3) {
+        var delay = Math.min(500 * Math.pow(2, attempt), 8000);
         setTimeout(function () {
           refreshSidebarCounts(nextAttempt);
-        }, 500);
+        }, delay);
       }
       return;
     }
@@ -5432,8 +5577,9 @@ export function renderSidebar(target) {
         var parentWin = window.parent;
         if (!parentWin || !parentWin.db || !parentWin.collection || !parentWin.getDocs) {
             var nextAttempt = typeof attempt === 'number' ? attempt + 1 : 1;
-            if (nextAttempt <= 30) {
-                setTimeout(function () { loadReportUsers(nextAttempt); }, 500);
+            var delay = Math.min(500 * Math.pow(2, (nextAttempt - 1)), 8000);
+            if (nextAttempt <= 3) {
+                setTimeout(function () { loadReportUsers(nextAttempt); }, delay);
             }
             return;
         }
@@ -6545,8 +6691,9 @@ export function renderSidebar(target) {
         currentReports = [];
         if (!parentWin || !parentWin.db || !parentWin.collection || !parentWin.getDocs) {
             var nextAttempt = typeof attempt === 'number' ? attempt + 1 : 1;
-            if (nextAttempt <= 30) {
-                setTimeout(function () { loadReportsFromTasks(nextAttempt); }, 500);
+            var delay = Math.min(500 * Math.pow(2, (nextAttempt - 1)), 8000);
+            if (nextAttempt <= 3) {
+                setTimeout(function () { loadReportsFromTasks(nextAttempt); }, delay);
             }
             updateStats();
             renderReports();

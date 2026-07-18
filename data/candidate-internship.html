@@ -3384,23 +3384,18 @@
             if (!candidatePositionSelect) return;
             try {
                 candidatePositionSelect.innerHTML = '<option value="">Pilih posisi</option>';
-                const snap = await getDocs(collection(db, "positions"));
-                if (snap.empty) return;
-                const options = [];
-                snap.forEach(docSnap => {
-                    const data = docSnap.data() || {};
-                    const name = (data.name || "").toString().trim();
-                    if (!name) return;
-                    options.push({ id: docSnap.id, name });
+                const items = await window.getFirestorePositions();
+                if (!items || items.length === 0) return;
+                const options = items
+                    .map(i => ({ id: i.id, name: i.name }))
+                    .filter(o => o.name)
+                    .sort((a, b) => a.name.localeCompare(b.name, "id"));
+                options.forEach(item => {
+                    const opt = document.createElement("option");
+                    opt.value = item.id;
+                    opt.textContent = item.name;
+                    candidatePositionSelect.appendChild(opt);
                 });
-                options
-                    .sort((a, b) => a.name.localeCompare(b.name, "id"))
-                    .forEach(item => {
-                        const opt = document.createElement("option");
-                        opt.value = item.id;
-                        opt.textContent = item.name;
-                        candidatePositionSelect.appendChild(opt);
-                    });
             } catch (e) {
                 console.error("Failed to load candidate positions", e);
             }

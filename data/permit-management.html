@@ -561,8 +561,12 @@
                     console.error("Gagal memantau data izin", error);
                     if (error.code === "unavailable" || (error.message && error.message.includes("abort")) || error.code === "cancelled") {
                         listenToPermitsRetryCount += 1;
-                        const delay = Math.min(1000 * Math.pow(2, listenToPermitsRetryCount), 30000);
-                        setTimeout(listenToPermits, delay);
+                        if (listenToPermitsRetryCount <= 3) {
+                            const delay = Math.min(1000 * Math.pow(2, listenToPermitsRetryCount), 30000);
+                            setTimeout(listenToPermits, delay);
+                        } else {
+                            console.warn("Max retries reached for permits listener.");
+                        }
                     }
                     if (summaryText) {
                         summaryText.textContent = "Gagal memuat data izin";

@@ -829,12 +829,18 @@
 
         async function loadInactiveCandidates() {
             try {
-                const sourceSnap = await getDocs(collection(db, INTERNSHIP_CANDIDATES_COLLECTION));
-                const mergedMap = new Map();
+                // Optimasi: Membaca hanya dokumen yang memenuhi kriteria 'deleted_at' (kandidat nonaktif)
+                const q = query(
+                    collection(db, INTERNSHIP_CANDIDATES_COLLECTION),
+                    where("deleted_at", ">", "")
+                );
+                const sourceSnap = await getDocs(q);
+                const candidates = [];
 
                 sourceSnap.forEach(docSnap => {
                     const data = docSnap.data() || {};
-                    if (!isInactiveCandidateRecord(data) || mergedMap.has(docSnap.id)) return;
+                    // Tetap validasi record di sisi client untuk memastikan integritas
+                    if (!isInactiveCandidateRecord(data)) return;
 
                     const basic = data.basic_info || {};
                     const scouting = data.scouting_info || {};
@@ -843,7 +849,7 @@
                     const education = data.education || {};
                     const recruitment = data.recruitment_status || data.recruitment_system || {};
 
-                    mergedMap.set(docSnap.id, {
+                    candidates.push({
                         talentId: docSnap.id,
                         name: basic.full_name || scouting.full_name || data.full_name || "Tanpa Nama",
                         position: scouting.position_name || internship.position || "-",
@@ -856,7 +862,7 @@
                     });
                 });
 
-                const candidates = Array.from(mergedMap.values()).sort((a, b) => {
+                candidates.sort((a, b) => {
                     const aTime = parseDateValue(a.deletedAt)?.getTime() || 0;
                     const bTime = parseDateValue(b.deletedAt)?.getTime() || 0;
                     return bTime - aTime;
@@ -965,20 +971,16 @@
 
         document.getElementById("inactiveSearchInput").addEventListener("input", applySearchFilter);
 
-        initializeInactiveCandidatesPage();
-        window.setTimeout(() => {
-            initializeInactiveCandidatesPage();
-        }, 1200);
-        window.setTimeout(() => {
-            initializeInactiveCandidatesPage();
-        }, 3200);
-
         onAuthStateChanged(auth, (user) => {
             if (!user) {
                 window.location.href = "../index.html";
                 return;
             }
-            initializeInactiveCandidatesPage();
+            if (!window.inactiveCandidatesLoaded) {
+                initializeInactiveCandidatesPage().then(() => {
+                    window.inactiveCandidatesLoaded = true;
+                });
+            }
         });
     </script>
 </body>

@@ -1235,11 +1235,14 @@
             taskSubscriptionToggle.disabled = false;
         }
 
+        let unsubscribeTaskSubscribers = null;
+
         function listenTaskSubscribers(pid, tid) {
             if (!pid || !tid) return;
             try {
+                if (unsubscribeTaskSubscribers) unsubscribeTaskSubscribers();
                 const ref = collection(db, "projects", pid, "tasks", tid, "subscribers");
-                onSnapshot(ref, (snapshot) => {
+                unsubscribeTaskSubscribers = onSnapshot(ref, (snapshot) => {
                     const subs = [];
                     snapshot.forEach(docSnap => subs.push({ id: docSnap.id, ...docSnap.data() }));
                     taskSubscribers = subs;

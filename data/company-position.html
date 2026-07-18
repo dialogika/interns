@@ -743,59 +743,51 @@
 
             await ensureDepartmentsCache();
 
-            let snap = await getDocs(collection(db, "position"));
-            if (snap.empty) {
-                try {
-                    const fallbackSnap = await getDocs(collection(db, "positions"));
-                    snap = fallbackSnap;
-                    positionsCollection = "positions";
-                } catch (e) {
-                    console.warn("Fallback positions collection 'positions' not readable", e);
-                }
-            } else {
-                positionsCollection = "position";
-            }
+            try {
+                const positions = await window.getFirestorePositions();
+                positionsData = positions.map(p => {
+                    const data = p; 
+                    const name = data.name || "Unknown Position";
+                    const headCount = data.headCount ?? data.quota ?? 0;
+                    const activeCount = data.activeCount ?? 0;
+                    const applicantCount = data.applicantCount ?? 0;
+                    const jobdesk = data.jobdesk || "";
+                    const department = data.department || "";
+                    const createdRaw = data.createdAt || data.created || data.created_at || data.date || data.createdDate || null;
 
-            snap.forEach(docSnap => {
-                const data = docSnap.data() || {};
-                const name = data.name || data.label || data.title || data.position || "Unknown Position";
-                const headCount = data.headCount ?? data.quota ?? 0;
-                const activeCount = data.activeCount ?? 0;
-                const applicantCount = data.applicantCount ?? 0;
-                const jobdesk = data.jobdesk || "";
-                const department = data.department || "";
-                const createdRaw = data.createdAt || data.created || data.created_at || data.date || data.createdDate || null;
+                    const initials = name.split(" ").map(n => n[0]).join("").substring(0, 2).toUpperCase();
 
-                const initials = name.split(" ").map(n => n[0]).join("").substring(0, 2).toUpperCase();
+                    const rawStatus = (data.status || "").toString();
+                    let status = "Open";
+                    let statusClass = "st-new";
+                    if (/close/i.test(rawStatus)) {
+                        status = "Close";
+                        statusClass = "st-hired";
+                    }
 
-                const rawStatus = (data.status || "").toString();
-                let status = "Open";
-                let statusClass = "st-new";
-                if (/close/i.test(rawStatus)) {
-                    status = "Close";
-                    statusClass = "st-hired";
-                }
+                    const departmentLabel = departmentsCache && department ? (departmentsCache[department] || department) : department;
+                    const departmentColor = departmentsColorById && department ? (departmentsColorById[department] || "") : "";
 
-                const departmentLabel = departmentsCache && department ? (departmentsCache[department] || department) : department;
-                const departmentColor = departmentsColorById && department ? (departmentsColorById[department] || "") : "";
-
-                positionsData.push({
-                    id: docSnap.id,
-                    collection: positionsCollection,
-                    name,
-                    headCount,
-                    activeCount,
-                    applicantCount,
-                    jobdesk,
-                    department,
-                    departmentLabel,
-                    departmentColor,
-                    initials,
-                    status,
-                    statusClass,
-                    createdAt: normalizePositionDate(createdRaw)
+                    return {
+                        id: p.id,
+                        collection: "position",
+                        name,
+                        headCount,
+                        activeCount,
+                        applicantCount,
+                        jobdesk,
+                        department,
+                        departmentLabel,
+                        departmentColor,
+                        initials,
+                        status,
+                        statusClass,
+                        createdAt: normalizePositionDate(createdRaw)
+                    };
                 });
-            });
+            } catch (e) {
+                console.error("Gagal load positions", e);
+            }
 
             positionVisibleCount = POSITION_PAGE_SIZE;
             applyFiltersAndRender();
@@ -803,29 +795,20 @@
 
         async function ensureDepartmentsCache() {
             if (departmentsCache) return;
-            let snap = await getDocs(collection(db, "department"));
-            if (snap.empty) {
-                try {
-                    const altSnap = await getDocs(collection(db, "departments"));
-                    snap = altSnap;
-                } catch (e) {
-                    console.warn("Fallback departments collection 'departments' not readable", e);
-                }
+            try {
+                const items = await window.getFirestoreDepartments();
+                const map = {};
+                const colors = {};
+                items.forEach(d => {
+                    const key = d.id;
+                    map[key] = d.name;
+                    colors[key] = d.color || "";
+                });
+                departmentsCache = map;
+                departmentsColorById = colors;
+            } catch (e) {
+                console.warn("Gagal memuat departments cache", e);
             }
-            const map = {};
-            const colors = {};
-            snap.forEach(d => {
-                const r = d.data() || {};
-                const key = d.id;
-                const label = r.name || r.label || r.title || r.department || key;
-                const color = r.color || r.badgeColor || r.bgColor || r.backgroundColor || "";
-                map[key] = label;
-                if (color) {
-                    colors[key] = color;
-                }
-            });
-            departmentsCache = map;
-            departmentsColorById = colors;
         }
 
         let editingPositionId = null;

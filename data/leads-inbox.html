@@ -1169,7 +1169,12 @@
             addDoc,
             updateDoc,
             deleteDoc,
-            serverTimestamp
+            serverTimestamp,
+            query,
+            where,
+            orderBy,
+            limit,
+            startAfter
         } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
         const firebaseConfig = {
@@ -1424,26 +1429,12 @@
 
         async function loadAdsAndInterests() {
             try {
-                const adsSnap = await getDocs(collection(db, "leads_settings_ads_channels"));
-                adsChannelConfig = [];
-                adsSnap.forEach((docSnap) => {
-                    const d = docSnap.data() || {};
-                    adsChannelConfig.push({
-                        id: docSnap.id,
-                        name: d.name || ""
-                    });
-                });
+                const adsList = await window.getFirestoreLeadsSettingsAdsChannels();
+                adsChannelConfig = adsList.map(a => ({ id: a.id, name: a.name }));
                 window.leadsAdsChannelOptions = adsChannelConfig;
-                const interestSnap = await getDocs(collection(db, "leads_settings_interests"));
-                const interestArr = [];
-                interestSnap.forEach((docSnap) => {
-                    const d = docSnap.data() || {};
-                    interestArr.push({
-                        id: docSnap.id,
-                        name: d.name || "",
-                        ads_channel_id: d.ads_channel_id || ""
-                    });
-                });
+
+                const interestList = await window.getFirestoreLeadsSettingsInterests();
+                const interestArr = interestList.map(i => ({ id: i.id, name: i.name, ads_channel_id: i.ads_channel_id }));
                 window.leadsInterestOptions = interestArr;
                 populateAdsChannelSelect();
             } catch (e) {
@@ -1453,16 +1444,15 @@
 
         async function loadAssignedUsers() {
             try {
-                const snap = await getDocs(collection(db, "users"));
-                availableAssignedUsers = [];
-                snap.forEach(docSnap => {
-                    const data = docSnap.data() || {};
-                    availableAssignedUsers.push({
-                        id: docSnap.id,
+                const usersMap = await window.getFirestoreUsersMap();
+                availableAssignedUsers = Object.keys(usersMap).map(id => {
+                    const data = usersMap[id] || {};
+                    return {
+                        id: id,
                         name: data.name || data.displayName || "",
                         email: data.email || "",
-                        photo: data.photo || `https://i.pravatar.cc/150?u=${docSnap.id}`
-                    });
+                        photo: data.photo || `https://i.pravatar.cc/150?u=${id}`
+                    };
                 });
                 renderAssignedList("");
                 renderAssignedAvatarGroup();
@@ -2035,13 +2025,35 @@
             updateLeadsStats();
         }
 
-        async function loadLeadsFromFirestore() {
+        let lastDoc = null;
+        async function loadLeadsFromFirestore(loadMore = false) {
             try {
-                const snap = await getDocs(collection(db, "leads"));
-                loadedLeads = [];
-                snap.forEach((docSnap) => {
+                let q = collection(db, "leads");
+
+                if (leadsStageFilter && leadsStageFilter !== "ALL") {
+                    q = query(q, where("stage", "==", leadsStageFilter));
+                }
+                if (leadsRangeStart && leadsRangeEnd) {
+                    const startStr = leadsRangeStart.toISOString().split("T")[0];
+                    const endStr = leadsRangeEnd.toISOString().split("T")[0];
+                    q = query(q, where("created_at", ">=", startStr), where("created_at", "<=", endStr));
+                }
+                
+                let baseQuery = q;
+                if (!loadMore) {
+                    baseQuery = query(q, orderBy("created_at", "desc"), limit(50));
+                } else if (lastDoc) {
+                    baseQuery = query(q, orderBy("created_at", "desc"), startAfter(lastDoc), limit(20));
+                } else {
+                    baseQuery = query(q, orderBy("created_at", "desc"), limit(50));
+                }
+                
+                const snap = await getDocs(baseQuery);
+                
+                const fetchedLeads = [];
+                snap.forEach(docSnap => {
                     const data = docSnap.data() || {};
-                    loadedLeads.push({
+                    fetchedLeads.push({
                         id: docSnap.id,
                         name: data.name || "",
                         whatsapp: data.whatsapp || "",
@@ -2053,11 +2065,21 @@
                         interest_program: data.interest_program || "",
                         due_date: data.due_date || "",
                         created_display: data.created_display || "",
+                        created_at: data.created_at || "",
                         stage: data.stage || "LEADS",
                         assigned_ids: Array.isArray(data.assigned_ids) ? data.assigned_ids : [],
                         assigned_photos: Array.isArray(data.assigned_photos) ? data.assigned_photos : []
                     });
                 });
+
+                if (loadMore) {
+                    loadedLeads = loadedLeads.concat(fetchedLeads);
+                    lastDoc = snap.docs[snap.docs.length - 1] || null;
+                } else {
+                    loadedLeads = fetchedLeads;
+                    lastDoc = snap.docs.length > 0 ? snap.docs[snap.docs.length - 1] : null;
+                }
+                
                 applyLeadsFilters();
             } catch (e) {
                 console.error("Gagal memuat leads", e);

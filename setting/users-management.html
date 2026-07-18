@@ -498,29 +498,17 @@
         const rolesOrder = ["Super Team", "Sub Team", "Mentor", "Employee", "Internship"];
         const statusOrder = ["Active", "Inactive"];
         let allUsers = [];
-        let rolesCache = null;
-        let positionsCache = null;
         let editingUserId = null;
         let deletingUserId = null;
         let addingUser = false;
 
         async function fetchUsersFromFirestore() {
             try {
-                if (!rolesCache) {
-                    const rolesSnap = await getDocs(collection(db, "roles"));
-                    const rolesMap = {};
-                    rolesSnap.forEach(roleDoc => {
-                        const r = roleDoc.data() || {};
-                        const key = roleDoc.id;
-                        const label = r.name || r.label || r.title || key;
-                        rolesMap[key] = label;
-                    });
-                    rolesCache = rolesMap;
-                }
-
-                if (!positionsCache) {
-                    await ensurePositionsCache();
-                }
+                // Use new Global Cache
+                const rolesMap = await window.getFirestoreRoles();
+                const positionsMapRaw = await window.getFirestorePositions();
+                const positionsMap = {};
+                positionsMapRaw.forEach(p => positionsMap[p.id] = p.name);
 
                 const snap = await getDocs(collection(db, "users"));
                 const users = [];
@@ -545,19 +533,16 @@
 
                     const rawRole = data.role || "";
                     let resolvedRole = "";
-                    if (rawRole) {
-                        if (rolesCache[rawRole]) {
-                            resolvedRole = rolesCache[rawRole];
-                        } else {
-                            resolvedRole = rawRole;
-                        }
+                    if (rawRole && rolesMap[rawRole]) {
+                        resolvedRole = rolesMap[rawRole];
+                    } else {
+                        resolvedRole = rawRole || "Employee";
                     }
-                    if (!resolvedRole) resolvedRole = "Employee";
 
                     const rawPositionKey = data.position || (data.employment && data.employment.position) || "";
                     let resolvedPosition = rawPositionKey;
-                    if (rawPositionKey && positionsCache && positionsCache[rawPositionKey]) {
-                        resolvedPosition = positionsCache[rawPositionKey];
+                    if (rawPositionKey && positionsMap[rawPositionKey]) {
+                        resolvedPosition = positionsMap[rawPositionKey];
                     }
 
                     users.push({
@@ -816,45 +801,16 @@
             if (selectAll) selectAll.checked = false;
         }
 
-        async function ensureRolesCache() {
-            if (rolesCache) return;
-            const snap = await getDocs(collection(db, "roles"));
-            const map = {};
-            snap.forEach(d => {
-                const r = d.data() || {};
-                const key = d.id;
-                const label = r.name || r.label || r.title || key;
-                map[key] = label;
-            });
-            rolesCache = map;
-        }
 
-        async function ensurePositionsCache() {
-            if (positionsCache) return;
-            let snap = await getDocs(collection(db, "position"));
-            if (snap.empty) {
-                try {
-                    const altSnap = await getDocs(collection(db, "positions"));
-                    snap = altSnap;
-                } catch (e) {
-                    console.warn("Fallback positions collection 'positions' not readable", e);
-                }
-            }
-            const map = {};
-            snap.forEach(d => {
-                const r = d.data() || {};
-                const key = d.id;
-                const label = r.name || r.label || r.title || r.position || key;
-                map[key] = label;
-            });
-            positionsCache = map;
-            console.log("Loaded positionsCache keys:", Object.keys(positionsCache));
-        }
 
         async function openEditUserModal(userId) {
             try {
-                await ensureRolesCache();
-                await ensurePositionsCache();
+                const positionsRaw = await window.getFirestorePositions();
+                const rolesRaw = await window.getFirestoreRoles();
+                const positionsLocal = {};
+                positionsRaw.forEach(p => positionsLocal[p.id] = p.name);
+                const rolesLocal = {};
+                rolesRaw.forEach(r => rolesLocal[r.id] = r.name);
                 const overlay = document.getElementById("editUserOverlay");
                 const fullNameInput = document.getElementById("editFullName");
                 const nicknameInput = document.getElementById("editNickname");
@@ -871,10 +827,10 @@
                 posDefault.value = "";
                 posDefault.textContent = "Select position";
                 positionSelect.appendChild(posDefault);
-                Object.keys(positionsCache || {}).forEach(key => {
+                Object.keys(positionsLocal).forEach(key => {
                     const opt = document.createElement("option");
                     opt.value = key;
-                    opt.textContent = positionsCache[key];
+                    opt.textContent = positionsLocal[key];
                     positionSelect.appendChild(opt);
                 });
 
@@ -883,10 +839,10 @@
                 roleDefault.value = "";
                 roleDefault.textContent = "Select role";
                 roleSelect.appendChild(roleDefault);
-                Object.keys(rolesCache || {}).forEach(key => {
+                Object.keys(rolesLocal).forEach(key => {
                     const opt = document.createElement("option");
                     opt.value = key;
-                    opt.textContent = rolesCache[key];
+                    opt.textContent = rolesLocal[key];
                     roleSelect.appendChild(opt);
                 });
 
@@ -915,8 +871,12 @@
 
         async function openAddUserModal() {
             try {
-                await ensureRolesCache();
-                await ensurePositionsCache();
+                const positionsRaw = await window.getFirestorePositions();
+                const rolesRaw = await window.getFirestoreRoles();
+                const positionsLocal = {};
+                positionsRaw.forEach(p => positionsLocal[p.id] = p.name);
+                const rolesLocal = {};
+                rolesRaw.forEach(r => rolesLocal[r.id] = r.name);
                 const overlay = document.getElementById("addUserOverlay");
                 const fullNameInput = document.getElementById("addFullName");
                 const nicknameInput = document.getElementById("addNickname");
@@ -933,10 +893,10 @@
                 posDefault.value = "";
                 posDefault.textContent = "Select position";
                 positionSelect.appendChild(posDefault);
-                Object.keys(positionsCache || {}).forEach(key => {
+                Object.keys(positionsLocal).forEach(key => {
                     const opt = document.createElement("option");
                     opt.value = key;
-                    opt.textContent = positionsCache[key];
+                    opt.textContent = positionsLocal[key];
                     positionSelect.appendChild(opt);
                 });
 
@@ -945,10 +905,10 @@
                 roleDefault.value = "";
                 roleDefault.textContent = "Select role";
                 roleSelect.appendChild(roleDefault);
-                Object.keys(rolesCache || {}).forEach(key => {
+                Object.keys(rolesLocal).forEach(key => {
                     const opt = document.createElement("option");
                     opt.value = key;
-                    opt.textContent = rolesCache[key];
+                    opt.textContent = rolesLocal[key];
                     roleSelect.appendChild(opt);
                 });
 

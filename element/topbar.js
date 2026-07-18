@@ -177,23 +177,14 @@ export function renderTopBar(target) {
             try {
                 // Dynamically import Firestore SDK to avoid module issues if not already imported
                 const { doc, getDoc } = await import("https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js");
-                
-                // Try 'position' collection first
-                let ref = doc(db, "position", currentRole);
-                let snap = await getDoc(ref);
-                
-                // Fallback to 'positions' if not found
-                if (!snap.exists()) {
-                    ref = doc(db, "positions", currentRole);
-                    snap = await getDoc(ref);
-                }
-
-                if (snap.exists()) {
-                    const d = snap.data();
-                    const realName = d.name || d.title || d.position || d.label;
-                    if (realName) {
-                        roleDisplay.textContent = realName;
-                    }
+                const positions = await window.getFirestorePositions();
+                const posMap = {};
+                positions.forEach(p => posMap[p.id] = p.name);
+                const realName = posMap[currentRole];
+                if (realName) {
+                    roleDisplay.textContent = realName;
+                } else {
+                    console.warn("Position not found in cache for ID:", currentRole);
                 }
             } catch (err) {
                 console.warn("Failed to resolve position name:", err);

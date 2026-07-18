@@ -538,16 +538,7 @@
             if (!container) return;
             container.innerHTML = '<span class="text-muted small">Loading departments...</span>';
             try {
-                const snap = await getDocs(collection(db, "departments"));
-                const items = [];
-                snap.forEach(docSnap => {
-                    const d = docSnap.data() || {};
-                    items.push({
-                        id: docSnap.id,
-                        name: d.name || "Untitled",
-                        color: d.color || "#e5e7eb"
-                    });
-                });
+                const items = await window.getFirestoreDepartments();
                 editDepartments = items;
                 if (currentProjectData && currentProjectData.department) {
                     const currentName = String(currentProjectData.department || "").toLowerCase();

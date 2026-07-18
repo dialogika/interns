@@ -415,16 +415,7 @@
                 container.innerHTML = '<span class="text-muted small">Loading departments...</span>';
             }
             try {
-                const snap = await getDocs(collection(db, "departments"));
-                const items = [];
-                snap.forEach(docSnap => {
-                    const d = docSnap.data();
-                    items.push({
-                        id: docSnap.id,
-                        name: d.name || "Untitled",
-                        color: d.color || "#e5e7eb"
-                    });
-                });
+                const items = await window.getFirestoreDepartments();
                 departments = items;
                 if (!selectedDepartment && departments.length > 0) {
                     selectedDepartment = departments[0];
@@ -506,9 +497,13 @@
                     // Retry with exponential backoff if connection was aborted or unavailable
                     if (error.code === 'unavailable' || error.message.includes('abort') || error.code === 'cancelled') {
                         listenToProjectsRetryCount++;
-                        const delay = Math.min(1000 * Math.pow(2, listenToProjectsRetryCount), 30000); // Max 30s delay
-                        console.log(`Retrying projects listener in ${delay}ms (attempt ${listenToProjectsRetryCount})...`);
-                        setTimeout(listenToProjects, delay);
+                        if (listenToProjectsRetryCount <= 3) {
+                            const delay = Math.min(1000 * Math.pow(2, listenToProjectsRetryCount), 30000); 
+                            console.log(`Retrying projects listener in ${delay}ms (attempt ${listenToProjectsRetryCount})...`);
+                            setTimeout(listenToProjects, delay);
+                        } else {
+                            console.warn("Max retries reached for projects listener.");
+                        }
                     }
                 });
             } catch (e) {
@@ -585,13 +580,17 @@
 
                     if (isRetryable) {
                         listenToTasksRetryCount++;
-                        const delay = Math.min(1000 * Math.pow(2, listenToTasksRetryCount), 30000); 
-                        console.log(`Attempting to reconnect tasks listener in ${delay}ms (attempt ${listenToTasksRetryCount})...`);
-                        setTimeout(() => {
-                            if (auth.currentUser) {
-                                listenToTasks();
-                            }
-                        }, delay);
+                        if (listenToTasksRetryCount <= 3) {
+                            const delay = Math.min(1000 * Math.pow(2, listenToTasksRetryCount), 30000); 
+                            console.log(`Attempting to reconnect tasks listener in ${delay}ms (attempt ${listenToTasksRetryCount})...`);
+                            setTimeout(() => {
+                                if (auth.currentUser) {
+                                    listenToTasks();
+                                }
+                            }, delay);
+                        } else {
+                            console.warn("Max retries reached for tasks listener.");
+                        }
                     }
                 });
             } catch (e) {
@@ -711,9 +710,13 @@
                     // Retry with exponential backoff if connection was aborted or unavailable
                     if (error.code === 'unavailable' || error.message.includes('abort') || error.code === 'cancelled') {
                         listenToOnlineUsersRetryCount++;
-                        const delay = Math.min(1000 * Math.pow(2, listenToOnlineUsersRetryCount), 30000); // Max 30s delay
-                        console.log(`Retrying online users listener in ${delay}ms (attempt ${listenToOnlineUsersRetryCount})...`);
-                        setTimeout(listenToOnlineUsers, delay);
+                        if (listenToOnlineUsersRetryCount <= 3) {
+                            const delay = Math.min(1000 * Math.pow(2, listenToOnlineUsersRetryCount), 30000); // Max 30s delay
+                            console.log(`Retrying online users listener in ${delay}ms (attempt ${listenToOnlineUsersRetryCount})...`);
+                            setTimeout(listenToOnlineUsers, delay);
+                        } else {
+                            console.warn("Max retries reached for online users listener.");
+                        }
                     }
                 });
             } catch (e) {

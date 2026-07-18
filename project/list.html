@@ -1186,9 +1186,12 @@
             });
         }
 
+        let unsubscribeProjectTasks = null;
+
         function listenToTasks() {
             const q = query(collection(db, "tasks"), where("project_id", "==", projectId));
-            onSnapshot(q, (snapshot) => {
+            if (unsubscribeProjectTasks) unsubscribeProjectTasks();
+            unsubscribeProjectTasks = onSnapshot(q, (snapshot) => {
                 allTasks = [];
                 snapshot.forEach(docSnap => allTasks.push({ id: docSnap.id, ...docSnap.data() }));
                 allTasks.sort((a, b) => {
