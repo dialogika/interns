@@ -1,767 +1,1226 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="id">
-
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Home - Intern Dialogika</title>
 
     <!-- Bootstrap 5.3 CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
     <!-- Bootstrap Icons -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css"
+    />
     <!-- Google Fonts: Poppins -->
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
     <link href="assets/css/style.css" rel="stylesheet" />
     <style>
-        /* New Project Placeholder Card */
-        .btn-new-project-placeholder {
-            border: 2px dashed #cbd5e1;
-            border-radius: 16px;
-            background-color: #f8fafc;
-            color: #64748b;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            height: 100%;
-            min-height: 200px;
-            transition: all 0.2s ease;
-            cursor: pointer;
-            text-decoration: none;
-        }
-        .btn-new-project-placeholder:hover {
-            border-color: var(--dlg-blue);
-            color: var(--dlg-blue);
-            background-color: #eff6ff;
-            transform: translateY(-5px);
-        }
-        .new-proj-icon {
-            font-size: 2.5rem;
-            margin-bottom: 10px;
-            opacity: 0.5;
-        }
+      /* New Project Placeholder Card */
+      .btn-new-project-placeholder {
+        border: 2px dashed #cbd5e1;
+        border-radius: 16px;
+        background-color: #f8fafc;
+        color: #64748b;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        height: 100%;
+        min-height: 200px;
+        transition: all 0.2s ease;
+        cursor: pointer;
+        text-decoration: none;
+      }
+      .btn-new-project-placeholder:hover {
+        border-color: var(--dlg-blue);
+        color: var(--dlg-blue);
+        background-color: #eff6ff;
+        transform: translateY(-5px);
+      }
+      .new-proj-icon {
+        font-size: 2.5rem;
+        margin-bottom: 10px;
+        opacity: 0.5;
+      }
 
-        /* Modal Styling (Mirip Basecamp) */
-        .modal-content {
-            border-radius: 12px;
-            border: none;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
-        }
-        .modal-header { border-bottom: 1px solid #f3f4f6; padding: 20px 30px; }
-        .modal-body { padding: 30px; }
-        .modal-title { font-weight: 800; color: #111; font-size: 1.5rem; }
-        
-        .form-label { font-weight: 700; color: #374151; margin-bottom: 8px; font-size: 0.95rem; }
-        .form-control, .form-select {
-            padding: 10px 15px; border-radius: 6px; border: 1px solid #d1d5db;
-            font-size: 0.95rem;
-        }
-        .form-control:focus { border-color: var(--dlg-blue); box-shadow: 0 0 0 3px rgba(11, 43, 106, 0.1); }
+      /* Modal Styling (Mirip Basecamp) */
+      .modal-content {
+        border-radius: 12px;
+        border: none;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+      }
+      .modal-header {
+        border-bottom: 1px solid #f3f4f6;
+        padding: 20px 30px;
+      }
+      .modal-body {
+        padding: 30px;
+      }
+      .modal-title {
+        font-weight: 800;
+        color: #111;
+        font-size: 1.5rem;
+      }
 
-        /* Rich Editor di Modal (Re-use style from List) */
-        .modal-editor-box {
-            border: 1px solid #d1d5db;
-            border-radius: 6px;
-            overflow: hidden;
-        }
-        .modal-editor-toolbar {
-            background: #fff; border-bottom: 1px solid #f3f4f6; padding: 5px 10px;
-            display: flex; gap: 8px; flex-wrap: wrap;
-        }
-        .modal-editor-content {
-            min-height: 120px; padding: 15px; outline: none; background: #fff;
-        }
+      .form-label {
+        font-weight: 700;
+        color: #374151;
+        margin-bottom: 8px;
+        font-size: 0.95rem;
+      }
+      .form-control,
+      .form-select {
+        padding: 10px 15px;
+        border-radius: 6px;
+        border: 1px solid #d1d5db;
+        font-size: 0.95rem;
+      }
+      .form-control:focus {
+        border-color: var(--dlg-blue);
+        box-shadow: 0 0 0 3px rgba(11, 43, 106, 0.1);
+      }
 
-        /* Toggle Switch */
-        .form-check-input:checked {
-            background-color: #108a00;
-            border-color: #108a00;
-        }
+      /* Rich Editor di Modal (Re-use style from List) */
+      .modal-editor-box {
+        border: 1px solid #d1d5db;
+        border-radius: 6px;
+        overflow: hidden;
+      }
+      .modal-editor-toolbar {
+        background: #fff;
+        border-bottom: 1px solid #f3f4f6;
+        padding: 5px 10px;
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+      }
+      .modal-editor-content {
+        min-height: 120px;
+        padding: 15px;
+        outline: none;
+        background: #fff;
+      }
 
-        .project-card-actions i {
-            cursor: pointer;
-        }
-        .project-card-actions .project-trash-icon {
-            opacity: 0;
-            pointer-events: none;
-            transition: opacity 0.15s ease;
-        }
-        .project-card:hover .project-card-actions .project-trash-icon {
-            opacity: 1;
-            pointer-events: auto;
-        }
+      /* Toggle Switch */
+      .form-check-input:checked {
+        background-color: #108a00;
+        border-color: #108a00;
+      }
 
-        .project-card-actions-unpinned i {
-            opacity: 0;
-            pointer-events: none;
-            transition: opacity 0.15s ease;
-        }
-        .project-card:hover .project-card-actions-unpinned i {
-            opacity: 1;
-            pointer-events: auto;
-        }
+      .project-card-actions i {
+        cursor: pointer;
+      }
+      .project-card-actions .project-trash-icon {
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.15s ease;
+      }
+      .project-card:hover .project-card-actions .project-trash-icon {
+        opacity: 1;
+        pointer-events: auto;
+      }
 
-        .piket-notice-card {
-            border-radius: 22px;
-            background: linear-gradient(135deg, #eff6ff 0%, #ffffff 100%);
-            border: 1px solid #bfdbfe;
-            box-shadow: 0 12px 34px rgba(37, 99, 235, 0.08);
-        }
-        .piket-notice-card .badge-piket {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            padding: 6px 12px;
-            border-radius: 999px;
-            font-size: 12px;
-            font-weight: 700;
-        }
+      .project-card-actions-unpinned i {
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.15s ease;
+      }
+      .project-card:hover .project-card-actions-unpinned i {
+        opacity: 1;
+        pointer-events: auto;
+      }
+
+      .piket-notice-card {
+        border-radius: 22px;
+        background: linear-gradient(135deg, #eff6ff 0%, #ffffff 100%);
+        border: 1px solid #bfdbfe;
+        box-shadow: 0 12px 34px rgba(37, 99, 235, 0.08);
+      }
+      .piket-notice-card .badge-piket {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 6px 12px;
+        border-radius: 999px;
+        font-size: 12px;
+        font-weight: 700;
+      }
+
+      #announcementBannerContainer .fw-bold,
+      #announcementBannerContainer .text-muted,
+      #announcementDetailContent,
+      #announcementDetailTitle {
+        overflow-wrap: anywhere;
+        word-break: break-all;
+      }
+      #announcementDetailModal .modal-content,
+      #announcementDetailModal .modal-body {
+        min-width: 0;
+      }
     </style>
-</head>
-<body>
-
+  </head>
+  <body>
     <div id="topbarContainer"></div>
-    
+
     <div class="dashboard-container">
-        
-        <div id="sidebarContainer"></div>
+      <div id="sidebarContainer"></div>
 
-        <!-- 3. MAIN CONTENT (Code-28 Rich Content) -->
-        <main class="main-content">
-            
-            <div class="mb-4">
-                <h4 id="welcomeMessage" class="fw-bold mb-0">Welcome!</h4>
-                <small class="text-muted">Here is your daily update.</small>
-            </div>
+      <!-- 3. MAIN CONTENT (Code-28 Rich Content) -->
+      <main class="main-content">
+        <div class="mb-4">
+          <h4 id="welcomeMessage" class="fw-bold mb-0">Welcome!</h4>
+          <small class="text-muted">Here is your daily update.</small>
+        </div>
 
-            <div id="piketNoticeHome" class="d-none"></div>
+        <div id="piketNoticeHome" class="d-none"></div>
 
-            <div class="d-flex justify-content-between align-items-center mb-2">
-                <h6 class="fw-bold text-muted text-uppercase small">Who is Online</h6>
-                <span id="onlineActiveBadge" class="badge bg-success bg-opacity-10 text-success rounded-pill px-3">0 Active</span>
-            </div>
-            <div class="online-scroll-container mb-4" id="onlineUsersContainer"></div>
+        <div class="d-flex justify-content-between align-items-center mb-2">
+          <h6 class="fw-bold text-muted text-uppercase small">Who is Online</h6>
+          <span
+            id="onlineActiveBadge"
+            class="badge bg-success bg-opacity-10 text-success rounded-pill px-3"
+            >0 Active</span
+          >
+        </div>
+        <div
+          class="online-scroll-container mb-4"
+          id="onlineUsersContainer"
+        ></div>
 
-            <div id="pinnedProjectsContainer" style="display: none;"></div>
-            <div id="otherProjectsContainer" style="display: none;"></div>
-            
+        <div id="announcementBannerSection" class="mb-4" style="display: none">
+          <div class="d-flex justify-content-between align-items-center mb-2">
+            <h6 class="fw-bold text-muted text-uppercase small">
+              Announcements
+            </h6>
+          </div>
+          <div
+            id="announcementBannerContainer"
+            class="d-flex flex-column gap-2"
+          ></div>
+        </div>
 
-            <!-- APPS OVERVIEW (FULL GRID) -->
-            <div class="d-flex justify-content-between align-items-center mb-3">
-                <h5 class="fw-bold mb-0 text-dark">Apps Overview</h5>
-                <div class="d-none d-sm-block text-muted small"><i class="bi bi-grid-fill me-1"></i> All Apps</div>
-                </div>
+        <div id="pinnedProjectsContainer" style="display: none"></div>
+        <div id="otherProjectsContainer" style="display: none"></div>
 
-                <div class="row row-cols-3 row-cols-md-4 row-cols-lg-6 g-3 mb-5">
-                    <div class="col"><a href="setting/internship-management.html" class="app-box"><div class="app-icon-wrapper grad-blue"><i class="bi bi-chat-quote-fill"></i></div><div class="app-title">Internship Management</div></a></div>
-                    <div class="col"><a href="daily-report.html" class="app-box"><div class="app-icon-wrapper grad-blue"><i class="bi bi-journal-check"></i></div><div class="app-title">Daily Report</div></a></div>
-                    <div class="col"><a href="data/intern-presence.html" class="app-box"><div class="app-icon-wrapper grad-red"><i class="bi bi-clock-history"></i></div><div class="app-title">Intern Presence</div></a></div>
-                    <div class="col"><a href="data/performance-appraisal-intern.html" class="app-box"><div class="app-icon-wrapper grad-purple"><i class="bi bi-star-fill"></i></div><div class="app-title">Performance Appraisal Intern</div></a></div>
-                    <div class="col"><a href="quest/dashboard-people-dev.html" class="app-box"><div class="app-icon-wrapper grad-green"><i class="bi bi-box-seam-fill"></i></div><div class="app-title">People Development</div></a></div>
-                    <div class="col"><a href="data/intern-gamification.html" class="app-box"><div class="app-icon-wrapper grad-yellow"><i class="bi bi-trophy-fill"></i></div><div class="app-title">Intern Gamification</div></a></div>
-                    <div class="col"><a href="data/candidate-internship.html" class="app-box"><div class="app-icon-wrapper grad-green"><i class="bi bi-clipboard-data-fill"></i></div><div class="app-title">Candidate Internship</div></a></div>
-                    <div class="col"><a href="quest/dashboard-recruitment.html" class="app-box"><div class="app-icon-wrapper grad-red"><i class="bi bi-calendar-event-fill"></i></div><div class="app-title">Recruitment Specialist</div></a></div>
-                    <div class="col"><a href="data/scouting-candidate.html" class="app-box"><div class="app-icon-wrapper grad-purple"><i class="bi bi-book-half"></i></div><div class="app-title">Scouting Candidate</div></a></div>
-                    <div class="col"><a href="data/company-position.html" class="app-box"><div class="app-icon-wrapper grad-green"><i class="bi bi-calendar-check-fill"></i></div><div class="app-title">Company Position</div></a></div>
-                    <div class="col"><a href="setting/users-management.html" class="app-box"><div class="app-icon-wrapper grad-yellow"><i class="bi bi-lightbulb-fill"></i></div><div class="app-title">User Management</div></a></div>
-                </div>
+        <!-- APPS OVERVIEW (FULL GRID) -->
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <h5 class="fw-bold mb-0 text-dark">Apps Overview</h5>
+          <div class="d-none d-sm-block text-muted small">
+            <i class="bi bi-grid-fill me-1"></i> All Apps
+          </div>
+        </div>
 
-                <!-- ================= BRANDING DIVISION ================= -->
-                <div class="d-flex justify-content-between align-items-center mb-3 mt-5">
-                    <h5 class="fw-bold mb-0 text-dark">Branding Division</h5>
-                    <div class="d-none d-sm-block text-muted small">
-                        <i class="bi bi-palette-fill me-1"></i> Branding
-                    </div>
-                </div>
+        <div class="row row-cols-3 row-cols-md-4 row-cols-lg-6 g-3 mb-5">
+          <div class="col">
+            <a href="setting/internship-management.html" class="app-box"
+              ><div class="app-icon-wrapper grad-blue">
+                <i class="bi bi-chat-quote-fill"></i>
+              </div>
+              <div class="app-title">Internship Management</div></a
+            >
+          </div>
+          <div class="col">
+            <a href="daily-report.html" class="app-box"
+              ><div class="app-icon-wrapper grad-blue">
+                <i class="bi bi-journal-check"></i>
+              </div>
+              <div class="app-title">Daily Report</div></a
+            >
+          </div>
+          <div class="col">
+            <a href="data/intern-presence.html" class="app-box"
+              ><div class="app-icon-wrapper grad-red">
+                <i class="bi bi-clock-history"></i>
+              </div>
+              <div class="app-title">Intern Presence</div></a
+            >
+          </div>
+          <div class="col">
+            <a href="data/performance-appraisal-intern.html" class="app-box"
+              ><div class="app-icon-wrapper grad-purple">
+                <i class="bi bi-star-fill"></i>
+              </div>
+              <div class="app-title">Performance Appraisal Intern</div></a
+            >
+          </div>
+          <div class="col">
+            <a href="quest/dashboard-people-dev.html" class="app-box"
+              ><div class="app-icon-wrapper grad-green">
+                <i class="bi bi-box-seam-fill"></i>
+              </div>
+              <div class="app-title">People Development</div></a
+            >
+          </div>
+          <div class="col">
+            <a href="data/intern-gamification.html" class="app-box"
+              ><div class="app-icon-wrapper grad-yellow">
+                <i class="bi bi-trophy-fill"></i>
+              </div>
+              <div class="app-title">Intern Gamification</div></a
+            >
+          </div>
+          <div class="col">
+            <a href="data/candidate-internship.html" class="app-box"
+              ><div class="app-icon-wrapper grad-green">
+                <i class="bi bi-clipboard-data-fill"></i>
+              </div>
+              <div class="app-title">Candidate Internship</div></a
+            >
+          </div>
+          <div class="col">
+            <a href="quest/dashboard-recruitment.html" class="app-box"
+              ><div class="app-icon-wrapper grad-red">
+                <i class="bi bi-calendar-event-fill"></i>
+              </div>
+              <div class="app-title">Recruitment Specialist</div></a
+            >
+          </div>
+          <div class="col">
+            <a href="data/scouting-candidate.html" class="app-box"
+              ><div class="app-icon-wrapper grad-purple">
+                <i class="bi bi-book-half"></i>
+              </div>
+              <div class="app-title">Scouting Candidate</div></a
+            >
+          </div>
+          <div class="col">
+            <a href="data/company-position.html" class="app-box"
+              ><div class="app-icon-wrapper grad-green">
+                <i class="bi bi-calendar-check-fill"></i>
+              </div>
+              <div class="app-title">Company Position</div></a
+            >
+          </div>
+          <div class="col">
+            <a href="setting/users-management.html" class="app-box"
+              ><div class="app-icon-wrapper grad-yellow">
+                <i class="bi bi-lightbulb-fill"></i>
+              </div>
+              <div class="app-title">User Management</div></a
+            >
+          </div>
+        </div>
 
-                <div class="row row-cols-3 row-cols-md-4 row-cols-lg-6 g-3 mb-5">
-                    <div class="col">
-                        <a href="data/piket-branding.html" class="app-box">
-                            <div class="app-icon-wrapper grad-purple"><i class="bi bi-person-check-fill"></i></div>
-                            <div class="app-title">Piket Branding</div>
-                        </a>
-                    </div>
-                    <div class="col">
-                        <a href="data/branding-schedule.html" class="app-box">
-                            <div class="app-icon-wrapper grad-purple"><i class="bi bi-calendar-range-fill"></i></div>
-                            <div class="app-title">Content Schedule</div>
-                            <span class="menu-badge menu-badge-floating menu-badge-hidden"
-                                data-menu-badge="branding-schedule"></span>
-                        </a>
-                    </div>
-                </div>
+        <!-- ================= BRANDING DIVISION ================= -->
+        <div
+          class="d-flex justify-content-between align-items-center mb-3 mt-5"
+        >
+          <h5 class="fw-bold mb-0 text-dark">Branding Division</h5>
+          <div class="d-none d-sm-block text-muted small">
+            <i class="bi bi-palette-fill me-1"></i> Branding
+          </div>
+        </div>
 
-
-        </main>
-
-        <!-- MOBILE BOTTOM NAVIGATION -->
-        <div class="bottom-nav">
-            <a href="#" class="nav-item-mobile active"><i class="bi bi-house-door-fill"></i></a>
-            <a href="#" class="nav-item-mobile"><i class="bi bi-search"></i></a>
-            
-            <button class="nav-btn-plus" type="button" data-bs-toggle="offcanvas" data-bs-target="#actionSheet">
-                <i class="bi bi-plus-lg"></i>
-            </button>
-            
-            <a href="#" class="nav-item-mobile position-relative">
-                <i class="bi bi-bell"></i>
-                <span class="position-absolute top-0 start-100 translate-middle p-1 bg-danger border border-light rounded-circle" style="width:10px; height:10px; margin-left:-15px; margin-top:10px;"></span>
+        <div class="row row-cols-3 row-cols-md-4 row-cols-lg-6 g-3 mb-5">
+          <div class="col">
+            <a href="data/piket-branding.html" class="app-box">
+              <div class="app-icon-wrapper grad-purple">
+                <i class="bi bi-person-check-fill"></i>
+              </div>
+              <div class="app-title">Piket Branding</div>
             </a>
-            <a href="#" class="nav-item-mobile"><i class="bi bi-person"></i></a>
+          </div>
+          <div class="col">
+            <a href="data/branding-schedule.html" class="app-box">
+              <div class="app-icon-wrapper grad-purple">
+                <i class="bi bi-calendar-range-fill"></i>
+              </div>
+              <div class="app-title">Content Schedule</div>
+              <span
+                class="menu-badge menu-badge-floating menu-badge-hidden"
+                data-menu-badge="branding-schedule"
+              ></span>
+            </a>
+          </div>
         </div>
+      </main>
 
-        <!-- MOBILE ACTION SHEET -->
-        <div class="offcanvas offcanvas-bottom custom-bottom-sheet" tabindex="-1" id="actionSheet">
-            <div class="offcanvas-header justify-content-center pb-0">
-                <div style="width: 40px; height: 4px; background: #e2e8f0; border-radius: 10px;"></div>
-            </div>
-            <div class="offcanvas-body pt-4">
-                <h6 class="fw-bold mb-3 ps-2">Create New</h6>
-                <a href="#" class="action-option">
-                    <div class="d-flex align-items-center justify-content-center rounded-3 me-3" style="width:40px; height:40px; background:#e0f2fe; color:#0284c7;"><i class="bi bi-sticky"></i></div>
-                    <div><span class="d-block fw-bold small">Capture</span><small class="text-muted" style="font-size: 0.7rem;">Quick ideas & memos</small></div>
-                </a>
-                <a href="#" class="action-option">
-                    <div class="d-flex align-items-center justify-content-center rounded-3 me-3" style="width:40px; height:40px; background:#f0fdf4; color:#16a34a;"><i class="bi bi-check2-square"></i></div>
-                    <div><span class="d-block fw-bold small">Reminder</span><small class="text-muted" style="font-size: 0.7rem;">Assign to yourself or team</small></div>
-                </a>
-            </div>
+      <!-- MOBILE BOTTOM NAVIGATION -->
+      <div class="bottom-nav">
+        <a href="#" class="nav-item-mobile active"
+          ><i class="bi bi-house-door-fill"></i
+        ></a>
+        <a href="#" class="nav-item-mobile"><i class="bi bi-search"></i></a>
+
+        <button
+          class="nav-btn-plus"
+          type="button"
+          data-bs-toggle="offcanvas"
+          data-bs-target="#actionSheet"
+        >
+          <i class="bi bi-plus-lg"></i>
+        </button>
+
+        <a href="#" class="nav-item-mobile position-relative">
+          <i class="bi bi-bell"></i>
+          <span
+            class="position-absolute top-0 start-100 translate-middle p-1 bg-danger border border-light rounded-circle"
+            style="
+              width: 10px;
+              height: 10px;
+              margin-left: -15px;
+              margin-top: 10px;
+            "
+          ></span>
+        </a>
+        <a href="#" class="nav-item-mobile"><i class="bi bi-person"></i></a>
+      </div>
+
+      <!-- MOBILE ACTION SHEET -->
+      <div
+        class="offcanvas offcanvas-bottom custom-bottom-sheet"
+        tabindex="-1"
+        id="actionSheet"
+      >
+        <div class="offcanvas-header justify-content-center pb-0">
+          <div
+            style="
+              width: 40px;
+              height: 4px;
+              background: #e2e8f0;
+              border-radius: 10px;
+            "
+          ></div>
         </div>
-
+        <div class="offcanvas-body pt-4">
+          <h6 class="fw-bold mb-3 ps-2">Create New</h6>
+          <a href="#" class="action-option">
+            <div
+              class="d-flex align-items-center justify-content-center rounded-3 me-3"
+              style="
+                width: 40px;
+                height: 40px;
+                background: #e0f2fe;
+                color: #0284c7;
+              "
+            >
+              <i class="bi bi-sticky"></i>
+            </div>
+            <div>
+              <span class="d-block fw-bold small">Capture</span
+              ><small class="text-muted" style="font-size: 0.7rem"
+                >Quick ideas & memos</small
+              >
+            </div>
+          </a>
+          <a href="#" class="action-option">
+            <div
+              class="d-flex align-items-center justify-content-center rounded-3 me-3"
+              style="
+                width: 40px;
+                height: 40px;
+                background: #f0fdf4;
+                color: #16a34a;
+              "
+            >
+              <i class="bi bi-check2-square"></i>
+            </div>
+            <div>
+              <span class="d-block fw-bold small">Reminder</span
+              ><small class="text-muted" style="font-size: 0.7rem"
+                >Assign to yourself or team</small
+              >
+            </div>
+          </a>
+        </div>
+      </div>
     </div>
-    
+
     <!-- --- MODAL: NEW PROJECT --- -->
-    <div class="modal fade" id="newProjectModal" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog modal-lg modal-dialog-centered">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Create a new project</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+    <div
+      class="modal fade"
+      id="newProjectModal"
+      tabindex="-1"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Create a new project</h5>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+              aria-label="Close"
+            ></button>
+          </div>
+          <div class="modal-body">
+            <!-- Di dalam Modal Body -->
+            <form id="createProjectForm">
+              <!-- Tambahkan ID pada form -->
+
+              <!-- Name -->
+              <div class="mb-4">
+                <label class="form-label">Name</label>
+                <input
+                  type="text"
+                  id="inputProjectName"
+                  class="form-control form-control-lg"
+                  placeholder="e.g. Website Redesign"
+                />
+              </div>
+
+              <div class="mb-4">
+                <label class="form-label">Department</label>
+                <div
+                  id="departmentOptions"
+                  class="d-flex flex-wrap gap-2"
+                ></div>
+              </div>
+
+              <!-- Description (Rich Editor) -->
+              <div class="mb-4">
+                <label class="form-label"
+                  >Description
+                  <span class="text-muted fw-normal">(optional)</span></label
+                >
+                <div class="modal-editor-box">
+                  <div class="modal-editor-toolbar">
+                    <!-- Toolbar buttons... biarkan saja -->
+                    <button type="button" class="btn btn-sm btn-light border">
+                      <b>B</b>
+                    </button>
+                    <button type="button" class="btn btn-sm btn-light border">
+                      <i>I</i>
+                    </button>
+                  </div>
+                  <!-- Tambahkan ID: inputProjectDesc -->
+                  <div
+                    id="inputProjectDesc"
+                    class="modal-editor-content"
+                    contenteditable="true"
+                    data-placeholder="Add extra details..."
+                  ></div>
                 </div>
-                <div class="modal-body">
-                    <!-- Di dalam Modal Body -->
-                    <form id="createProjectForm"> <!-- Tambahkan ID pada form -->
-                        
-                        <!-- Name -->
-                        <div class="mb-4">
-                            <label class="form-label">Name</label>
-                            <input type="text" id="inputProjectName" class="form-control form-control-lg" placeholder="e.g. Website Redesign">
-                        </div>
+              </div>
 
-                        <div class="mb-4">
-                            <label class="form-label">Department</label>
-                            <div id="departmentOptions" class="d-flex flex-wrap gap-2"></div>
-                        </div>
+              <input type="hidden" id="inputOwnerId" value="USER-001" />
 
-                        <!-- Description (Rich Editor) -->
-                        <div class="mb-4">
-                            <label class="form-label">Description <span class="text-muted fw-normal">(optional)</span></label>
-                            <div class="modal-editor-box">
-                                <div class="modal-editor-toolbar">
-                                    <!-- Toolbar buttons... biarkan saja -->
-                                    <button type="button" class="btn btn-sm btn-light border"><b>B</b></button>
-                                    <button type="button" class="btn btn-sm btn-light border"><i>I</i></button>
-                                </div>
-                                <!-- Tambahkan ID: inputProjectDesc -->
-                                <div id="inputProjectDesc" class="modal-editor-content" contenteditable="true" data-placeholder="Add extra details..."></div>
-                            </div>
-                        </div>
+              <div class="mb-4 form-check form-switch">
+                <input
+                  class="form-check-input"
+                  type="checkbox"
+                  id="inputProjectPinned"
+                  checked
+                />
+                <label class="form-check-label" for="inputProjectPinned"
+                  >Pin this project</label
+                >
+              </div>
 
-                        <input type="hidden" id="inputOwnerId" value="USER-001">
-
-                        <div class="mb-4 form-check form-switch">
-                            <input class="form-check-input" type="checkbox" id="inputProjectPinned" checked>
-                            <label class="form-check-label" for="inputProjectPinned">Pin this project</label>
-                        </div>
-
-                        <!-- Footer Buttons -->
-                        <div class="d-flex gap-3 pt-3 border-top">
-                            <!-- Ubah type jadi button dan tambah onclick -->
-                            <button type="button" class="btn btn-dlg-blue rounded-pill px-4" onclick="saveProject()">Save changes</button>
-                            <button type="button" class="btn btn-light rounded-pill px-4 border" data-bs-dismiss="modal">Cancel</button>
-                        </div>
-                    </form>
-                </div>
-            </div>
+              <!-- Footer Buttons -->
+              <div class="d-flex gap-3 pt-3 border-top">
+                <!-- Ubah type jadi button dan tambah onclick -->
+                <button
+                  type="button"
+                  class="btn btn-dlg-blue rounded-pill px-4"
+                  onclick="saveProject()"
+                >
+                  Save changes
+                </button>
+                <button
+                  type="button"
+                  class="btn btn-light rounded-pill px-4 border"
+                  data-bs-dismiss="modal"
+                >
+                  Cancel
+                </button>
+              </div>
+            </form>
+          </div>
         </div>
+      </div>
     </div>
-    
-    <div class="modal fade" id="deleteProjectModal" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content rounded-4 border-0">
-                <div class="modal-header border-0 p-4 pb-0">
-                    <h5 class="fw-bold text-danger">Delete Project</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body p-4">
-                    <p class="mb-2">Apakah anda ingin mendelete Project <span id="deleteProjectName" class="fw-bold"></span> ini?</p>
-                    <input type="hidden" id="deleteProjectId">
-                </div>
-                <div class="modal-footer border-0 px-4 pb-4">
-                    <button type="button" class="btn btn-light rounded-pill px-4" data-bs-dismiss="modal">Cancel</button>
-                    <button type="button" class="btn btn-danger rounded-pill px-4" onclick="confirmDeleteProject()">Delete</button>
-                </div>
-            </div>
+
+    <div
+      class="modal fade"
+      id="deleteProjectModal"
+      tabindex="-1"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content rounded-4 border-0">
+          <div class="modal-header border-0 p-4 pb-0">
+            <h5 class="fw-bold text-danger">Delete Project</h5>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+            ></button>
+          </div>
+          <div class="modal-body p-4">
+            <p class="mb-2">
+              Apakah anda ingin mendelete Project
+              <span id="deleteProjectName" class="fw-bold"></span> ini?
+            </p>
+            <input type="hidden" id="deleteProjectId" />
+          </div>
+          <div class="modal-footer border-0 px-4 pb-4">
+            <button
+              type="button"
+              class="btn btn-light rounded-pill px-4"
+              data-bs-dismiss="modal"
+            >
+              Cancel
+            </button>
+            <button
+              type="button"
+              class="btn btn-danger rounded-pill px-4"
+              onclick="confirmDeleteProject()"
+            >
+              Delete
+            </button>
+          </div>
         </div>
+      </div>
     </div>
-    
+
     <!-- MODAL: USER PROFILE -->
-    <div class="modal fade" id="userProfileModal" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog modal-md modal-dialog-centered">
-            <div class="modal-content rounded-4">
-                <div class="modal-header border-0 pb-0">
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body text-center pt-0 px-4 pb-4">
-                    <img id="modalUserProfilePhoto" src="https://i.pravatar.cc/150" class="rounded-circle mb-3" width="100" height="100" style="object-fit: cover;">
-                            <h5 id="modalUserProfileName" class="fw-bold mb-0">Nama Pengguna</h5>
-                        </div>
-            </div>
+    <div
+      class="modal fade"
+      id="userProfileModal"
+      tabindex="-1"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog modal-md modal-dialog-centered">
+        <div class="modal-content rounded-4">
+          <div class="modal-header border-0 pb-0">
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+              aria-label="Close"
+            ></button>
+          </div>
+          <div class="modal-body text-center pt-0 px-4 pb-4">
+            <img
+              id="modalUserProfilePhoto"
+              src="https://i.pravatar.cc/150"
+              class="rounded-circle mb-3"
+              width="100"
+              height="100"
+              style="object-fit: cover"
+            />
+            <h5 id="modalUserProfileName" class="fw-bold mb-0">
+              Nama Pengguna
+            </h5>
+          </div>
         </div>
+      </div>
     </div>
-    
+
+    <!-- MODAL: ANNOUNCEMENT DETAIL -->
+    <div
+      class="modal fade"
+      id="announcementDetailModal"
+      tabindex="-1"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content rounded-4" style="min-width: 0">
+          <div class="modal-header border-0 pb-2">
+            <div>
+              <span id="announcementDetailBadge" class="badge mb-2"></span>
+              <h5
+                id="announcementDetailTitle"
+                class="modal-title fw-bold text-dark mb-0"
+                style="overflow-wrap: anywhere; word-break: break-all"
+              ></h5>
+            </div>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+            ></button>
+          </div>
+          <div class="modal-body p-4 pt-2" style="min-width: 0">
+            <div class="d-flex flex-wrap align-items-center gap-2 mb-3">
+              <div
+                class="d-inline-flex align-items-center gap-2 px-3 py-2 rounded-3"
+                style="background: #eff6ff"
+              >
+                <i class="bi bi-calendar-event text-primary"></i>
+                <span
+                  id="announcementDetailDate"
+                  class="fw-bold text-dark"
+                  style="font-size: 14px"
+                ></span>
+              </div>
+              <span class="text-muted small"
+                ><i class="bi bi-people me-1"></i
+                ><span id="announcementDetailTarget"></span
+              ></span>
+            </div>
+            <div
+              id="announcementDetailContent"
+              class="border-top pt-3"
+              style="
+                line-height: 1.7;
+                overflow-wrap: anywhere;
+                word-break: break-all;
+              "
+            ></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <!-- Firebase SDK Modular -->
     <script type="module">
-        import { renderTopBar } from "./element/topbar.js";
-        import { renderSidebar } from "./element/sidebar.js";
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-        import { getFirestore, collection, addDoc, query, where, getDoc, getDocs, serverTimestamp, onSnapshot, orderBy, doc, deleteDoc, updateDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
-        import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js";
+      import { renderTopBar } from "./element/topbar.js";
+      import { renderSidebar } from "./element/sidebar.js";
+      import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+      import {
+        getAuth,
+        onAuthStateChanged,
+        signOut,
+      } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+      import {
+        getFirestore,
+        collection,
+        addDoc,
+        query,
+        where,
+        getDoc,
+        getDocs,
+        serverTimestamp,
+        onSnapshot,
+        orderBy,
+        doc,
+        deleteDoc,
+        updateDoc,
+        setDoc,
+      } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+      import {
+        getStorage,
+        ref,
+        uploadBytes,
+        getDownloadURL,
+      } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js";
 
-        // 1. Konfigurasi Firebase (PASTIKAN SAMA DENGAN LOGIN/REGISTER)
-        const firebaseConfig = {
-            apiKey: "AIzaSyDyzzEYbJkkl-N8snrQf14qvj8De4YliV0",
-            authDomain: "pre-dialogika.firebaseapp.com",
-            projectId: "pre-dialogika",
-            storageBucket: "pre-dialogika.firebasestorage.app",
-            messagingSenderId: "343771410480",
-            appId: "1:343771410480:web:32881c9868522090237df5",
-            measurementId: "G-SXN811P3N0"
-        };
+      // 1. Konfigurasi Firebase (PASTIKAN SAMA DENGAN LOGIN/REGISTER)
+      const firebaseConfig = {
+        apiKey: "AIzaSyDyzzEYbJkkl-N8snrQf14qvj8De4YliV0",
+        authDomain: "pre-dialogika.firebaseapp.com",
+        projectId: "pre-dialogika",
+        storageBucket: "pre-dialogika.firebasestorage.app",
+        messagingSenderId: "343771410480",
+        appId: "1:343771410480:web:32881c9868522090237df5",
+        measurementId: "G-SXN811P3N0",
+      };
 
-        const topbarTarget = document.getElementById('topbarContainer');
-        renderTopBar(topbarTarget);
-        const sidebarTarget = document.getElementById('sidebarContainer');
-        renderSidebar(sidebarTarget);
+      const topbarTarget = document.getElementById("topbarContainer");
+      renderTopBar(topbarTarget);
+      const sidebarTarget = document.getElementById("sidebarContainer");
+      renderSidebar(sidebarTarget);
 
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        const db = getFirestore(app);
-        const storage = getStorage(app);
-        window.db = db;
-        window.collection = collection;
-        window.getDoc = getDoc;
-        window.getDocs = getDocs;
-        window.addDoc = addDoc;
-        window.serverTimestamp = serverTimestamp;
-        window.doc = doc;
-        window.updateDoc = updateDoc;
-        window.deleteDoc = deleteDoc;
-        window.deleteDoc = deleteDoc;
-        window.updateDoc = updateDoc;
-        window.setDoc = setDoc;
-        window.storage = storage;
-        window.ref = ref;
-        window.uploadBytes = uploadBytes;
-        window.getDownloadURL = getDownloadURL;
+      const app = initializeApp(firebaseConfig);
+      const auth = getAuth(app);
+      const db = getFirestore(app);
+      const storage = getStorage(app);
+      window.db = db;
+      window.collection = collection;
+      window.getDoc = getDoc;
+      window.getDocs = getDocs;
+      window.addDoc = addDoc;
+      window.serverTimestamp = serverTimestamp;
+      window.doc = doc;
+      window.updateDoc = updateDoc;
+      window.deleteDoc = deleteDoc;
+      window.deleteDoc = deleteDoc;
+      window.updateDoc = updateDoc;
+      window.setDoc = setDoc;
+      window.storage = storage;
+      window.ref = ref;
+      window.uploadBytes = uploadBytes;
+      window.getDownloadURL = getDownloadURL;
 
-        let currentUser = null;
-        let departments = [];
-        let selectedDepartment = null;
-        let projectTaskStats = {};
-        let globalProjectTasksTotal = 0;
-        let cachedProjects = [];
-        let presenceIntervalId = null;
+      let currentUser = null;
+      let departments = [];
+      let selectedDepartment = null;
+      let projectTaskStats = {};
+      let globalProjectTasksTotal = 0;
+      let cachedProjects = [];
+      let presenceIntervalId = null;
 
-        // --- 2. PROTEKSI HALAMAN (Cek Login) ---
-        onAuthStateChanged(auth, async (user) => {
-            if (user) {
-                currentUser = user;
-                const localData = JSON.parse(localStorage.getItem('userData'));
-                
-                document.getElementById('user-name-display').innerText = localData?.name || user.email;
-                document.getElementById('user-photo-display').src = localData?.photo || "https://i.pravatar.cc/300";
-                document.getElementById('user-role-display').innerText = localData?.position || "Staff";
-                
-                const welcomeMsg = document.getElementById('welcomeMessage');
-                if (welcomeMsg) {
-                    const hour = new Date().getHours();
-                    let greeting = "Hello";
-                    if (hour >= 5 && hour < 12) greeting = "Good Morning";
-                    else if (hour >= 12 && hour < 17) greeting = "Good Afternoon";
-                    else if (hour >= 17 && hour < 21) greeting = "Good Evening";
-                    else greeting = "Good Night";
-                    const fullName = localData?.name || user.displayName || user.email || "";
-                    const firstName = fullName ? fullName.split(' ')[0] : "";
-                    welcomeMsg.innerText = firstName ? `${greeting}, ${firstName}!` : greeting;
-                }
+      // --- 2. PROTEKSI HALAMAN (Cek Login) ---
+      onAuthStateChanged(auth, async (user) => {
+        if (user) {
+          currentUser = user;
+          const localData = JSON.parse(localStorage.getItem("userData"));
 
-                try {
-                    const userDocSnap = await getDoc(doc(db, "users", user.uid));
-                    if (userDocSnap.exists()) {
-                        const data = userDocSnap.data();
-                        const role = data.access?.role_id;
-                        if (['staff', 'internship', 'admin', 'superadmin', 'hr', 'director', 'manager'].includes(role)) {
-                            loadPendingApprovals();
-                        }
-                    }
-                } catch(e) {
-                    console.error("Error checking user role for approvals", e);
-                }
+          document.getElementById("user-name-display").innerText =
+            localData?.name || user.email;
+          document.getElementById("user-photo-display").src =
+            localData?.photo || "https://i.pravatar.cc/300";
+          document.getElementById("user-role-display").innerText =
+            localData?.position || "Staff";
 
-                await loadDepartments();
-                listenToProjects();
-                listenToTasks();
-                startPresenceTracking();
-                listenToOnlineUsers();
-                listenToPiketSchedules();
-            } else {
-                window.location.href = "index.html";
+          const welcomeMsg = document.getElementById("welcomeMessage");
+          if (welcomeMsg) {
+            const hour = new Date().getHours();
+            let greeting = "Hello";
+            if (hour >= 5 && hour < 12) greeting = "Good Morning";
+            else if (hour >= 12 && hour < 17) greeting = "Good Afternoon";
+            else if (hour >= 17 && hour < 21) greeting = "Good Evening";
+            else greeting = "Good Night";
+            const fullName =
+              localData?.name || user.displayName || user.email || "";
+            const firstName = fullName ? fullName.split(" ")[0] : "";
+            welcomeMsg.innerText = firstName
+              ? `${greeting}, ${firstName}!`
+              : greeting;
+          }
+
+          try {
+            const userDocSnap = await getDoc(doc(db, "users", user.uid));
+            if (userDocSnap.exists()) {
+              const data = userDocSnap.data();
+              const role = data.access?.role_id;
+              const employment = data.employment || {};
             }
-        });
+          } catch (e) {
+            console.error("Error checking user role for approvals", e);
+          }
 
-        async function loadDepartments() {
-            const container = document.getElementById('departmentOptions');
-            if (container) {
-                container.innerHTML = '<span class="text-muted small">Loading departments...</span>';
-            }
-            try {
-                const items = await window.getFirestoreDepartments();
-                departments = items;
-                if (!selectedDepartment && departments.length > 0) {
-                    selectedDepartment = departments[0];
-                }
-                renderDepartmentOptions();
-            } catch (e) {
-                console.error("Failed to load departments", e);
-                if (container) {
-                    container.innerHTML = '<span class="text-danger small">Failed to load departments.</span>';
-                }
-            }
+          await loadDepartments();
+          listenToProjects();
+          listenToTasks();
+          startPresenceTracking();
+          listenToOnlineUsers();
+          listenToPiketSchedules();
+          listenToHomeAnnouncements();
+        } else {
+          window.location.href = "index.html";
         }
+      });
 
-        function renderDepartmentOptions() {
-            const container = document.getElementById('departmentOptions');
-            if (!container) return;
-            container.innerHTML = '';
-            if (!departments || departments.length === 0) {
-                container.innerHTML = '<span class="text-muted small">No departments available.</span>';
-                selectedDepartment = null;
-                return;
-            }
-            departments.forEach(dept => {
-                const btn = document.createElement('button');
-                btn.type = 'button';
-                btn.className = 'btn btn-sm btn-light border rounded-pill d-flex align-items-center gap-2';
-                btn.dataset.deptId = dept.id;
-                btn.innerHTML = `
+      async function loadDepartments() {
+        const container = document.getElementById("departmentOptions");
+        if (container) {
+          container.innerHTML =
+            '<span class="text-muted small">Loading departments...</span>';
+        }
+        try {
+          const items = await window.getFirestoreDepartments();
+          departments = items;
+          if (!selectedDepartment && departments.length > 0) {
+            selectedDepartment = departments[0];
+          }
+          renderDepartmentOptions();
+        } catch (e) {
+          console.error("Failed to load departments", e);
+          if (container) {
+            container.innerHTML =
+              '<span class="text-danger small">Failed to load departments.</span>';
+          }
+        }
+      }
+
+      function renderDepartmentOptions() {
+        const container = document.getElementById("departmentOptions");
+        if (!container) return;
+        container.innerHTML = "";
+        if (!departments || departments.length === 0) {
+          container.innerHTML =
+            '<span class="text-muted small">No departments available.</span>';
+          selectedDepartment = null;
+          return;
+        }
+        departments.forEach((dept) => {
+          const btn = document.createElement("button");
+          btn.type = "button";
+          btn.className =
+            "btn btn-sm btn-light border rounded-pill d-flex align-items-center gap-2";
+          btn.dataset.deptId = dept.id;
+          btn.innerHTML = `
                     <span class="d-inline-block rounded-circle" style="width:10px;height:10px;background:${dept.color};"></span>
                     <span>${dept.name}</span>
                 `;
-                btn.addEventListener('click', () => {
-                    selectedDepartment = dept;
-                    updateDepartmentSelectionUI();
-                });
-                container.appendChild(btn);
-            });
+          btn.addEventListener("click", () => {
+            selectedDepartment = dept;
             updateDepartmentSelectionUI();
-        }
+          });
+          container.appendChild(btn);
+        });
+        updateDepartmentSelectionUI();
+      }
 
-        function updateDepartmentSelectionUI() {
-            const container = document.getElementById('departmentOptions');
-            if (!container) return;
-            const buttons = container.querySelectorAll('button[data-dept-id]');
-            buttons.forEach(btn => {
-                const id = btn.getAttribute('data-dept-id');
-                if (selectedDepartment && id === selectedDepartment.id) {
-                    btn.classList.add('btn-primary');
-                    btn.classList.remove('btn-light');
-                    btn.classList.add('text-white');
+      function updateDepartmentSelectionUI() {
+        const container = document.getElementById("departmentOptions");
+        if (!container) return;
+        const buttons = container.querySelectorAll("button[data-dept-id]");
+        buttons.forEach((btn) => {
+          const id = btn.getAttribute("data-dept-id");
+          if (selectedDepartment && id === selectedDepartment.id) {
+            btn.classList.add("btn-primary");
+            btn.classList.remove("btn-light");
+            btn.classList.add("text-white");
+          } else {
+            btn.classList.remove("btn-primary");
+            btn.classList.add("btn-light");
+            btn.classList.remove("text-white");
+          }
+        });
+      }
+
+      // --- 3. AMBIL DATA PROJECT (Real-time) ---
+      let listenToProjectsRetryCount = 0;
+      function listenToProjects() {
+        try {
+          const pinnedContainer = document.getElementById(
+            "pinnedProjectsContainer",
+          );
+          const otherContainer = document.getElementById(
+            "otherProjectsContainer",
+          );
+
+          // Query: Ambil semua project, urutkan berdasarkan waktu buat terbaru
+          const q = query(
+            collection(db, "projects"),
+            orderBy("created_at", "desc"),
+          );
+
+          // onSnapshot membuat data terupdate otomatis jika ada perubahan di database
+          onSnapshot(
+            q,
+            (snapshot) => {
+              listenToProjectsRetryCount = 0; // Reset retry count on success
+              let projects = [];
+              snapshot.forEach((doc) => {
+                projects.push({ id: doc.id, ...doc.data() });
+              });
+              renderProjects(projects);
+            },
+            (error) => {
+              console.error("Failed to listen to projects:", error);
+              // Retry with exponential backoff if connection was aborted or unavailable
+              if (
+                error.code === "unavailable" ||
+                error.message.includes("abort") ||
+                error.code === "cancelled"
+              ) {
+                listenToProjectsRetryCount++;
+                if (listenToProjectsRetryCount <= 3) {
+                  const delay = Math.min(
+                    1000 * Math.pow(2, listenToProjectsRetryCount),
+                    30000,
+                  );
+                  console.log(
+                    `Retrying projects listener in ${delay}ms (attempt ${listenToProjectsRetryCount})...`,
+                  );
+                  setTimeout(listenToProjects, delay);
                 } else {
-                    btn.classList.remove('btn-primary');
-                    btn.classList.add('btn-light');
-                    btn.classList.remove('text-white');
+                  console.warn("Max retries reached for projects listener.");
                 }
-            });
+              }
+            },
+          );
+        } catch (e) {
+          console.error("Failed to listen to projects", e);
         }
+      }
 
-        // --- 3. AMBIL DATA PROJECT (Real-time) ---
-        let listenToProjectsRetryCount = 0;
-        function listenToProjects() {
-            try {
-                const pinnedContainer = document.getElementById('pinnedProjectsContainer');
-                const otherContainer = document.getElementById('otherProjectsContainer');
-
-                // Query: Ambil semua project, urutkan berdasarkan waktu buat terbaru
-                const q = query(collection(db, "projects"), orderBy("created_at", "desc"));
-
-                // onSnapshot membuat data terupdate otomatis jika ada perubahan di database
-                onSnapshot(q, (snapshot) => {
-                    listenToProjectsRetryCount = 0; // Reset retry count on success
-                    let projects = [];
-                    snapshot.forEach((doc) => {
-                        projects.push({ id: doc.id, ...doc.data() });
-                    });
-                    renderProjects(projects);
-                }, (error) => {
-                    console.error("Failed to listen to projects:", error);
-                    // Retry with exponential backoff if connection was aborted or unavailable
-                    if (error.code === 'unavailable' || error.message.includes('abort') || error.code === 'cancelled') {
-                        listenToProjectsRetryCount++;
-                        if (listenToProjectsRetryCount <= 3) {
-                            const delay = Math.min(1000 * Math.pow(2, listenToProjectsRetryCount), 30000); 
-                            console.log(`Retrying projects listener in ${delay}ms (attempt ${listenToProjectsRetryCount})...`);
-                            setTimeout(listenToProjects, delay);
-                        } else {
-                            console.warn("Max retries reached for projects listener.");
-                        }
-                    }
-                });
-            } catch (e) {
-                console.error("Failed to listen to projects", e);
-            }
-        }
-
-        // --- 3B. AMBIL STATISTIK TASK PER PROJECT (Real-time) ---
-        let listenToTasksRetryCount = 0;
-        let unsubscribeTasks = null;
-        function listenToTasks() {
-            try {
-                if (unsubscribeTasks) {
-                    unsubscribeTasks();
+      // --- 3B. AMBIL STATISTIK TASK PER PROJECT (Real-time) ---
+      let listenToTasksRetryCount = 0;
+      let unsubscribeTasks = null;
+      function listenToTasks() {
+        try {
+          if (unsubscribeTasks) {
+            unsubscribeTasks();
+          }
+          const q = query(collection(db, "tasks"));
+          unsubscribeTasks = onSnapshot(
+            q,
+            { includeMetadataChanges: false },
+            (snapshot) => {
+              listenToTasksRetryCount = 0; // Reset retry count on success
+              const stats = {};
+              snapshot.forEach((docSnap) => {
+                const data = docSnap.data() || {};
+                const pid = data.project_id || data.projectId || "";
+                if (!pid) return;
+                if (!stats[pid]) {
+                  stats[pid] = { total: 0, complete: 0 };
                 }
-                const q = query(collection(db, "tasks"));
-                unsubscribeTasks = onSnapshot(q, { includeMetadataChanges: false }, (snapshot) => {
-                    listenToTasksRetryCount = 0; // Reset retry count on success
-                    const stats = {};
-                    snapshot.forEach((docSnap) => {
-                        const data = docSnap.data() || {};
-                        const pid = data.project_id || data.projectId || "";
-                        if (!pid) return;
-                        if (!stats[pid]) {
-                            stats[pid] = { total: 0, complete: 0 };
-                        }
-                        stats[pid].total += 1;
-                        let statusRaw = "";
-                        if (typeof data.status === "string") {
-                            statusRaw = data.status;
-                        } else if (data.status && typeof data.status === "object") {
-                            statusRaw = data.status.name || data.status.label || "";
-                        }
-                        const normalized = String(statusRaw || "").trim().toLowerCase();
-                        const isDone = normalized === "complete" || normalized === "done";
-                        if (isDone) {
-                            stats[pid].complete += 1;
-                        }
-                    });
-
-                    let totalAll = 0;
-                    Object.keys(stats).forEach(pid => {
-                        const s = stats[pid] || {};
-                        totalAll += s.total || 0;
-                    });
-                    
-                    globalProjectTasksTotal = totalAll;
-                    const projectCountEl = document.getElementById('projectTasksTotalCount');
-                    if (projectCountEl) {
-                        projectCountEl.innerText = String(totalAll);
-                    }
-                    projectTaskStats = stats;
-                    renderProjects(cachedProjects);
-
-                    // Trigger sidebar refresh if available
-                    if (window.refreshSidebarCounts) {
-                        window.refreshSidebarCounts(snapshot);
-                    }
-                }, (error) => {
-                    console.error("Firestore Tasks Listener Error:", error);
-                    
-                    // Handle quota exceeded or other fatal errors
-                    if (error.code === 'resource-exhausted') {
-                        console.error("Firestore quota exceeded. Stopping listener.");
-                        return;
-                    }
-
-                    // Retry with exponential backoff if connection was aborted or unavailable
-                    const isRetryable = error.code === 'unavailable' || 
-                                      error.code === 'cancelled' || 
-                                      error.code === 'deadline-exceeded' ||
-                                      error.message.toLowerCase().includes('abort') ||
-                                      error.message.toLowerCase().includes('failed to get document');
-
-                    if (isRetryable) {
-                        listenToTasksRetryCount++;
-                        if (listenToTasksRetryCount <= 3) {
-                            const delay = Math.min(1000 * Math.pow(2, listenToTasksRetryCount), 30000); 
-                            console.log(`Attempting to reconnect tasks listener in ${delay}ms (attempt ${listenToTasksRetryCount})...`);
-                            setTimeout(() => {
-                                if (auth.currentUser) {
-                                    listenToTasks();
-                                }
-                            }, delay);
-                        } else {
-                            console.warn("Max retries reached for tasks listener.");
-                        }
-                    }
-                });
-            } catch (e) {
-                console.error("Exception in listenToTasks", e);
-            }
-        }
-
-        function startPresenceTracking() {
-            try {
-                updateOwnPresence();
-                if (presenceIntervalId) {
-                    clearInterval(presenceIntervalId);
+                stats[pid].total += 1;
+                let statusRaw = "";
+                if (typeof data.status === "string") {
+                  statusRaw = data.status;
+                } else if (data.status && typeof data.status === "object") {
+                  statusRaw = data.status.name || data.status.label || "";
                 }
-                presenceIntervalId = setInterval(updateOwnPresence, 60000);
-                document.addEventListener("visibilitychange", () => {
-                    if (document.visibilityState === "visible") {
-                        updateOwnPresence();
+                const normalized = String(statusRaw || "")
+                  .trim()
+                  .toLowerCase();
+                const isDone =
+                  normalized === "complete" || normalized === "done";
+                if (isDone) {
+                  stats[pid].complete += 1;
+                }
+              });
+
+              let totalAll = 0;
+              Object.keys(stats).forEach((pid) => {
+                const s = stats[pid] || {};
+                totalAll += s.total || 0;
+              });
+
+              globalProjectTasksTotal = totalAll;
+              const projectCountEl = document.getElementById(
+                "projectTasksTotalCount",
+              );
+              if (projectCountEl) {
+                projectCountEl.innerText = String(totalAll);
+              }
+              projectTaskStats = stats;
+              renderProjects(cachedProjects);
+
+              // Trigger sidebar refresh if available
+              if (window.refreshSidebarCounts) {
+                window.refreshSidebarCounts(snapshot);
+              }
+            },
+            (error) => {
+              console.error("Firestore Tasks Listener Error:", error);
+
+              // Handle quota exceeded or other fatal errors
+              if (error.code === "resource-exhausted") {
+                console.error("Firestore quota exceeded. Stopping listener.");
+                return;
+              }
+
+              // Retry with exponential backoff if connection was aborted or unavailable
+              const isRetryable =
+                error.code === "unavailable" ||
+                error.code === "cancelled" ||
+                error.code === "deadline-exceeded" ||
+                error.message.toLowerCase().includes("abort") ||
+                error.message.toLowerCase().includes("failed to get document");
+
+              if (isRetryable) {
+                listenToTasksRetryCount++;
+                if (listenToTasksRetryCount <= 3) {
+                  const delay = Math.min(
+                    1000 * Math.pow(2, listenToTasksRetryCount),
+                    30000,
+                  );
+                  console.log(
+                    `Attempting to reconnect tasks listener in ${delay}ms (attempt ${listenToTasksRetryCount})...`,
+                  );
+                  setTimeout(() => {
+                    if (auth.currentUser) {
+                      listenToTasks();
                     }
+                  }, delay);
+                } else {
+                  console.warn("Max retries reached for tasks listener.");
+                }
+              }
+            },
+          );
+        } catch (e) {
+          console.error("Exception in listenToTasks", e);
+        }
+      }
+
+      function startPresenceTracking() {
+        try {
+          updateOwnPresence();
+          if (presenceIntervalId) {
+            clearInterval(presenceIntervalId);
+          }
+          presenceIntervalId = setInterval(updateOwnPresence, 60000);
+          document.addEventListener("visibilitychange", () => {
+            if (document.visibilityState === "visible") {
+              updateOwnPresence();
+            }
+          });
+        } catch (e) {
+          console.error("Failed to start presence tracking", e);
+        }
+      }
+
+      async function updateOwnPresence() {
+        if (!currentUser) return;
+        try {
+          let localData = null;
+          try {
+            localData = JSON.parse(localStorage.getItem("userData") || "null");
+          } catch (e) {}
+          const uid = currentUser.uid;
+          const name =
+            (localData && localData.name) ||
+            currentUser.displayName ||
+            currentUser.email ||
+            "User";
+          const photo =
+            (localData && localData.photo) || currentUser.photoURL || "";
+          const ref = doc(db, "user_presence", uid);
+          await setDoc(
+            ref,
+            {
+              user_id: uid,
+              name: name,
+              photo: photo,
+              last_active_at: serverTimestamp(),
+            },
+            { merge: true },
+          );
+        } catch (e) {
+          console.error("Failed to update presence", e);
+        }
+      }
+
+      let listenToOnlineUsersRetryCount = 0;
+      function listenToOnlineUsers() {
+        const container = document.getElementById("onlineUsersContainer");
+        const badge = document.getElementById("onlineActiveBadge");
+        if (!container || !badge) return;
+        try {
+          const colRef = collection(db, "user_presence");
+          onSnapshot(
+            colRef,
+            (snapshot) => {
+              listenToOnlineUsersRetryCount = 0; // Reset retry count on success
+              const now = new Date();
+              const startOfDay = new Date();
+              startOfDay.setHours(0, 0, 0, 0);
+              const oneHourMs = 60 * 60 * 1000;
+              const users = [];
+              snapshot.forEach((docSnap) => {
+                const data = docSnap.data() || {};
+                const ts = data.last_active_at;
+                let lastActive = null;
+                if (ts && typeof ts.toDate === "function") {
+                  lastActive = ts.toDate();
+                }
+                if (!lastActive) return;
+                if (lastActive < startOfDay) return;
+                const diff = now.getTime() - lastActive.getTime();
+                const isActive = diff <= oneHourMs;
+                users.push({
+                  uid: docSnap.id,
+                  name: data.name || "",
+                  photo: data.photo || "",
+                  lastActive,
+                  isActive,
                 });
-            } catch (e) {
-                console.error("Failed to start presence tracking", e);
-            }
-        }
+              });
+              users.sort(
+                (a, b) => b.lastActive.getTime() - a.lastActive.getTime(),
+              );
+              const currentUid = currentUser ? currentUser.uid : null;
+              let me = null;
+              const others = [];
+              users.forEach((u) => {
+                if (currentUid && u.uid === currentUid) {
+                  me = u;
+                } else {
+                  others.push(u);
+                }
+              });
+              const ordered = [];
+              if (me) ordered.push(me);
+              ordered.push(...others);
+              const activeCount = users.filter((u) => u.isActive).length;
+              badge.innerText = activeCount + " Active";
+              container.innerHTML = "";
+              ordered.forEach((u) => {
+                const ringStyle = u.isActive
+                  ? "background:#0B2B6A;"
+                  : "background:transparent;";
+                const src =
+                  u.photo && u.photo.trim()
+                    ? u.photo
+                    : "https://i.pravatar.cc/150?u=" +
+                      encodeURIComponent(u.uid || u.name || "");
+                const statusDot = u.isActive
+                  ? '<div class="online-status-dot"></div>'
+                  : "";
+                const title = u.name || "";
 
-        async function updateOwnPresence() {
-            if (!currentUser) return;
-            try {
-                let localData = null;
-                try {
-                    localData = JSON.parse(localStorage.getItem('userData') || 'null');
-                } catch (e) {}
-                const uid = currentUser.uid;
-                const name = (localData && localData.name) || currentUser.displayName || currentUser.email || "User";
-                const photo = (localData && localData.photo) || currentUser.photoURL || "";
-                const ref = doc(db, "user_presence", uid);
-                await setDoc(ref, {
-                    user_id: uid,
-                    name: name,
-                    photo: photo,
-                    last_active_at: serverTimestamp()
-                }, { merge: true });
-            } catch (e) {
-                console.error("Failed to update presence", e);
-            }
-        }
+                const div = document.createElement("div");
+                div.className = "avatar-wrapper";
+                div.title = title;
+                div.style.cursor = "pointer";
+                div.onclick = () => {
+                  const modal = new bootstrap.Modal(
+                    document.getElementById("userProfileModal"),
+                  );
+                  document.getElementById("modalUserProfilePhoto").src = src;
+                  document.getElementById("modalUserProfileName").innerText =
+                    title;
+                  // Need to fetch position if available, using placeholder for now
+                  modal.show();
+                };
 
-        let listenToOnlineUsersRetryCount = 0;
-        function listenToOnlineUsers() {
-            const container = document.getElementById('onlineUsersContainer');
-            const badge = document.getElementById('onlineActiveBadge');
-            if (!container || !badge) return;
-            try {
-                const colRef = collection(db, "user_presence");
-                onSnapshot(colRef, (snapshot) => {
-                    listenToOnlineUsersRetryCount = 0; // Reset retry count on success
-                    const now = new Date();
-                    const startOfDay = new Date();
-                    startOfDay.setHours(0, 0, 0, 0);
-                    const oneHourMs = 60 * 60 * 1000;
-                    const users = [];
-                    snapshot.forEach((docSnap) => {
-                        const data = docSnap.data() || {};
-                        const ts = data.last_active_at;
-                        let lastActive = null;
-                        if (ts && typeof ts.toDate === "function") {
-                            lastActive = ts.toDate();
-                        }
-                        if (!lastActive) return;
-                        if (lastActive < startOfDay) return;
-                        const diff = now.getTime() - lastActive.getTime();
-                        const isActive = diff <= oneHourMs;
-                        users.push({
-                            uid: docSnap.id,
-                            name: data.name || "",
-                            photo: data.photo || "",
-                            lastActive,
-                            isActive
-                        });
-                    });
-                    users.sort((a, b) => b.lastActive.getTime() - a.lastActive.getTime());
-                    const currentUid = currentUser ? currentUser.uid : null;
-                    let me = null;
-                    const others = [];
-                    users.forEach(u => {
-                        if (currentUid && u.uid === currentUid) {
-                            me = u;
-                        } else {
-                            others.push(u);
-                        }
-                    });
-                    const ordered = [];
-                    if (me) ordered.push(me);
-                    ordered.push(...others);
-                    const activeCount = users.filter(u => u.isActive).length;
-                    badge.innerText = activeCount + " Active";
-                    container.innerHTML = "";
-                    ordered.forEach(u => {
-                        const ringStyle = u.isActive ? "background:#0B2B6A;" : "background:transparent;";
-                        const src = u.photo && u.photo.trim()
-                            ? u.photo
-                            : ("https://i.pravatar.cc/150?u=" + encodeURIComponent(u.uid || u.name || ""));
-                        const statusDot = u.isActive ? '<div class="online-status-dot"></div>' : '';
-                        const title = u.name || "";
-                        
-                        const div = document.createElement('div');
-                        div.className = 'avatar-wrapper';
-                        div.title = title;
-                        div.style.cursor = 'pointer';
-                        div.onclick = () => {
-                            const modal = new bootstrap.Modal(document.getElementById('userProfileModal'));
-                            document.getElementById('modalUserProfilePhoto').src = src;
-                            document.getElementById('modalUserProfileName').innerText = title;
-                            // Need to fetch position if available, using placeholder for now
-                            modal.show();
-                        };
-
-                        div.innerHTML = `
+                div.innerHTML = `
                                 <div class="avatar-ring" style="${ringStyle}"></div>
                                 <div class="avatar-mask">
                                     <img src="${src}" alt="${title}" class="avatar-img">
                                 </div>
                                 ${statusDot}
                         `;
-                        container.appendChild(div);
-                    });
-                }, (error) => {
-                    console.error("Failed to listen to online users:", error);
-                    // Retry with exponential backoff if connection was aborted or unavailable
-                    if (error.code === 'unavailable' || error.message.includes('abort') || error.code === 'cancelled') {
-                        listenToOnlineUsersRetryCount++;
-                        if (listenToOnlineUsersRetryCount <= 3) {
-                            const delay = Math.min(1000 * Math.pow(2, listenToOnlineUsersRetryCount), 30000); // Max 30s delay
-                            console.log(`Retrying online users listener in ${delay}ms (attempt ${listenToOnlineUsersRetryCount})...`);
-                            setTimeout(listenToOnlineUsers, delay);
-                        } else {
-                            console.warn("Max retries reached for online users listener.");
-                        }
-                    }
-                });
-            } catch (e) {
-                console.error("Failed to listen to online users", e);
-            }
+                container.appendChild(div);
+              });
+            },
+            (error) => {
+              console.error("Failed to listen to online users:", error);
+              // Retry with exponential backoff if connection was aborted or unavailable
+              if (
+                error.code === "unavailable" ||
+                error.message.includes("abort") ||
+                error.code === "cancelled"
+              ) {
+                listenToOnlineUsersRetryCount++;
+                if (listenToOnlineUsersRetryCount <= 3) {
+                  const delay = Math.min(
+                    1000 * Math.pow(2, listenToOnlineUsersRetryCount),
+                    30000,
+                  ); // Max 30s delay
+                  console.log(
+                    `Retrying online users listener in ${delay}ms (attempt ${listenToOnlineUsersRetryCount})...`,
+                  );
+                  setTimeout(listenToOnlineUsers, delay);
+                } else {
+                  console.warn(
+                    "Max retries reached for online users listener.",
+                  );
+                }
+              }
+            },
+          );
+        } catch (e) {
+          console.error("Failed to listen to online users", e);
         }
+      }
 
-        // --- 4. RENDER PROJECT KE HTML ---
-        function renderProjects(projects) {
-            const pinnedContainer = document.getElementById('pinnedProjectsContainer');
-            const otherContainer = document.getElementById('otherProjectsContainer');
-            
-            cachedProjects = Array.isArray(projects) ? projects : [];
+      // --- 4. RENDER PROJECT KE HTML ---
+      function renderProjects(projects) {
+        const pinnedContainer = document.getElementById(
+          "pinnedProjectsContainer",
+        );
+        const otherContainer = document.getElementById(
+          "otherProjectsContainer",
+        );
 
-            pinnedContainer.innerHTML = '';
-            otherContainer.innerHTML = '';
+        cachedProjects = Array.isArray(projects) ? projects : [];
 
-            // Tombol "New Project" (Selalu ada di awal)
-            const newProjectBtn = `
+        pinnedContainer.innerHTML = "";
+        otherContainer.innerHTML = "";
+
+        // Tombol "New Project" (Selalu ada di awal)
+        const newProjectBtn = `
                 <div class="col-md-6 col-lg-3">
                     <div class="btn-new-project-placeholder" data-bs-toggle="modal" data-bs-target="#newProjectModal">
                         <i class="bi bi-plus-circle-dotted new-proj-icon"></i>
@@ -771,50 +1230,61 @@
                 </div>
             `;
 
-            const pinnedList = projects.filter(p => (p.is_pinned === true) || (p.pinned === true));
-            const unpinnedList = projects.filter(p => !(p.is_pinned === true || p.pinned === true));
+        const pinnedList = projects.filter(
+          (p) => p.is_pinned === true || p.pinned === true,
+        );
+        const unpinnedList = projects.filter(
+          (p) => !(p.is_pinned === true || p.pinned === true),
+        );
 
-            // Render Pinned
-            pinnedList.forEach((p, index) => {
-                const isFirst = index === 0;
-                const colClass = isFirst ? 'col-lg-6 col-12' : 'col-md-6 col-lg-3';
-                const cardClass = isFirst ? 'project-card priority' : 'project-card';
-                const stat = projectTaskStats[p.id] || { total: 0, complete: 0 };
-                const totalTasks = stat.total || 0;
-                const completedTasks = stat.complete || 0;
-                const progressPercent = totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0;
-                let progressBarClass = "bg-secondary";
-                if (totalTasks > 0) {
-                    if (progressPercent < 50) progressBarClass = "bg-danger";
-                    else if (progressPercent < 80) progressBarClass = "bg-warning";
-                    else progressBarClass = "bg-success";
-                }
-                const rawDescPinned = typeof p.description === "string" ? p.description : "";
-                const plainDescPinned = rawDescPinned.replace(/<[^>]+>/g, " ").trim();
-                const maxDescPinnedLength = 140;
-                let shortDescPinned = plainDescPinned;
-                if (plainDescPinned.length > maxDescPinnedLength) {
-                    const cutIndex = plainDescPinned.lastIndexOf(" ", maxDescPinnedLength - 3);
-                    const endIndex = cutIndex > 0 ? cutIndex : maxDescPinnedLength - 3;
-                    shortDescPinned = plainDescPinned.substring(0, endIndex) + "...";
-                }
-                const html = `
+        // Render Pinned
+        pinnedList.forEach((p, index) => {
+          const isFirst = index === 0;
+          const colClass = isFirst ? "col-lg-6 col-12" : "col-md-6 col-lg-3";
+          const cardClass = isFirst ? "project-card priority" : "project-card";
+          const stat = projectTaskStats[p.id] || { total: 0, complete: 0 };
+          const totalTasks = stat.total || 0;
+          const completedTasks = stat.complete || 0;
+          const progressPercent =
+            totalTasks > 0
+              ? Math.round((completedTasks / totalTasks) * 100)
+              : 0;
+          let progressBarClass = "bg-secondary";
+          if (totalTasks > 0) {
+            if (progressPercent < 50) progressBarClass = "bg-danger";
+            else if (progressPercent < 80) progressBarClass = "bg-warning";
+            else progressBarClass = "bg-success";
+          }
+          const rawDescPinned =
+            typeof p.description === "string" ? p.description : "";
+          const plainDescPinned = rawDescPinned.replace(/<[^>]+>/g, " ").trim();
+          const maxDescPinnedLength = 140;
+          let shortDescPinned = plainDescPinned;
+          if (plainDescPinned.length > maxDescPinnedLength) {
+            const cutIndex = plainDescPinned.lastIndexOf(
+              " ",
+              maxDescPinnedLength - 3,
+            );
+            const endIndex = cutIndex > 0 ? cutIndex : maxDescPinnedLength - 3;
+            shortDescPinned = plainDescPinned.substring(0, endIndex) + "...";
+          }
+          const html = `
                     <div class="${colClass}">
                         <a href="project/project.html?id=${p.id}" class="text-decoration-none">
                             <div class="${cardClass}">
                                 <div class="d-flex justify-content-between align-items-start mb-3">
-                                    <span class="badge ${isFirst ? 'bg-white bg-opacity-25 text-white' : 'bg-light text-dark border'}">${p.department || 'General'}</span>
+                                    <span class="badge ${isFirst ? "bg-white bg-opacity-25 text-white" : "bg-light text-dark border"}">${p.department || "General"}</span>
                                     <div class="d-flex align-items-center gap-2 project-card-actions">
-                                        <i class="bi bi-pin-angle-fill ${isFirst ? 'text-white' : 'text-primary'} project-pin-icon" data-project-id="${p.id}" data-project-pinned="true"></i>
-                                        <i class="bi bi-trash3 ${isFirst ? 'text-white' : 'text-danger'} project-trash-icon" data-project-id="${p.id}" data-project-name="${p.name || ''}"></i>
+                                        <i class="bi bi-pin-angle-fill ${isFirst ? "text-white" : "text-primary"} project-pin-icon" data-project-id="${p.id}" data-project-pinned="true"></i>
+                                        <i class="bi bi-trash3 ${isFirst ? "text-white" : "text-danger"} project-trash-icon" data-project-id="${p.id}" data-project-name="${p.name || ""}"></i>
                                     </div>
                                 </div>
-                                <h5 class="fw-bold ${isFirst ? 'text-white' : 'text-dark'}">${p.name}</h5>
-                                <p class="${isFirst ? 'text-white-50' : 'text-muted'} small mb-0" style="min-height:2.6em;max-height:2.6em;overflow:hidden;">${shortDescPinned}</p>
+                                <h5 class="fw-bold ${isFirst ? "text-white" : "text-dark"}">${p.name}</h5>
+                                <p class="${isFirst ? "text-white-50" : "text-muted"} small mb-0" style="min-height:2.6em;max-height:2.6em;overflow:hidden;">${shortDescPinned}</p>
                                 <div class="mt-4">
                                     <div class="d-flex justify-content-between align-items-center mb-1">
-                                        <span class="small ${isFirst ? 'text-white-50' : 'text-muted'}">Progress</span>
-                                        <span class="small ${isFirst ? 'text-white-50' : 'text-muted'}">${progressPercent}%</span>
+                                        <span class="small ${isFirst ? "text-white-50" : "text-muted"}">Progress</span>
+                                        <span class="small ${isFirst ? "text-white-50" : "text-muted"}">${progressPercent}%</span>
                                     </div>
                                     <div class="progress" style="height: 6px; background: rgba(0,0,0,0.1);">
                                         <div class="progress-bar ${progressBarClass} progress-bar-striped progress-bar-animated" style="width: ${progressPercent}%"></div>
@@ -824,30 +1294,33 @@
                         </a>
                     </div>
                 `;
-                pinnedContainer.insertAdjacentHTML('beforeend', html);
-            });
+          pinnedContainer.insertAdjacentHTML("beforeend", html);
+        });
 
-            // Masukkan Tombol Tambah setelah daftar Pinned
-            pinnedContainer.insertAdjacentHTML('beforeend', newProjectBtn);
+        // Masukkan Tombol Tambah setelah daftar Pinned
+        pinnedContainer.insertAdjacentHTML("beforeend", newProjectBtn);
 
-            // Render Others (Hidden)
-            unpinnedList.forEach(p => {
-                const departmentName = p.department || "General";
-                const departmentColor = p.department_color || "#e5e7eb";
-                const stat = projectTaskStats[p.id] || { total: 0, complete: 0 };
-                const totalTasks = stat.total || 0;
-                const completedTasks = stat.complete || 0;
-                const isAllDone = totalTasks > 0 && completedTasks === totalTasks;
-                const progressText = `${completedTasks}/${totalTasks} Done`;
-                const rawDesc = typeof p.description === "string" ? p.description : "";
-                const plainDesc = rawDesc.replace(/<[^>]+>/g, " ").trim();
-                const maxDescLength = 120;
-                let shortDesc = plainDesc;
-                if (plainDesc.length > maxDescLength) {
-                    shortDesc = plainDesc.substring(0, maxDescLength - 3) + "...";
-                }
-                const iconClass = isAllDone ? "bi bi-check-circle-fill text-success" : "bi bi-check-circle";
-                const html = `
+        // Render Others (Hidden)
+        unpinnedList.forEach((p) => {
+          const departmentName = p.department || "General";
+          const departmentColor = p.department_color || "#e5e7eb";
+          const stat = projectTaskStats[p.id] || { total: 0, complete: 0 };
+          const totalTasks = stat.total || 0;
+          const completedTasks = stat.complete || 0;
+          const isAllDone = totalTasks > 0 && completedTasks === totalTasks;
+          const progressText = `${completedTasks}/${totalTasks} Done`;
+          const rawDesc =
+            typeof p.description === "string" ? p.description : "";
+          const plainDesc = rawDesc.replace(/<[^>]+>/g, " ").trim();
+          const maxDescLength = 120;
+          let shortDesc = plainDesc;
+          if (plainDesc.length > maxDescLength) {
+            shortDesc = plainDesc.substring(0, maxDescLength - 3) + "...";
+          }
+          const iconClass = isAllDone
+            ? "bi bi-check-circle-fill text-success"
+            : "bi bi-check-circle";
+          const html = `
                     <div class="col-md-6 col-lg-3">
                         <a href="project/project.html?id=${p.id}" class="text-decoration-none">
                             <div class="project-card">
@@ -860,7 +1333,7 @@
                                         <i class="bi bi-pin-angle-fill text-primary project-pin-icon"
                                            data-project-id="${p.id}" data-project-pinned="false"></i>
                                         <i class="bi bi-trash3 text-danger project-trash-icon"
-                                           data-project-id="${p.id}" data-project-name="${p.name || ''}"></i>
+                                           data-project-id="${p.id}" data-project-name="${p.name || ""}"></i>
                                     </div>
                                 </div>
                                 <h6 class="fw-bold text-dark mb-1">${p.name}</h6>
@@ -873,180 +1346,197 @@
                         </a>
                     </div>
                 `;
-                otherContainer.insertAdjacentHTML('beforeend', html);
+          otherContainer.insertAdjacentHTML("beforeend", html);
+        });
+      }
+
+      function openDeleteProjectModal(projectId, projectName) {
+        const nameEl = document.getElementById("deleteProjectName");
+        const idInput = document.getElementById("deleteProjectId");
+        const modalEl = document.getElementById("deleteProjectModal");
+        if (!nameEl || !idInput || !modalEl) return;
+        nameEl.innerText = projectName || "";
+        idInput.value = projectId || "";
+        if (typeof bootstrap === "undefined") return;
+        const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
+        modal.show();
+      }
+
+      window.confirmDeleteProject = async () => {
+        const idInput = document.getElementById("deleteProjectId");
+        const modalEl = document.getElementById("deleteProjectModal");
+        if (!idInput || !modalEl) return;
+        const projectId = idInput.value;
+        if (!projectId) return;
+        try {
+          const project =
+            cachedProjects.find((p) => p.id === projectId) || null;
+          if (project) {
+            await addDoc(collection(db, "trash"), {
+              type: "project",
+              project_id: projectId,
+              entity_id: projectId,
+              data: project,
+              deleted_at: serverTimestamp(),
+              deleted_by: currentUser ? currentUser.uid : "",
             });
+          }
+          await deleteDoc(doc(db, "projects", projectId));
+          const modal = bootstrap.Modal.getInstance(modalEl);
+          if (modal) modal.hide();
+        } catch (e) {
+          console.error("Failed to delete project", e);
+          alert("Gagal menghapus project: " + (e.message || e.toString()));
         }
+      };
 
-        function openDeleteProjectModal(projectId, projectName) {
-            const nameEl = document.getElementById('deleteProjectName');
-            const idInput = document.getElementById('deleteProjectId');
-            const modalEl = document.getElementById('deleteProjectModal');
-            if (!nameEl || !idInput || !modalEl) return;
-            nameEl.innerText = projectName || "";
-            idInput.value = projectId || "";
-            if (typeof bootstrap === "undefined") return;
-            const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
-            modal.show();
+      async function toggleProjectPin(projectId, shouldPin) {
+        if (!projectId) return;
+        try {
+          await updateDoc(doc(db, "projects", projectId), {
+            is_pinned: shouldPin,
+            pinned: shouldPin,
+          });
+        } catch (e) {
+          console.error("Failed to toggle pin project", e);
+          alert("Gagal mengubah pin project: " + (e.message || e.toString()));
         }
+      }
 
-        window.confirmDeleteProject = async () => {
-            const idInput = document.getElementById('deleteProjectId');
-            const modalEl = document.getElementById('deleteProjectModal');
-            if (!idInput || !modalEl) return;
-            const projectId = idInput.value;
-            if (!projectId) return;
-            try {
-                const project = cachedProjects.find(p => p.id === projectId) || null;
-                if (project) {
-                    await addDoc(collection(db, "trash"), {
-                        type: "project",
-                        project_id: projectId,
-                        entity_id: projectId,
-                        data: project,
-                        deleted_at: serverTimestamp(),
-                        deleted_by: currentUser ? currentUser.uid : ""
-                    });
-                }
-                await deleteDoc(doc(db, "projects", projectId));
-                const modal = bootstrap.Modal.getInstance(modalEl);
-                if (modal) modal.hide();
-            } catch (e) {
-                console.error("Failed to delete project", e);
-                alert("Gagal menghapus project: " + (e.message || e.toString()));
-            }
-        };
-
-        async function toggleProjectPin(projectId, shouldPin) {
-            if (!projectId) return;
-            try {
-                await updateDoc(doc(db, "projects", projectId), {
-                    is_pinned: shouldPin,
-                    pinned: shouldPin
-                });
-            } catch (e) {
-                console.error("Failed to toggle pin project", e);
-                alert("Gagal mengubah pin project: " + (e.message || e.toString()));
-            }
+      document.addEventListener("click", (e) => {
+        const trashIcon = e.target.closest(".project-trash-icon");
+        if (trashIcon) {
+          const projectId = trashIcon.getAttribute("data-project-id") || "";
+          const projectName = trashIcon.getAttribute("data-project-name") || "";
+          if (projectId) {
+            e.preventDefault();
+            e.stopPropagation();
+            openDeleteProjectModal(projectId, projectName);
+          }
+          return;
         }
+        const pinIcon = e.target.closest(".project-pin-icon");
+        if (pinIcon) {
+          const projectId = pinIcon.getAttribute("data-project-id") || "";
+          if (!projectId) return;
+          const pinnedAttr = pinIcon.getAttribute("data-project-pinned");
+          const currentlyPinned = pinnedAttr === "true";
+          e.preventDefault();
+          e.stopPropagation();
+          toggleProjectPin(projectId, !currentlyPinned);
+        }
+      });
 
-        document.addEventListener('click', (e) => {
-            const trashIcon = e.target.closest('.project-trash-icon');
-            if (trashIcon) {
-                const projectId = trashIcon.getAttribute('data-project-id') || "";
-                const projectName = trashIcon.getAttribute('data-project-name') || "";
-                if (projectId) {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    openDeleteProjectModal(projectId, projectName);
-                }
-                return;
+      // --- 5. INPUT PROJECT BARU KE FIRESTORE ---
+      window.saveProject = async () => {
+        const name = document.getElementById("inputProjectName").value;
+        const desc = document.getElementById("inputProjectDesc").innerText;
+        const pinnedInput = document.getElementById("inputProjectPinned");
+        const isPinned = pinnedInput ? pinnedInput.checked : false;
+        const saveBtn = document.querySelector(
+          "#createProjectForm .btn-dlg-blue",
+        );
+        const dept = selectedDepartment;
+        const departmentName = dept ? dept.name || "General" : "General";
+        const departmentColor = dept ? dept.color || "" : "";
+
+        if (!name) return alert("Please enter project name!");
+
+        saveBtn.disabled = true;
+        saveBtn.innerText = "Saving...";
+
+        try {
+          await addDoc(collection(db, "projects"), {
+            name: name,
+            description: desc,
+            owner_id: currentUser.uid,
+            is_pinned: isPinned,
+            pinned: isPinned,
+            status: "active",
+            department: departmentName,
+            department_color: departmentColor,
+            members: [currentUser.uid],
+            created_at: serverTimestamp(),
+          });
+
+          // Reset & Close Modal
+          document.getElementById("inputProjectName").value = "";
+          document.getElementById("inputProjectDesc").innerText = "";
+          const modal = bootstrap.Modal.getInstance(
+            document.getElementById("newProjectModal"),
+          );
+          modal.hide();
+        } catch (error) {
+          console.error("Error adding project: ", error);
+          alert("Failed to save project.");
+        } finally {
+          saveBtn.disabled = false;
+          saveBtn.innerText = "Save changes";
+        }
+      };
+
+      // --- PIKET NOTIFICATION ---
+      let piketScheduleUnsub = null;
+      function listenToPiketSchedules() {
+        if (piketScheduleUnsub) piketScheduleUnsub();
+        try {
+          piketScheduleUnsub = onSnapshot(
+            query(
+              collection(db, "duty_schedules"),
+              orderBy("start_date", "desc"),
+            ),
+            (snapshot) => {
+              const schedules = [];
+              snapshot.forEach((docSnap) =>
+                schedules.push({ id: docSnap.id, ...docSnap.data() }),
+              );
+              renderPiketNotice(schedules);
+            },
+          );
+        } catch (e) {
+          console.error("Failed to listen piket schedules", e);
+        }
+      }
+
+      function renderPiketNotice(schedules) {
+        const container = document.getElementById("piketNoticeHome");
+        if (!container || !currentUser) return;
+
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+
+        const myDutiesToday = [];
+
+        schedules.forEach((schedule) => {
+          if (schedule.status === "archived" || schedule.status === "cancelled")
+            return;
+          const assignments = Array.isArray(schedule.assignments)
+            ? schedule.assignments
+            : [];
+          assignments.forEach((item) => {
+            if (item.user_id !== currentUser.uid) return;
+            const dateVal = item.assignment_date || schedule.start_date;
+            let d;
+            if (dateVal && dateVal.toDate) d = dateVal.toDate();
+            else d = new Date(dateVal);
+            if (isNaN(d.getTime())) return;
+            d.setHours(0, 0, 0, 0);
+            if (d.getTime() === today.getTime()) {
+              myDutiesToday.push({ schedule, item });
             }
-            const pinIcon = e.target.closest('.project-pin-icon');
-            if (pinIcon) {
-                const projectId = pinIcon.getAttribute('data-project-id') || "";
-                if (!projectId) return;
-                const pinnedAttr = pinIcon.getAttribute('data-project-pinned');
-                const currentlyPinned = pinnedAttr === "true";
-                e.preventDefault();
-                e.stopPropagation();
-                toggleProjectPin(projectId, !currentlyPinned);
-            }
+          });
         });
 
-        // --- 5. INPUT PROJECT BARU KE FIRESTORE ---
-        window.saveProject = async () => {
-            const name = document.getElementById('inputProjectName').value;
-            const desc = document.getElementById('inputProjectDesc').innerText;
-            const pinnedInput = document.getElementById('inputProjectPinned');
-            const isPinned = pinnedInput ? pinnedInput.checked : false;
-            const saveBtn = document.querySelector('#createProjectForm .btn-dlg-blue');
-            const dept = selectedDepartment;
-            const departmentName = dept ? (dept.name || "General") : "General";
-            const departmentColor = dept ? (dept.color || "") : "";
+        if (myDutiesToday.length > 0) {
+          const badges = myDutiesToday
+            .map(({ schedule, item }) => {
+              const color = schedule.type_color || "#0B2B6A";
+              const typeName = schedule.type_name || "Piket";
+              return `<span class="badge-piket" style="background:${hexToRgba(color, 0.15)}; color:${escapeHtml(color)}"><i class="bi bi-person-check-fill me-1"></i>${escapeHtml(typeName)}</span>`;
+            })
+            .join("");
 
-            if (!name) return alert("Please enter project name!");
-
-            saveBtn.disabled = true;
-            saveBtn.innerText = "Saving...";
-
-            try {
-                await addDoc(collection(db, "projects"), {
-                    name: name,
-                    description: desc,
-                    owner_id: currentUser.uid,
-                    is_pinned: isPinned,
-                    pinned: isPinned,
-                    status: "active",
-                    department: departmentName,
-                    department_color: departmentColor,
-                    members: [currentUser.uid],
-                    created_at: serverTimestamp()
-                });
-
-                // Reset & Close Modal
-                document.getElementById('inputProjectName').value = "";
-                document.getElementById('inputProjectDesc').innerText = "";
-                const modal = bootstrap.Modal.getInstance(document.getElementById('newProjectModal'));
-                modal.hide();
-
-            } catch (error) {
-                console.error("Error adding project: ", error);
-                alert("Failed to save project.");
-            } finally {
-                saveBtn.disabled = false;
-                saveBtn.innerText = "Save changes";
-            }
-        };
-
-        // --- PIKET NOTIFICATION ---
-        let piketScheduleUnsub = null;
-        function listenToPiketSchedules() {
-            if (piketScheduleUnsub) piketScheduleUnsub();
-            try {
-                piketScheduleUnsub = onSnapshot(query(collection(db, "duty_schedules"), orderBy("start_date", "desc")), (snapshot) => {
-                    const schedules = [];
-                    snapshot.forEach(docSnap => schedules.push({ id: docSnap.id, ...docSnap.data() }));
-                    renderPiketNotice(schedules);
-                });
-            } catch (e) {
-                console.error("Failed to listen piket schedules", e);
-            }
-        }
-
-        function renderPiketNotice(schedules) {
-            const container = document.getElementById('piketNoticeHome');
-            if (!container || !currentUser) return;
-
-            const today = new Date();
-            today.setHours(0, 0, 0, 0);
-
-            const myDutiesToday = [];
-
-            schedules.forEach(schedule => {
-                if (schedule.status === 'archived' || schedule.status === 'cancelled') return;
-                const assignments = Array.isArray(schedule.assignments) ? schedule.assignments : [];
-                assignments.forEach(item => {
-                    if (item.user_id !== currentUser.uid) return;
-                    const dateVal = item.assignment_date || schedule.start_date;
-                    let d;
-                    if (dateVal && dateVal.toDate) d = dateVal.toDate();
-                    else d = new Date(dateVal);
-                    if (isNaN(d.getTime())) return;
-                    d.setHours(0, 0, 0, 0);
-                    if (d.getTime() === today.getTime()) {
-                        myDutiesToday.push({ schedule, item });
-                    }
-                });
-            });
-
-            if (myDutiesToday.length > 0) {
-                const badges = myDutiesToday.map(({ schedule, item }) => {
-                    const color = schedule.type_color || '#0B2B6A';
-                    const typeName = schedule.type_name || 'Piket';
-                    return `<span class="badge-piket" style="background:${hexToRgba(color, 0.15)}; color:${escapeHtml(color)}"><i class="bi bi-person-check-fill me-1"></i>${escapeHtml(typeName)}</span>`;
-                }).join('');
-
-                container.innerHTML = `
+          container.innerHTML = `
                     <div class="piket-notice-card p-3 p-lg-4 mb-4">
                         <div class="d-flex flex-column flex-lg-row align-items-lg-center justify-content-between gap-3">
                             <div>
@@ -1060,37 +1550,208 @@
                         </div>
                     </div>
                 `;
-                container.classList.remove('d-none');
-            } else {
-                container.classList.add('d-none');
+          container.classList.remove("d-none");
+        } else {
+          container.classList.add("d-none");
+        }
+      }
+
+      function hexToRgba(hex, alpha) {
+        const h = String(hex || "#0B2B6A").replace("#", "");
+        const bigint = parseInt(
+          h.length === 3
+            ? h
+                .split("")
+                .map((c) => c + c)
+                .join("")
+            : h,
+          16,
+        );
+        const r = (bigint >> 16) & 255;
+        const g = (bigint >> 8) & 255;
+        const b = bigint & 255;
+        return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+      }
+
+      function escapeHtml(value) {
+        return String(value ?? "").replace(
+          /[&<>'"]/g,
+          (ch) =>
+            ({
+              "&": "&amp;",
+              "<": "&lt;",
+              ">": "&gt;",
+              "'": "&#39;",
+              '"': "&quot;",
+            })[ch],
+        );
+      }
+
+      // --- ANNOUNCEMENT ---
+      let announcementBannerUnsubscribe = null;
+
+      function formatDateID(date) {
+        const days = [
+          "Minggu",
+          "Senin",
+          "Selasa",
+          "Rabu",
+          "Kamis",
+          "Jumat",
+          "Sabtu",
+        ];
+        const months = [
+          "Januari",
+          "Februari",
+          "Maret",
+          "April",
+          "Mei",
+          "Juni",
+          "Juli",
+          "Agustus",
+          "September",
+          "Oktober",
+          "November",
+          "Desember",
+        ];
+        const dayName = days[date.getDay()];
+        const d = date.getDate();
+        const m = months[date.getMonth()];
+        const y = date.getFullYear();
+        const hh = String(date.getHours()).padStart(2, "0");
+        const mm = String(date.getMinutes()).padStart(2, "0");
+        return `${dayName}, ${d} ${m} ${y} • ${hh}:${mm}`;
+      }
+
+      function listenToHomeAnnouncements() {
+        const section = document.getElementById("announcementBannerSection");
+        const container = document.getElementById(
+          "announcementBannerContainer",
+        );
+        if (!section || !container) return;
+
+        if (announcementBannerUnsubscribe) announcementBannerUnsubscribe();
+
+        const q = query(
+          collection(db, "announcements"),
+          where("active", "==", true),
+        );
+        announcementBannerUnsubscribe = onSnapshot(
+          q,
+          (snapshot) => {
+            const userDept = (window.teamMemberDepartment || "")
+              .toLowerCase()
+              .trim();
+            let items = [];
+            snapshot.forEach((docSnap) => {
+              const data = docSnap.data() || {};
+              const targetName = (data.target_department_name || "")
+                .toLowerCase()
+                .trim();
+              if (!targetName || targetName === userDept) {
+                items.push({ id: docSnap.id, ...data });
+              }
+            });
+
+            if (items.length === 0) {
+              section.style.display = "none";
+              container.innerHTML = "";
+              return;
             }
-        }
 
-        function hexToRgba(hex, alpha) {
-            const h = String(hex || '#0B2B6A').replace('#', '');
-            const bigint = parseInt(h.length === 3 ? h.split('').map(c => c + c).join('') : h, 16);
-            const r = (bigint >> 16) & 255;
-            const g = (bigint >> 8) & 255;
-            const b = bigint & 255;
-            return `rgba(${r}, ${g}, ${b}, ${alpha})`;
-        }
+            items.sort((a, b) => {
+              if (!!a.pinned !== !!b.pinned) return a.pinned ? -1 : 1;
+              const at = a.created_at?.toDate
+                ? a.created_at.toDate().getTime()
+                : 0;
+              const bt = b.created_at?.toDate
+                ? b.created_at.toDate().getTime()
+                : 0;
+              return bt - at;
+            });
 
-        function escapeHtml(value) {
-            return String(value ?? '').replace(/[&<>'"]/g, ch => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[ch]));
-        }
+            const typeColor = {
+              info: "#0d6efd",
+              update: "#108a00",
+              warning: "#f1ac15",
+              urgent: "#e7181b",
+            };
+            section.style.display = "block";
+            container.innerHTML = "";
+            items.slice(0, 5).forEach((a) => {
+              const color = typeColor[a.type || "info"] || "#0d6efd";
+              const tmp = document.createElement("div");
+              tmp.innerHTML = a.content || "";
+              const fullText = (tmp.textContent || "").trim();
+              const isLong = fullText.length > 140;
+              const preview = isLong
+                ? fullText.slice(0, 140) + "..."
+                : fullText;
 
-        // --- 6. LOGOUT ---
-        window.logout = async () => {
-            await signOut(auth);
-            localStorage.removeItem('userData');
-            window.location.href = "index.html";
-        };
+              const div = document.createElement("div");
+              div.className =
+                "p-3 rounded-3 bg-white shadow-sm d-flex justify-content-between align-items-start";
+              div.style.borderLeft = "5px solid " + color;
+              div.style.cursor = "pointer";
+              div.innerHTML = `
+                <div style="min-width:0; overflow-wrap:anywhere; word-break:break-all;">
+                    <div class="fw-bold small">${a.pinned ? '<i class="bi bi-pin-angle-fill text-primary me-1"></i>' : ""}${a.title || "Untitled"}</div>
+                    <div class="text-muted small">${preview}</div>
+                </div>
+                ${isLong ? '<span class="text-primary small fw-semibold flex-shrink-0 ms-2">Lihat detail</span>' : ""}
+            `;
+              div.addEventListener("click", () =>
+                openAnnouncementDetailModal(a, color),
+              );
+              container.appendChild(div);
+            });
+          },
+          (error) =>
+            console.error("Failed to load announcements for home:", error),
+        );
+      }
 
-        // UI Helper: Sidebar Toggle
-        window.toggleSidebar = () => {
-            document.getElementById('sidebarNav').classList.toggle('show');
-        };
+      function openAnnouncementDetailModal(a, color) {
+        const modalEl = document.getElementById("announcementDetailModal");
+        if (!modalEl) return;
 
+        const badgeEl = document.getElementById("announcementDetailBadge");
+        const titleEl = document.getElementById("announcementDetailTitle");
+        const targetEl = document.getElementById("announcementDetailTarget");
+        const dateEl = document.getElementById("announcementDetailDate");
+        const contentEl = document.getElementById("announcementDetailContent");
+
+        const type = a.type || "info";
+        badgeEl.textContent = type.toUpperCase();
+        badgeEl.style.backgroundColor = color;
+        badgeEl.style.color = "#fff";
+
+        titleEl.textContent = a.title || "Untitled";
+        targetEl.textContent = a.target_department_name || "All Employees";
+        dateEl.textContent = a.created_at?.toDate
+          ? formatDateID(a.created_at.toDate())
+          : "-";
+        contentEl.innerHTML =
+          a.content || "<span class='text-muted'>No content.</span>";
+
+        const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
+        modal.show();
+      }
+
+      window.addEventListener("unload", () => {
+        if (announcementBannerUnsubscribe) announcementBannerUnsubscribe();
+      });
+      // --- 6. LOGOUT ---
+      window.logout = async () => {
+        await signOut(auth);
+        localStorage.removeItem("userData");
+        window.location.href = "index.html";
+      };
+
+      // UI Helper: Sidebar Toggle
+      window.toggleSidebar = () => {
+        document.getElementById("sidebarNav").classList.toggle("show");
+      };
     </script>
-</body>
+  </body>
 </html>
