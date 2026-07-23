@@ -174,9 +174,24 @@
 
       <!-- 3. MAIN CONTENT (Code-28 Rich Content) -->
       <main class="main-content">
-        <div class="mb-4">
-          <h4 id="welcomeMessage" class="fw-bold mb-0">Welcome!</h4>
-          <small class="text-muted">Here is your daily update.</small>
+        <div
+          class="mb-4 d-flex justify-content-between align-items-start flex-wrap gap-2"
+        >
+          <div>
+            <h4 id="welcomeMessage" class="fw-bold mb-0">Welcome!</h4>
+            <small class="text-muted">Here is your daily update.</small>
+          </div>
+          <a
+            href="quiz.html"
+            id="quizReminderBadge"
+            class="d-none align-items-center gap-2 px-3 py-2 rounded-pill text-decoration-none flex-shrink-0"
+            style="background: #fef3c7; border: 1px solid #f59e0b"
+          >
+            <i class="bi bi-patch-question-fill" style="color: #f59e0b"></i>
+            <span class="small fw-bold" style="color: #92400e"
+              >Quiz belum dikerjakan!</span
+            >
+          </a>
         </div>
 
         <div id="piketNoticeHome" class="d-none"></div>
@@ -672,6 +687,60 @@
       </div>
     </div>
 
+    <!-- MODAL: QUIZ REMINDER -->
+    <div
+      class="modal fade"
+      id="quizReminderModal"
+      tabindex="-1"
+      aria-hidden="true"
+      data-bs-backdrop="static"
+    >
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content rounded-4 border-0" style="overflow: hidden">
+          <div
+            class="p-4 text-center"
+            style="
+              background: linear-gradient(135deg, #0b2b6a 0%, #1e40af 100%);
+            "
+          >
+            <div
+              class="d-inline-flex align-items-center justify-content-center rounded-circle bg-white bg-opacity-25 mb-2"
+              style="width: 64px; height: 64px"
+            >
+              <i
+                class="bi bi-patch-question-fill text-white"
+                style="font-size: 32px"
+              ></i>
+            </div>
+            <h5 class="fw-bold text-white mb-0">
+              Jangan Lupa Quiz Minggu Ini!
+            </h5>
+          </div>
+          <div class="modal-body p-4 text-center">
+            <p class="text-muted mb-4">
+              Kamu belum mengerjakan quiz gamification periode ini. Yuk kerjakan
+              sekarang sebelum ditutup!
+            </p>
+            <div class="d-flex gap-2">
+              <button
+                type="button"
+                class="btn btn-light rounded-pill px-4 flex-fill"
+                id="quizReminderLaterBtn"
+                data-bs-dismiss="modal"
+              >
+                Nanti Saja
+              </button>
+              <a
+                href="quiz.html"
+                class="btn btn-dlg-blue rounded-pill px-4 flex-fill"
+                >Kerjakan Sekarang</a
+              >
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <!-- Firebase SDK Modular -->
@@ -799,6 +868,7 @@
           listenToOnlineUsers();
           listenToPiketSchedules();
           listenToHomeAnnouncements();
+          checkQuizReminder();
         } else {
           window.location.href = "index.html";
         }
@@ -1737,6 +1807,118 @@
         const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
         modal.show();
       }
+
+      // --- QUIZ REMINDER ---
+      function isQuizReminderWindow() {
+        const nowWIB = new Date(
+          new Date().toLocaleString("en-US", { timeZone: "Asia/Jakarta" }),
+        );
+        const day = nowWIB.getDay();
+        const hour = nowWIB.getHours();
+        return (day === 4 && hour >= 0) || day === 5 || day === 6 || day === 0;
+      }
+
+      async function getQuizReminderStatus() {
+        if (!currentUser) {
+          console.log("[QuizReminder] Skipped: no currentUser");
+          return { shouldRemind: false };
+        }
+        if (!isQuizReminderWindow()) {
+          console.log(
+            "[QuizReminder] Skipped: outside Thu 12:00 - Sun window (WIB)",
+          );
+          return { shouldRemind: false };
+        }
+
+        const scheduleSnap = await getDoc(doc(db, "quiz_settings", "schedule"));
+        if (!scheduleSnap.exists()) {
+          console.log(
+            "[QuizReminder] Skipped: quiz_settings/schedule doc does not exist",
+          );
+          return { shouldRemind: false };
+        }
+        const schedule = scheduleSnap.data() || {};
+        const openAt = schedule.open_at?.toDate
+          ? schedule.open_at.toDate()
+          : null;
+        const closeAt = schedule.close_at?.toDate
+          ? schedule.close_at.toDate()
+          : null;
+        if (!openAt || !closeAt) {
+          console.log(
+            "[QuizReminder] Skipped: open_at/close_at missing",
+            schedule,
+          );
+          return { shouldRemind: false };
+        }
+
+        const now = new Date();
+        console.log(
+          "[QuizReminder] now:",
+          now,
+          "| open_at:",
+          openAt,
+          "| close_at:",
+          closeAt,
+        );
+        if (now < openAt || now >= closeAt) {
+          console.log("[QuizReminder] Skipped: quiz is not currently open");
+          return { shouldRemind: false };
+        }
+
+        const q = query(
+          collection(db, "quiz_results"),
+          where("user_id", "==", currentUser.uid),
+        );
+        const snap = await getDocs(q);
+        let alreadyDone = false;
+        snap.forEach((docSnap) => {
+          const d = docSnap.data() || {};
+          const completedAt = d.completed_at?.toDate
+            ? d.completed_at.toDate()
+            : d.completed_at
+              ? new Date(d.completed_at)
+              : null;
+          if (completedAt && completedAt >= openAt && completedAt < closeAt) {
+            alreadyDone = true;
+          }
+        });
+        console.log("[QuizReminder] alreadyDone:", alreadyDone);
+
+        return { shouldRemind: !alreadyDone };
+      }
+
+      async function checkQuizReminder() {
+        try {
+          const status = await getQuizReminderStatus();
+          const badge = document.getElementById("quizReminderBadge");
+          if (badge) {
+            if (status.shouldRemind) {
+              badge.classList.remove("d-none");
+              badge.classList.add("d-flex");
+            } else {
+              badge.classList.add("d-none");
+              badge.classList.remove("d-flex");
+            }
+          }
+
+          if (!status.shouldRemind) return;
+
+          const modalEl = document.getElementById("quizReminderModal");
+          if (modalEl && typeof bootstrap !== "undefined") {
+            const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
+            modal.show();
+          }
+        } catch (e) {
+          console.error("Failed to check quiz reminder", e);
+        }
+      }
+
+      document
+        .getElementById("quizReminderLaterBtn")
+        ?.addEventListener("click", () => {
+          sessionStorage.setItem("quizReminderDismissed", "true");
+        });
 
       window.addEventListener("unload", () => {
         if (announcementBannerUnsubscribe) announcementBannerUnsubscribe();
