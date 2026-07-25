@@ -87,6 +87,24 @@
         font-size: 13px;
       }
 
+      .exit-delete-icon {
+        color: #d1d5db;
+        font-size: 15px;
+        cursor: pointer;
+        opacity: 0;
+        pointer-events: none;
+        transition:
+          opacity 0.15s ease,
+          color 0.15s ease;
+      }
+      .exit-card:hover .exit-delete-icon {
+        opacity: 1;
+        pointer-events: auto;
+      }
+      .exit-delete-icon:hover {
+        color: #e7181b;
+      }
+
       .exit-content-preview {
         overflow-wrap: break-word;
         word-break: break-word;
@@ -249,18 +267,23 @@
         serverTimestamp,
         doc,
         getDoc,
+        deleteDoc,
       } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
       // =====================================================
-      // ACCESS CONTROL — halaman ini seharusnya hanya bisa
-      // diakses oleh department "Happy".
+      // ACCESS CONTROL — halaman ini hanya bisa diakses oleh
+      // posisi tertentu (Head of Department of Happy Team).
       //
       // Untuk testing/development, cukup ubah baris di bawah
       // ini jadi `false` supaya restriction dimatikan sementara,
       // lalu kembalikan ke `true` sebelum production.
       // =====================================================
-      const ENFORCE_DEPARTMENT_RESTRICTION = true;
-      const ALLOWED_DEPARTMENT = "happy";
+      const ENFORCE_ACCESS_RESTRICTION = true;
+      const ALLOWED_POSITIONS = [
+        "gtebWhJ7db4xxHQxI67t",
+        "Head of Department of Happy Team",
+        "3jlfwya0KQuAk5Twkike",
+      ];
 
       const firebaseConfig = {
         apiKey: "AIzaSyDyzzEYbJkkl-N8snrQf14qvj8De4YliV0",
@@ -291,13 +314,13 @@
         }
         currentUser = user;
 
-        if (ENFORCE_DEPARTMENT_RESTRICTION) {
-          const allowed = await isUserInAllowedDepartment(user.uid);
+        if (ENFORCE_ACCESS_RESTRICTION) {
+          const allowed = await checkAccess();
           if (!allowed) {
             document.querySelector(".main-content").innerHTML = "";
             Swal.fire({
               title: "Akses Ditolak",
-              text: "Halaman ini hanya bisa diakses oleh department Happy.",
+              text: "Halaman ini hanya bisa diakses oleh Head of Department Happy Team / People Development",
               icon: "error",
               confirmButtonText: "Kembali",
               allowOutsideClick: false,
@@ -311,25 +334,26 @@
         listenToExitInterviews();
       });
 
-      async function isUserInAllowedDepartment(uid) {
+      async function checkAccess() {
+        let userData = null;
         try {
-          let deptName = window.teamMemberDepartment || "";
-
-          if (!deptName) {
-            const userSnap = await getDoc(doc(db, "users", uid));
-            if (userSnap.exists()) {
-              const data = userSnap.data() || {};
-              deptName =
-                data.employment?.department_name ||
-                data.department_name ||
-                data.department ||
-                "";
-            }
-          }
-
-          return String(deptName).trim().toLowerCase() === ALLOWED_DEPARTMENT;
+          userData = JSON.parse(localStorage.getItem("userData") || "null");
+        } catch (e) {}
+        const userId =
+          userData?.uid ||
+          localStorage.getItem("userId") ||
+          (currentUser ? currentUser.uid : null);
+        if (!userId) return false;
+        try {
+          const userDoc = await getDoc(doc(db, "users", userId));
+          if (!userDoc.exists()) return false;
+          const data = userDoc.data();
+          return (
+            ALLOWED_POSITIONS.includes(data?.employment?.position) ||
+            ALLOWED_POSITIONS.includes(data?.position)
+          );
         } catch (e) {
-          console.error("Failed to check department access", e);
+          console.error("Error checking access:", e);
           return false;
         }
       }
@@ -444,13 +468,60 @@
                     <div class="exit-card">
                         <div class="type-strip"></div>
                         <div class="exit-card-body">
-                            <span class="exit-anon-badge"><i class="bi bi-incognito"></i> Anonim</span>
+                            <div class="d-flex justify-content-between align-items-start">
+                                <span class="exit-anon-badge"><i class="bi bi-incognito"></i> Anonim</span>
+                                <i class="bi bi-trash3 exit-delete-icon" data-id="${item.id}" title="Hapus"></i>
+                            </div>
                             <p class="exit-content-preview mb-0">${escapeHtml(item.content || "")}</p>
                         </div>
                     </div>
                 `;
           container.appendChild(col);
         });
+      }
+
+      document.addEventListener("click", (e) => {
+        const trashIcon = e.target.closest(".exit-delete-icon");
+        if (!trashIcon) return;
+        const id = trashIcon.getAttribute("data-id");
+        if (!id) return;
+        confirmDeleteExitInterview(id);
+      });
+
+      function confirmDeleteExitInterview(id) {
+        Swal.fire({
+          title: "Hapus Exit Interview?",
+          text: "Data yang dihapus tidak bisa dikembalikan.",
+          icon: "warning",
+          showCancelButton: true,
+          confirmButtonText: "Hapus",
+          cancelButtonText: "Batal",
+          confirmButtonColor: "#e7181b",
+        }).then((result) => {
+          if (result.isConfirmed) {
+            deleteExitInterview(id);
+          }
+        });
+      }
+
+      async function deleteExitInterview(id) {
+        try {
+          await deleteDoc(doc(db, EXIT_COLLECTION, id));
+          Swal.fire({
+            title: "Terhapus!",
+            icon: "success",
+            timer: 1500,
+            timerProgressBar: true,
+            showConfirmButton: false,
+          });
+        } catch (e) {
+          console.error("Failed to delete exit interview", e);
+          Swal.fire({
+            title: "Gagal",
+            text: "Gagal menghapus data: " + e.message,
+            icon: "error",
+          });
+        }
       }
 
       function escapeHtml(value) {
