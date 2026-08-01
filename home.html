@@ -232,7 +232,6 @@
           </div>
         </div>
 
-<<<<<<< HEAD
         <div class="row row-cols-3 row-cols-md-4 row-cols-lg-6 g-3 mb-5">
           <div class="col">
             <a href="setting/internship-management.html" class="app-box"
@@ -328,48 +327,6 @@
                 <i class="bi bi-box-arrow-right"></i>
               </div>
               <div class="app-title">Exit Interview</div>
-=======
-                <!-- ================= BRANDING DIVISION ================= -->
-                <div class="d-flex justify-content-between align-items-center mb-3 mt-5">
-                    <h5 class="fw-bold mb-0 text-dark">Branding Division</h5>
-                    <div class="d-none d-sm-block text-muted small">
-                        <i class="bi bi-palette-fill me-1"></i> Branding
-                    </div>
-                </div>
-
-                <div class="row row-cols-3 row-cols-md-4 row-cols-lg-6 g-3 mb-5">
-                    <div class="col">
-                        <a href="data/piket-branding.html" class="app-box">
-                            <div class="app-icon-wrapper grad-purple"><i class="bi bi-person-check-fill"></i></div>
-                            <div class="app-title">Piket Branding</div>
-                        </a>
-                    </div>
-                    <div class="col">
-                        <a href="data/branding-schedule.html" class="app-box">
-                            <div class="app-icon-wrapper grad-purple"><i class="bi bi-calendar-range-fill"></i></div>
-                            <div class="app-title">Content Schedule</div>
-                            <span class="menu-badge menu-badge-floating menu-badge-hidden"
-                                data-menu-badge="branding-schedule"></span>
-                        </a>
-                    </div>
-                </div>
-
-
-        </main>
-
-        <!-- MOBILE BOTTOM NAVIGATION -->
-        <div class="bottom-nav">
-            <a href="#" class="nav-item-mobile active"><i class="bi bi-house-door-fill"></i></a>
-            <a href="#" class="nav-item-mobile"><i class="bi bi-search"></i></a>
-            
-            <button class="nav-btn-plus" type="button" data-bs-toggle="offcanvas" data-bs-target="#actionSheet">
-                <i class="bi bi-plus-lg"></i>
-            </button>
-            
-            <a href="#" class="nav-item-mobile position-relative">
-                <i class="bi bi-bell"></i>
-                <span class="position-absolute top-0 start-100 translate-middle p-1 bg-danger border border-light rounded-circle" style="width:10px; height:10px; margin-left:-15px; margin-top:10px;"></span>
->>>>>>> 56f9073 (Add Side Quest and Main Quest board and update gamification)
             </a>
           </div>
         </div>
@@ -649,7 +606,6 @@
     </div>
 
     <!-- MODAL: USER PROFILE -->
-<<<<<<< HEAD
     <div
       class="modal fade"
       id="userProfileModal"
@@ -679,19 +635,6 @@
               Nama Pengguna
             </h5>
           </div>
-=======
-    <div class="modal fade" id="userProfileModal" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog modal-md modal-dialog-centered">
-            <div class="modal-content rounded-4">
-                <div class="modal-header border-0 pb-0">
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body text-center pt-0 px-4 pb-4">
-                    <img id="modalUserProfilePhoto" src="https://i.pravatar.cc/150" class="rounded-circle mb-3" width="100" height="100" style="object-fit: cover;">
-                            <h5 id="modalUserProfileName" class="fw-bold mb-0">Nama Pengguna</h5>
-                        </div>
-            </div>
->>>>>>> 56f9073 (Add Side Quest and Main Quest board and update gamification)
         </div>
       </div>
     </div>
@@ -857,28 +800,6 @@
       const sidebarTarget = document.getElementById("sidebarContainer");
       renderSidebar(sidebarTarget);
 
-<<<<<<< HEAD
-      const app = initializeApp(firebaseConfig);
-      const auth = getAuth(app);
-      const db = getFirestore(app);
-      const storage = getStorage(app);
-      window.db = db;
-      window.collection = collection;
-      window.getDoc = getDoc;
-      window.getDocs = getDocs;
-      window.addDoc = addDoc;
-      window.serverTimestamp = serverTimestamp;
-      window.doc = doc;
-      window.updateDoc = updateDoc;
-      window.deleteDoc = deleteDoc;
-      window.deleteDoc = deleteDoc;
-      window.updateDoc = updateDoc;
-      window.setDoc = setDoc;
-      window.storage = storage;
-      window.ref = ref;
-      window.uploadBytes = uploadBytes;
-      window.getDownloadURL = getDownloadURL;
-=======
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getFirestore(app);
@@ -900,7 +821,6 @@
         window.ref = ref;
         window.uploadBytes = uploadBytes;
         window.getDownloadURL = getDownloadURL;
->>>>>>> 56f9073 (Add Side Quest and Main Quest board and update gamification)
 
       let currentUser = null;
       let departments = [];
@@ -1111,99 +1031,12 @@
                 if (!stats[pid]) {
                   stats[pid] = { total: 0, complete: 0 };
                 }
-<<<<<<< HEAD
                 stats[pid].total += 1;
                 let statusRaw = "";
                 if (typeof data.status === "string") {
                   statusRaw = data.status;
                 } else if (data.status && typeof data.status === "object") {
                   statusRaw = data.status.name || data.status.label || "";
-=======
-                const q = query(collection(db, "tasks"));
-                unsubscribeTasks = onSnapshot(q, { includeMetadataChanges: false }, (snapshot) => {
-                    listenToTasksRetryCount = 0; // Reset retry count on success
-                    const stats = {};
-                    snapshot.forEach((docSnap) => {
-                        const data = docSnap.data() || {};
-                        const pid = data.project_id || data.projectId || "";
-                        if (!pid) return;
-                        if (!stats[pid]) {
-                            stats[pid] = { total: 0, complete: 0 };
-                        }
-                        stats[pid].total += 1;
-                        let statusRaw = "";
-                        if (typeof data.status === "string") {
-                            statusRaw = data.status;
-                        } else if (data.status && typeof data.status === "object") {
-                            statusRaw = data.status.name || data.status.label || "";
-                        }
-                        const normalized = String(statusRaw || "").trim().toLowerCase();
-                        const isDone = normalized === "complete" || normalized === "done";
-                        if (isDone) {
-                            stats[pid].complete += 1;
-                        }
-                    });
-
-                    let totalAll = 0;
-                    Object.keys(stats).forEach(pid => {
-                        const s = stats[pid] || {};
-                        totalAll += s.total || 0;
-                    });
-                    
-                    globalProjectTasksTotal = totalAll;
-                    const projectCountEl = document.getElementById('projectTasksTotalCount');
-                    if (projectCountEl) {
-                        projectCountEl.innerText = String(totalAll);
-                    }
-                    projectTaskStats = stats;
-                    renderProjects(cachedProjects);
-
-                    // Trigger sidebar refresh if available
-                    if (window.refreshSidebarCounts) {
-                        window.refreshSidebarCounts(snapshot);
-                    }
-                }, (error) => {
-                    console.error("Firestore Tasks Listener Error:", error);
-                    
-                    // Handle quota exceeded or other fatal errors
-                    if (error.code === 'resource-exhausted') {
-                        console.error("Firestore quota exceeded. Stopping listener.");
-                        return;
-                    }
-
-                    // Retry with exponential backoff if connection was aborted or unavailable
-                    const isRetryable = error.code === 'unavailable' || 
-                                      error.code === 'cancelled' || 
-                                      error.code === 'deadline-exceeded' ||
-                                      error.message.toLowerCase().includes('abort') ||
-                                      error.message.toLowerCase().includes('failed to get document');
-
-                    if (isRetryable) {
-                        listenToTasksRetryCount++;
-                        if (listenToTasksRetryCount <= 3) {
-                            const delay = Math.min(1000 * Math.pow(2, listenToTasksRetryCount), 30000); 
-                            console.log(`Attempting to reconnect tasks listener in ${delay}ms (attempt ${listenToTasksRetryCount})...`);
-                            setTimeout(() => {
-                                if (auth.currentUser) {
-                                    listenToTasks();
-                                }
-                            }, delay);
-                        } else {
-                            console.warn("Max retries reached for tasks listener.");
-                        }
-                    }
-                });
-            } catch (e) {
-                console.error("Exception in listenToTasks", e);
-            }
-        }
-
-        function startPresenceTracking() {
-            try {
-                updateOwnPresence();
-                if (presenceIntervalId) {
-                    clearInterval(presenceIntervalId);
->>>>>>> 56f9073 (Add Side Quest and Main Quest board and update gamification)
                 }
                 const normalized = String(statusRaw || "")
                   .trim()
@@ -2121,3 +1954,4 @@
     </script>
   </body>
 </html>
+
