@@ -489,13 +489,31 @@
                 quizScoreMap.set(res.user_id, prev + res.score);
             });
 
-            // Map user_id to total Quest points
+            // Map user_id to total Quest points.
+            // Fair attribution: credit full points to the people who actually did the work
+            // (task.who_did_this). If who_did_this is missing (older reports), fall back to
+            // report.user_id so legacy data is still counted.
             const questPointsMap = new Map();
             allApprovedDailyReports.forEach(report => {
                 if (report.tasks && Array.isArray(report.tasks)) {
-                    const approvedTasks = report.tasks.filter(t => t.status === 'Approved').length;
-                    const currentPoints = questPointsMap.get(report.user_id) || 0;
-                    questPointsMap.set(report.user_id, currentPoints + approvedTasks);
+                    report.tasks
+                        .filter(t => t.status === 'Approved')
+                        .forEach(t => {
+                            const pts = parseInt(t.points, 10) || 0;
+                            if (pts <= 0) return;
+                            let recipients = Array.isArray(t.who_did_this)
+                                ? t.who_did_this.filter(Boolean)
+                                : [];
+                            if (!recipients.length && report.user_id) {
+                                recipients = [report.user_id];
+                            }
+                            // Dedupe: a uid selected twice must not double-credit points
+                            recipients = Array.from(new Set(recipients));
+                            recipients.forEach(uid => {
+                                const currentPoints = questPointsMap.get(uid) || 0;
+                                questPointsMap.set(uid, currentPoints + pts);
+                            });
+                        });
                 }
             });
 
@@ -712,7 +730,7 @@
 
                 const qReports = query(
                     collection(db, 'intern_dailyreport'),
-                    where('status', 'in', ['Approved', 'Partially Approved', 'Rejected'])
+                    where('status', 'in', ['Approved', 'Partially Approved'])
                 );
 
                 const [snap, quizSnap, reportSnap] = await Promise.all([
