@@ -1,0 +1,951 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Internship Satisfaction Survey - Intern Dialogika</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="assets/css/style.css" rel="stylesheet" />
+    <style>
+        :root {
+            --brand: #4f46e5;
+            --brand-dark: #4338ca;
+            --brand-soft: #eef2ff;
+            --danger: #ef4444;
+        }
+        body {
+            font-family: 'Poppins', system-ui, -apple-system, sans-serif;
+            background: #f1f5f9;
+            color: #0f172a;
+        }
+        .survey-wrap {
+            max-width: 860px;
+            margin: 0 auto;
+            padding: 24px 16px 64px;
+        }
+        /* ── header ── */
+        .survey-header {
+            margin-bottom: 22px;
+        }
+        .survey-header .back-link {
+            font-size: 12px;
+            font-weight: 600;
+            color: #64748b;
+            text-decoration: none;
+        }
+        .survey-header .back-link:hover {
+            color: var(--brand);
+        }
+        .survey-header h1 {
+            font-size: 26px;
+            font-weight: 800;
+            color: #0f172a;
+            margin: 6px 0 4px;
+            letter-spacing: -0.02em;
+        }
+        .survey-header .lead {
+            font-size: 13.5px;
+            color: #64748b;
+            font-weight: 400;
+            margin: 0;
+        }
+        /* ── progress summary ── */
+        .progress-card {
+            background: linear-gradient(135deg, var(--brand) 0%, #7c3aed 100%);
+            border-radius: 18px;
+            padding: 18px 20px;
+            color: #fff;
+            margin-bottom: 22px;
+            box-shadow: 0 12px 28px -12px rgba(79, 70, 229, 0.55);
+        }
+        .progress-card .progress-title {
+            font-size: 13px;
+            font-weight: 600;
+            opacity: 0.9;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+        .progress-track {
+            height: 10px;
+            background: rgba(255, 255, 255, 0.25);
+            border-radius: 999px;
+            overflow: hidden;
+        }
+        .progress-fill {
+            height: 100%;
+            background: #fff;
+            border-radius: 999px;
+            width: 0%;
+            transition: width 0.35s ease;
+        }
+        .progress-cats {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 12px;
+        }
+        .progress-cat-chip {
+            background: rgba(255, 255, 255, 0.16);
+            border: 1px solid rgba(255, 255, 255, 0.25);
+            border-radius: 999px;
+            padding: 4px 12px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+        /* ── category cards ── */
+        .category-card {
+            border: 1px solid #e2e8f0;
+            border-radius: 20px;
+            background: #fff;
+            box-shadow: 0 6px 20px -12px rgba(15, 23, 42, 0.18);
+            margin-bottom: 22px;
+        }
+        .cat-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            margin-bottom: 8px;
+        }
+        .cat-head-left {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+        .cat-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 14px;
+            background: var(--brand-soft);
+            color: var(--brand);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+            flex-shrink: 0;
+        }
+        .cat-title {
+            font-size: 17px;
+            font-weight: 700;
+            margin: 0;
+            color: #0f172a;
+        }
+        .cat-subtitle {
+            font-size: 12px;
+            color: #64748b;
+            font-weight: 500;
+        }
+        .cat-progress-wrap {
+            text-align: right;
+            flex-shrink: 0;
+        }
+        .cat-progress-badge {
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--brand);
+            background: var(--brand-soft);
+            border-radius: 999px;
+            padding: 4px 12px;
+            white-space: nowrap;
+        }
+        .cat-mini-bar {
+            width: 90px;
+            height: 5px;
+            background: #e2e8f0;
+            border-radius: 999px;
+            overflow: hidden;
+            margin-top: 6px;
+            margin-left: auto;
+        }
+        .cat-mini-fill {
+            height: 100%;
+            background: var(--brand);
+            border-radius: 999px;
+            width: 0%;
+            transition: width 0.35s ease;
+        }
+        /* ── questions ── */
+        .question-block {
+            border-top: 1px dashed #e2e8f0;
+            padding: 18px 2px 20px;
+        }
+        .question-block:first-of-type {
+            border-top: 0;
+        }
+        .question-text {
+            font-size: 14px;
+            font-weight: 600;
+            color: #1e293b;
+            margin-bottom: 12px;
+            line-height: 1.5;
+        }
+        .q-num {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 24px;
+            height: 24px;
+            border-radius: 8px;
+            background: #f1f5f9;
+            color: #475569;
+            font-size: 12px;
+            font-weight: 700;
+            margin-right: 8px;
+        }
+        .likert-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        .likert-opt {
+            position: relative;
+            cursor: pointer;
+            flex: 1 1 auto;
+            min-width: 118px;
+        }
+        .likert-opt input {
+            position: absolute;
+            opacity: 0;
+            pointer-events: none;
+        }
+        .likert-chip {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            text-align: center;
+            padding: 9px 10px;
+            border: 1.5px solid #e2e8f0;
+            border-radius: 12px;
+            background: #f8fafc;
+            font-size: 12px;
+            font-weight: 600;
+            color: #475569;
+            transition: all 0.15s ease;
+            user-select: none;
+        }
+        .likert-opt:hover .likert-chip {
+            border-color: #c7d2fe;
+            background: #eef2ff;
+            color: var(--brand-dark);
+        }
+        .likert-opt input:checked + .likert-chip {
+            border-color: var(--brand);
+            background: var(--brand);
+            color: #fff;
+            box-shadow: 0 6px 14px -6px rgba(79, 70, 229, 0.55);
+        }
+        .likert-opt input:focus-visible + .likert-chip {
+            border-color: var(--brand);
+            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.25);
+        }
+        /* ── essays ── */
+        .essay-block {
+            border-top: 1px dashed #e2e8f0;
+            padding: 16px 2px 4px;
+        }
+        .essay-label {
+            font-size: 13.5px;
+            font-weight: 600;
+            color: #1e293b;
+            margin-bottom: 8px;
+            line-height: 1.5;
+        }
+        .essay-label .req {
+            color: var(--danger);
+        }
+        .comment-box {
+            border-radius: 14px;
+            border-color: #e2e8f0;
+            font-size: 13px;
+            padding: 10px 14px;
+            resize: vertical;
+        }
+        .comment-box:focus {
+            border-color: var(--brand);
+            box-shadow: 0 0 0 0.2rem rgba(79, 70, 229, 0.12);
+        }
+        /* error state */
+        .question-error .likert-row,
+        .question-error .essay-wrap,
+        .question-error .comment-box,
+        .info-field-error {
+            outline: 2px solid var(--danger);
+            outline-offset: 3px;
+            border-radius: 12px;
+            background: #fef2f2;
+        }
+        /* ── respondent info ── */
+        .info-label {
+            font-size: 12px;
+            font-weight: 600;
+            color: #475569;
+            margin-bottom: 6px;
+            display: block;
+        }
+        .info-field {
+            border-radius: 14px;
+            border-color: #e2e8f0;
+            font-size: 13px;
+            padding: 10px 14px;
+        }
+        .info-field:focus {
+            border-color: var(--brand);
+            box-shadow: 0 0 0 0.2rem rgba(79, 70, 229, 0.12);
+        }
+        /* ── submit ── */
+        .submit-bar {
+            text-align: right;
+            padding-top: 6px;
+        }
+        .btn-submit {
+            background: var(--brand);
+            border: none;
+            color: #fff;
+            font-weight: 700;
+            padding: 12px 30px;
+            border-radius: 999px;
+            font-size: 14px;
+            transition: all 0.15s ease;
+            box-shadow: 0 10px 22px -10px rgba(79, 70, 229, 0.7);
+        }
+        .btn-submit:hover {
+            background: var(--brand-dark);
+            color: #fff;
+            transform: translateY(-1px);
+        }
+        .btn-submit:disabled {
+            opacity: 0.7;
+            transform: none;
+        }
+        /* ── done view ── */
+        .done-view {
+            max-width: 560px;
+            margin: 40px auto;
+            text-align: center;
+            background: #fff;
+            border: 1px solid #e2e8f0;
+            border-radius: 24px;
+            padding: 48px 32px;
+            box-shadow: 0 18px 44px -22px rgba(15, 23, 42, 0.35);
+        }
+        .done-icon {
+            width: 84px;
+            height: 84px;
+            border-radius: 50%;
+            background: #dcfce7;
+            color: #16a34a;
+            font-size: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+        }
+        .done-view h3 {
+            font-weight: 800;
+            color: #0f172a;
+            margin-bottom: 8px;
+        }
+        .done-view p {
+            color: #64748b;
+            font-size: 14px;
+            margin-bottom: 24px;
+        }
+        .loading-state {
+            text-align: center;
+            padding: 60px 0;
+            color: #64748b;
+        }
+        @media (max-width: 576px) {
+            .likert-opt {
+                min-width: 100%;
+            }
+            .survey-header h1 {
+                font-size: 22px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="topbarContainer"></div>
+
+    <div class="dashboard-container">
+        <div id="sidebarContainer"></div>
+
+        <main class="main-content">
+            <div class="survey-wrap">
+                <!-- Header -->
+                <header class="survey-header">
+                    <a href="home.html" class="back-link"><i class="bi bi-arrow-left me-1"></i>Kembali ke Beranda</a>
+                    <h1>Internship Satisfaction Survey</h1>
+                    <p class="lead">
+                        Terima kasih telah mengikuti program internship di Dialogika. Mohon isi evaluasi ini dengan
+                        jujur — hasilnya akan digunakan untuk meningkatkan kualitas program.
+                    </p>
+                </header>
+
+                <!-- Loading state -->
+                <div class="loading-state" id="loadingState">
+                    <div class="spinner-border text-primary" role="status"></div>
+                    <p class="mt-2 mb-0 small">Memeriksa status survey...</p>
+                </div>
+
+                <!-- Survey form -->
+                <div id="surveyWrap" style="display:none">
+                    <!-- Progress summary -->
+                    <div class="progress-card">
+                        <div class="progress-title">
+                            <span><i class="bi bi-graph-up-arrow me-1"></i>Progres Pengisian</span>
+                            <span id="progressText">0 dari 0 item terjawab</span>
+                        </div>
+                        <div class="progress-track">
+                            <div class="progress-fill" id="overallProgressBar"></div>
+                        </div>
+                        <div class="progress-cats" id="progressCats"></div>
+                    </div>
+
+                    <!-- Informasi Responden -->
+                    <section class="category-card">
+                        <div class="card-body p-4 p-md-5">
+                            <div class="cat-head">
+                                <div class="cat-head-left">
+                                    <div class="cat-icon" style="background:#f0fdf4;color:#16a34a;"><i class="bi bi-person-vcard-fill"></i></div>
+                                    <div>
+                                        <h2 class="cat-title mb-0">Informasi Responden</h2>
+                                        <div class="cat-subtitle">Identitas peserta internship (wajib diisi)</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row g-3 mt-1">
+                                <div class="col-md-6">
+                                    <label class="info-label" for="namaInput">Nama Lengkap <span class="text-danger">*</span></label>
+                                    <input type="text" id="namaInput" class="form-control info-field" placeholder="Nama Anda" />
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="info-label" for="divisiInput">Divisi <span class="text-danger">*</span></label>
+                                    <select id="divisiInput" class="form-select info-field">
+                                        <option value="">-- Pilih Divisi --</option>
+                                    </select>
+                                </div>
+                                <div class="col-12">
+                                    <label class="info-label" for="alasanInput">Alasan Mengakhiri Program Magang <span class="text-danger">*</span></label>
+                                    <select id="alasanInput" class="form-select info-field">
+                                        <option value="">-- Pilih Alasan --</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- Categories (rendered) -->
+                    <div id="surveyContainer"></div>
+
+                    <!-- Submit -->
+                    <div class="submit-bar">
+                        <button type="button" class="btn btn-submit" id="submitBtn">
+                            <i class="bi bi-send-fill me-1"></i>Kirim Survey
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Done view -->
+                <div class="done-view" id="doneView" style="display:none">
+                    <div class="done-icon"><i class="bi bi-check-lg"></i></div>
+                    <h3 id="doneTitle">Survey Terkirim!</h3>
+                    <p id="doneDesc">
+                        Terima kasih telah mengisi Internship Satisfaction Survey.<br>
+                        Feedback Anda sangat berharga untuk pengembangan program internship Dialogika.
+                    </p>
+                    <a href="home.html" class="btn btn-submit"><i class="bi bi-house-fill me-1"></i>Kembali ke Beranda</a>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script type="module">
+        import { renderTopBar } from "./element/topbar.js";
+        import { renderSidebar } from "./element/sidebar.js";
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+        import { getFirestore, collection, setDoc, getDocs, getDoc, doc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyDyzzEYbJkkl-N8snrQf14qvj8De4YliV0",
+            authDomain: "pre-dialogika.firebaseapp.com",
+            projectId: "pre-dialogika",
+            storageBucket: "pre-dialogika.firebasestorage.app",
+            messagingSenderId: "343771410480",
+            appId: "1:343771410480:web:32881c9868522090237df5",
+            measurementId: "G-SXN811P3N0",
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        renderTopBar(document.getElementById("topbarContainer"));
+        renderSidebar(document.getElementById("sidebarContainer"));
+
+        /* ─────────── CONFIG (modular: tambah kategori/pertanyaan di sini) ─────────── */
+        const COLLECTION = "internship_satisfaction_survey";
+        const LIKERT_LABELS = ["Sangat Tidak Puas", "Tidak Puas", "Netral", "Puas", "Sangat Puas"];
+        const LIKERT_VALUES = [1, 2, 3, 4, 5];
+
+        const DIVISI_OPTIONS = [
+            "Recruiter Specialist", "People Development", "Generalist", "Telemarketing",
+            "Client Manager", "AI Content/Copywriter", "Content Creator", "Designer Specialist",
+            "HTML Writer", "Video Editor",
+        ];
+
+        const ALASAN_OPTIONS = [
+            "Selesai masa kontrak/durasi program",
+            "Menemukan pekerjaan penuh waktu (Full-Time)",
+            "Kembali ke studi/pendidikan",
+            "Ketidaksesuaian budaya atau lingkungan kerja",
+            "Ketidaksesuaian tugas atau tanggung jawab",
+        ];
+
+        const SURVEY_CATEGORIES = [
+            {
+                id: "self_performance",
+                title: "Penilaian Performa Diri",
+                subtitle: "Evaluasi kemampuan dan kontribusi Anda selama internship",
+                icon: "bi-person-check-fill",
+                ratings: [
+                    { id: "task_comprehension", text: "Kemampuan saya dalam memahami dan menyelesaikan tugas atau tanggung jawab yang diberikan." },
+                    { id: "communication_collaboration", text: "Komunikasi dan kolaborasi saya dengan anggota tim." },
+                    { id: "learning_adaptability_initiative", text: "Kemampuan saya menunjukkan rasa ingin belajar, beradaptasi, berpikir kreatif, serta berinisiatif." },
+                    { id: "time_management_prioritization", text: "Kemampuan saya dalam mengatur waktu serta menentukan prioritas pekerjaan." },
+                ],
+                essays: [
+                    { id: "biggest_achievement_challenge", label: "Apa pencapaian dan tantangan terbesar Anda selama mengikuti internship?" },
+                    { id: "new_skills_learned", label: "Keterampilan atau pengetahuan baru apa yang Anda pelajari selama internship?" },
+                    { id: "most_valuable_project", label: "Tugas atau proyek apa yang paling berharga bagi Anda, dan mengapa?" },
+                ],
+            },
+            {
+                id: "team_satisfaction",
+                title: "Penilaian Kepuasan Tim",
+                subtitle: "Evaluasi pengalaman Anda bekerja bersama tim",
+                icon: "bi-people-fill",
+                ratings: [
+                    { id: "communication_coordination_support", text: "Komunikasi, koordinasi, dan dukungan dalam tim membantu saya menyelesaikan tugas." },
+                    { id: "openness_guidance", text: "Tim terbuka dalam menerima ide atau pendapat saya dan bersedia memberikan bimbingan serta arahan." },
+                    { id: "relationship_appreciation", text: "Hubungan kerja dengan anggota tim baik dan saya merasa dihargai sebagai bagian dari tim." },
+                ],
+                essays: [
+                    { id: "liked_and_challenges", label: "Hal apa yang paling Anda sukai sekaligus menjadi tantangan ketika bekerja bersama tim?" },
+                    { id: "team_improvements", label: "Hal-hal apa saja yang menurut Anda masih dapat ditingkatkan dari tim?" },
+                ],
+            },
+            {
+                id: "overall_assessment",
+                title: "Penilaian Umum",
+                subtitle: "Penilaian keseluruhan terhadap pengalaman internship",
+                icon: "bi-clipboard-check-fill",
+                ratings: [
+                    { id: "satisfaction", text: "Secara keseluruhan, saya puas dengan pengalaman internship saya di Dialogika." },
+                ],
+                essays: [],
+            },
+        ];
+
+        /* ─────────── state ─────────── */
+        let currentUser = null;
+        let currentUserData = null;
+
+        const els = {
+            loading: document.getElementById("loadingState"),
+            wrap: document.getElementById("surveyWrap"),
+            done: document.getElementById("doneView"),
+            container: document.getElementById("surveyContainer"),
+            progressCats: document.getElementById("progressCats"),
+            progressText: document.getElementById("progressText"),
+            overallBar: document.getElementById("overallProgressBar"),
+            submitBtn: document.getElementById("submitBtn"),
+            namaInput: document.getElementById("namaInput"),
+            divisiInput: document.getElementById("divisiInput"),
+            alasanInput: document.getElementById("alasanInput"),
+        };
+
+        /* ─────────── helpers ─────────── */
+        function ratingName(cat, q) {
+            return "q_" + cat.id + "_" + q.id;
+        }
+        function essayId(cat, q) {
+            return "essay_" + cat.id + "_" + q.id;
+        }
+        function ratingChecked(cat, q) {
+            return !!document.querySelector('input[name="' + ratingName(cat, q) + '"]:checked');
+        }
+        function essayValue(cat, q) {
+            const el = document.getElementById(essayId(cat, q));
+            return el ? el.value.trim() : "";
+        }
+        function recommendChecked() {
+            return !!document.querySelector('input[name="recommend"]:checked');
+        }
+
+        /* ─────────── render ─────────── */
+        function renderLikert(cat, q, idx) {
+            const name = ratingName(cat, q);
+            const options = LIKERT_LABELS
+                .map((label, i) =>
+                    '<label class="likert-opt" title="' + label + '">' +
+                    '<input type="radio" name="' + name + '" value="' + LIKERT_VALUES[i] + '" required aria-label="' + label + '" />' +
+                    '<span class="likert-chip">' + label + '</span>' +
+                    "</label>")
+                .join("");
+            return (
+                '<div class="question-block" data-cat="' + cat.id + '" data-q="' + q.id + '">' +
+                '<div class="question-text"><span class="q-num">' + (idx + 1) + "</span>" + q.text + "</div>" +
+                '<div class="likert-row">' + options + "</div>" +
+                "</div>"
+            );
+        }
+
+        function renderEssay(cat, q) {
+            return (
+                '<div class="essay-block" data-cat="' + cat.id + '" data-q="' + q.id + '">' +
+                '<label class="essay-label" for="' + essayId(cat, q) + '">' + q.label +
+                ' <span class="req">*</span></label>' +
+                '<div class="essay-wrap">' +
+                '<textarea class="form-control comment-box" id="' + essayId(cat, q) + '" rows="3" placeholder="Tulis jawaban Anda di sini..."></textarea>' +
+                "</div>" +
+                "</div>"
+            );
+        }
+
+        function renderRecommend(qnum) {
+            const opts = ["Ya", "Tidak"]
+                .map((v) =>
+                    '<label class="likert-opt"><input type="radio" name="recommend" value="' + v + '" required aria-label="' + v + '" />' +
+                    '<span class="likert-chip">' + v + "</span></label>")
+                .join("");
+            return (
+                '<div class="question-block" data-cat="overall_assessment" data-q="recommend">' +
+                '<div class="question-text"><span class="q-num">' + qnum + "</span>Apakah Anda bersedia merekomendasikan perusahaan ini sebagai tempat internship kepada orang lain?</div>" +
+                '<div class="likert-row" style="max-width:320px;">' + opts + "</div>" +
+                "</div>"
+            );
+        }
+
+        function renderCategory(cat, catIdx) {
+            const ratings = cat.ratings.map((q, i) => renderLikert(cat, q, i)).join("");
+            const essays = cat.essays.map((q) => renderEssay(cat, q)).join("");
+            const extra = cat.id === "overall_assessment" ? renderRecommend(cat.ratings.length + 1) : "";
+            return (
+                '<section class="card category-card" id="cat-' + cat.id + '">' +
+                '<div class="card-body p-4 p-md-5">' +
+                '<div class="cat-head">' +
+                '<div class="cat-head-left">' +
+                '<div class="cat-icon"><i class="bi ' + cat.icon + '"></i></div>' +
+                '<div><h2 class="cat-title mb-0">' + cat.title + '</h2>' +
+                '<div class="cat-subtitle">' + cat.subtitle + "</div></div>" +
+                "</div>" +
+                '<div class="cat-progress-wrap">' +
+                '<span class="cat-progress-badge" id="prog-' + cat.id + '">0/' + (cat.ratings.length + cat.essays.length + (cat.id === "overall_assessment" ? 1 : 0)) + "</span>" +
+                '<div class="cat-mini-bar"><div class="cat-mini-fill" id="bar-' + cat.id + '"></div></div>' +
+                "</div>" +
+                "</div>" +
+                ratings + essays + extra +
+                "</div>" +
+                "</section>"
+            );
+        }
+
+        function renderSurvey() {
+            els.container.innerHTML = SURVEY_CATEGORIES.map(renderCategory).join("");
+            els.progressCats.innerHTML = SURVEY_CATEGORIES
+                .map((c) => {
+                    const items = c.ratings.length + c.essays.length + (c.id === "overall_assessment" ? 1 : 0);
+                    return '<span class="progress-cat-chip" id="chip-' + c.id + '">' + c.title + " — 0/" + items + "</span>";
+                })
+                .join("");
+        }
+
+        function fillRespondentOptions() {
+            els.divisiInput.innerHTML = '<option value="">-- Pilih Divisi --</option>' +
+                DIVISI_OPTIONS.map((d) => '<option value="' + d + '">' + d + "</option>").join("");
+            els.alasanInput.innerHTML = '<option value="">-- Pilih Alasan --</option>' +
+                ALASAN_OPTIONS.map((a) => '<option value="' + a + '">' + a + "</option>").join("");
+            // Pre-select divisi dari department user bila cocok
+            if (currentUserData?.department && DIVISI_OPTIONS.includes(currentUserData.department)) {
+                els.divisiInput.value = currentUserData.department;
+            }
+        }
+
+        /* ─────────── progress ─────────── */
+        function itemCounts() {
+            let total = 0, answered = 0;
+            // info responden (3)
+            total += 3;
+            if (els.namaInput.value.trim()) answered++;
+            if (els.divisiInput.value) answered++;
+            if (els.alasanInput.value) answered++;
+            SURVEY_CATEGORIES.forEach((cat) => {
+                cat.ratings.forEach((q) => {
+                    total++;
+                    if (ratingChecked(cat, q)) answered++;
+                });
+                cat.essays.forEach((q) => {
+                    total++;
+                    if (essayValue(cat, q)) answered++;
+                });
+                if (cat.id === "overall_assessment") {
+                    total++;
+                    if (recommendChecked()) answered++;
+                }
+            });
+            return { total, answered };
+        }
+
+        function updateProgress() {
+            const { total, answered } = itemCounts();
+            SURVEY_CATEGORIES.forEach((cat) => {
+                let catTotal = cat.ratings.length + cat.essays.length + (cat.id === "overall_assessment" ? 1 : 0);
+                let catAnswered = 0;
+                cat.ratings.forEach((q) => { if (ratingChecked(cat, q)) catAnswered++; });
+                cat.essays.forEach((q) => { if (essayValue(cat, q)) catAnswered++; });
+                if (cat.id === "overall_assessment" && recommendChecked()) catAnswered++;
+                const chip = document.getElementById("prog-" + cat.id);
+                if (chip) chip.textContent = catAnswered + "/" + catTotal;
+                const mini = document.getElementById("bar-" + cat.id);
+                if (mini) mini.style.width = Math.round((catAnswered / catTotal) * 100) + "%";
+                const pchip = document.getElementById("chip-" + cat.id);
+                if (pchip) pchip.textContent = cat.title + " — " + catAnswered + "/" + catTotal;
+            });
+            const pct = total ? Math.round((answered / total) * 100) : 0;
+            if (els.overallBar) els.overallBar.style.width = pct + "%";
+            if (els.progressText) els.progressText.textContent = answered + " dari " + total + " item terjawab";
+        }
+
+        /* ─────────── validation & submit ─────────── */
+        function collectMissing() {
+            let missingCount = 0;
+            let firstMissing = null;
+            const note = (el) => {
+                if (!firstMissing && el) firstMissing = el;
+            };
+            if (!els.namaInput.value.trim()) { missingCount++; note(els.namaInput); }
+            if (!els.divisiInput.value) { missingCount++; note(els.divisiInput); }
+            if (!els.alasanInput.value) { missingCount++; note(els.alasanInput); }
+            SURVEY_CATEGORIES.forEach((cat) => {
+                cat.ratings.forEach((q) => {
+                    if (!ratingChecked(cat, q)) {
+                        missingCount++;
+                        note(document.querySelector('input[name="' + ratingName(cat, q) + '"]'));
+                    }
+                });
+                cat.essays.forEach((q) => {
+                    if (!essayValue(cat, q)) {
+                        missingCount++;
+                        note(document.getElementById(essayId(cat, q)));
+                    }
+                });
+                if (cat.id === "overall_assessment" && !recommendChecked()) {
+                    missingCount++;
+                    note(document.querySelector('input[name="recommend"]'));
+                }
+            });
+            return { missingCount, firstMissing };
+        }
+
+        function clearErrors() {
+            document.querySelectorAll(".question-error").forEach((el) => el.classList.remove("question-error"));
+            document.querySelectorAll(".info-field-error").forEach((el) => el.classList.remove("info-field-error"));
+        }
+
+        function markError(el) {
+            if (!el) return;
+            if (el.classList && el.classList.contains("info-field")) {
+                el.classList.add("info-field-error");
+            } else {
+                const block = el.closest(".question-block") || el.closest(".essay-block");
+                if (block) block.classList.add("question-error");
+            }
+        }
+
+        async function handleSubmit() {
+            if (!currentUser) return;
+            clearErrors();
+            const { missingCount, firstMissing } = collectMissing();
+            if (missingCount > 0) {
+                if (firstMissing) {
+                    markError(firstMissing);
+                    (firstMissing.closest(".category-card") || firstMissing.closest("section") || document.body)
+                        .scrollIntoView({ behavior: "smooth", block: "start" });
+                    firstMissing.focus({ preventScroll: true });
+                }
+                await Swal.fire({
+                    title: "Masih Ada yang Belum Diisi",
+                    text: "Masih ada " + missingCount + " item wajib yang belum diisi. Mohon lengkapi terlebih dahulu.",
+                    icon: "warning",
+                    confirmButtonText: "Lengkapi Sekarang",
+                });
+                return;
+            }
+
+            const ratings = {};
+            const essays = {};
+            SURVEY_CATEGORIES.forEach((cat) => {
+                ratings[cat.id] = {};
+                cat.ratings.forEach((q) => {
+                    const el = document.querySelector('input[name="' + ratingName(cat, q) + '"]:checked');
+                    ratings[cat.id][q.id] = el ? parseInt(el.value, 10) : null;
+                });
+                essays[cat.id] = {};
+                cat.essays.forEach((q) => {
+                    essays[cat.id][q.id] = essayValue(cat, q);
+                });
+            });
+
+            const recommendEl = document.querySelector('input[name="recommend"]:checked');
+
+            const payload = {
+                user_id: currentUser.uid,
+                email: currentUser.email || "",
+                respondent_info: {
+                    nama: els.namaInput.value.trim(),
+                    divisi: els.divisiInput.value,
+                    alasan_mengakhiri: els.alasanInput.value,
+                },
+                self_performance: {
+                    ratings: ratings.self_performance,
+                    essays: essays.self_performance,
+                },
+                team_satisfaction: {
+                    ratings: ratings.team_satisfaction,
+                    essays: essays.team_satisfaction,
+                },
+                overall_assessment: {
+                    ratings: {
+                        satisfaction: ratings.overall_assessment.satisfaction,
+                    },
+                    recommend: recommendEl ? recommendEl.value : "",
+                },
+                created_at: serverTimestamp(),
+            };
+
+            els.submitBtn.disabled = true;
+            els.submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Mengirim...';
+            try {
+                // Doc id = user.uid → satu intern hanya bisa punya satu dokumen survey (one-time).
+                await setDoc(doc(db, COLLECTION, currentUser.uid), payload);
+                await Swal.fire({
+                    title: "Terima kasih!",
+                    text: "Survey berhasil dikirim. Feedback Anda sangat berharga untuk kami.",
+                    icon: "success",
+                    confirmButtonText: "Selesai",
+                });
+                showDoneView();
+            } catch (e) {
+                console.error("Gagal mengirim survey:", e);
+                await Swal.fire({
+                    title: "Gagal",
+                    text: "Gagal mengirim survey: " + e.message,
+                    icon: "error",
+                });
+            } finally {
+                els.submitBtn.disabled = false;
+                els.submitBtn.innerHTML = '<i class="bi bi-send-fill me-1"></i>Kirim Survey';
+            }
+        }
+
+        /* ─────────── done view / one-time check ─────────── */
+        function showDoneView() {
+            els.wrap.style.display = "none";
+            els.done.style.display = "block";
+        }
+
+        async function checkAlreadySubmitted(uid) {
+            try {
+                const snap = await getDoc(doc(db, COLLECTION, uid));
+                if (!snap.exists()) return false;
+                const d = snap.data() || {};
+                // Dokumen format lama (tanpa respondent_info/self_performance) → izinkan submit ulang dengan format baru.
+                return !!(d.respondent_info && d.self_performance);
+            } catch (e) {
+                console.warn("Gagal memeriksa survey sebelumnya:", e);
+                return false;
+            }
+        }
+
+        /* ─────────── events ─────────── */
+        els.wrap.addEventListener("change", (e) => {
+            if (e.target.matches('input[type="radio"]:checked')) {
+                const block = e.target.closest(".question-block") || e.target.closest(".essay-block");
+                if (block) block.classList.remove("question-error");
+            }
+            if (e.target.id === "namaInput" || e.target.id === "divisiInput" || e.target.id === "alasanInput") {
+                e.target.classList.remove("info-field-error");
+            }
+            updateProgress();
+        });
+        els.wrap.addEventListener("input", (e) => {
+            if (e.target.matches("textarea")) {
+                const block = e.target.closest(".essay-block");
+                if (block) block.classList.remove("question-error");
+            }
+            if (e.target.id === "namaInput") e.target.classList.remove("info-field-error");
+            updateProgress();
+        });
+        els.submitBtn.addEventListener("click", handleSubmit);
+
+        /* ─────────── init ─────────── */
+        onAuthStateChanged(auth, async (user) => {
+            if (!user) {
+                location.href = "index.html";
+                return;
+            }
+            currentUser = user;
+
+            try {
+                const snap = await getDoc(doc(db, "users", user.uid));
+                if (snap.exists()) {
+                    const d = snap.data();
+                    const e = d.employment || {};
+                    currentUserData = {
+                        name: d.name || user.email || "",
+                        department: e.department || "",
+                    };
+                }
+            } catch (e) {
+                console.warn("Gagal memuat data user:", e);
+            }
+
+            fillRespondentOptions();
+            if (currentUserData?.name) els.namaInput.value = currentUserData.name;
+
+            const already = await checkAlreadySubmitted(user.uid);
+            els.loading.style.display = "none";
+            if (already) {
+                document.getElementById("doneTitle").textContent = "Survey Sudah Terkirim";
+                document.getElementById("doneDesc").innerHTML =
+                    "Kamu sudah mengisi Internship Satisfaction Survey untuk program internship ini.<br>" +
+                    "Terima kasih atas feedback yang telah diberikan!";
+                showDoneView();
+                return;
+            }
+
+            renderSurvey();
+            updateProgress();
+            els.wrap.style.display = "block";
+        });
+
+        window.logout = async () => {
+            const { signOut } = await import("https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js");
+            await signOut(auth);
+            localStorage.removeItem("userData");
+            location.href = "index.html";
+        };
+    </script>
+</body>
+</html>
