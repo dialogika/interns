@@ -1,12 +1,14 @@
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Target Kandidat</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
     <script src="https://unpkg.com/lucide@latest"></script>
     <link href="../assets/css/style.css" rel="stylesheet" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -31,14 +33,14 @@
             background: white;
             border-radius: 16px;
             transition: all 0.3s ease;
-            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
             height: 100%;
             border: none;
         }
 
         .candidate-card:hover {
             transform: translateY(-5px);
-            box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
         }
 
         .img-wrapper {
@@ -65,7 +67,7 @@
         .tag-icon {
             width: 35px;
             height: 35px;
-            background: rgba(255,255,255,0.9);
+            background: rgba(255, 255, 255, 0.9);
             border-radius: 50%;
             display: flex;
             align-items: center;
@@ -112,7 +114,7 @@
             color: #f9fafb;
         }
 
-        .assign-avatar-circle + .assign-avatar-circle {
+        .assign-avatar-circle+.assign-avatar-circle {
             margin-left: -10px;
         }
 
@@ -134,7 +136,7 @@
             background: white;
             border-radius: 12px;
             overflow: hidden;
-            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
             vertical-align: middle;
         }
 
@@ -154,9 +156,20 @@
             border: 1px solid #e2e8f0;
         }
 
-        .status-not-contacted { background-color: #f1f5f9; color: #475569; }
-        .status-replied { background-color: #dcfce7; color: #166534; }
-        .status-waiting { background-color: #fef9c3; color: #854d0e; }
+        .status-not-contacted {
+            background-color: #f1f5f9;
+            color: #475569;
+        }
+
+        .status-replied {
+            background-color: #dcfce7;
+            color: #166534;
+        }
+
+        .status-waiting {
+            background-color: #fef9c3;
+            color: #854d0e;
+        }
 
         .assign-badge {
             font-size: 0.8rem;
@@ -470,12 +483,14 @@
             .menu-grid {
                 grid-template-columns: repeat(2, 1fr);
             }
+
             .menu-item {
                 padding: 20px 10px;
             }
         }
     </style>
 </head>
+
 <body class="p-8">
 
     <div id="topbarContainer"></div>
@@ -488,17 +503,23 @@
             <div class="container-fluid">
                 <div class="container">
 
-                    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-5 gap-3">
+                    <div
+                        class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-5 gap-3">
                         <div>
                             <h1 class="page-title">Scouting Candidate</h1>
-                            <p class="text-muted small mb-0">Kumpulkan dan pantau calon talenta terbaik untuk tim Anda.</p>
+                            <p class="text-muted small mb-0">Kumpulkan dan pantau calon talenta terbaik untuk tim Anda.
+                            </p>
                         </div>
                         <div class="d-flex align-items-center gap-3">
-                            <div class="btn-group" role="group" aria-label="View toggle" style="background-color: #fff; border-radius: 10px;">
-                                <button type="button" class="btn view-btn active" id="btnGrid"><i class="fas fa-th-large"></i></button>
-                                <button type="button" class="btn view-btn" id="btnList"><i class="fas fa-list"></i></button>
+                            <div class="btn-group" role="group" aria-label="View toggle"
+                                style="background-color: #fff; border-radius: 10px;">
+                                <button type="button" class="btn view-btn active" id="btnGrid"><i
+                                        class="fas fa-th-large"></i></button>
+                                <button type="button" class="btn view-btn" id="btnList"><i
+                                        class="fas fa-list"></i></button>
                             </div>
-                            <button class="btn btn-dlg-blue rounded-pill px-4 fw-bold border-0" id="btnAddCandidate" data-bs-toggle="modal" data-bs-target="#candidateAddModal">
+                            <button class="btn btn-dlg-blue rounded-pill px-4 fw-bold border-0" id="btnAddCandidate"
+                                data-bs-toggle="modal" data-bs-target="#candidateAddModal">
                                 <i class="fas fa-plus me-2"></i>Tambah Data
                             </button>
                         </div>
@@ -508,24 +529,34 @@
                         <div class="row g-3 justify-content-between align-items-center">
                             <div class="col-md-6">
                                 <div class="input-group border-0 bg-light rounded-4 px-2">
-                                    <span class="input-group-text bg-transparent border-0"><i class="fas fa-search text-muted"></i></span>
-                                    <input type="text" id="candidateSearchInput" class="form-control bg-transparent border-0 py-2 shadow-none" placeholder="Cari kandidat...">
+                                    <span class="input-group-text bg-transparent border-0"><i
+                                            class="fas fa-search text-muted"></i></span>
+                                    <input type="text" id="candidateSearchInput"
+                                        class="form-control bg-transparent border-0 py-2 shadow-none"
+                                        placeholder="Cari kandidat...">
                                 </div>
                             </div>
                             <div class="col-md-3">
-                                <select id="candidateStatusFilter" class="form-select border-0 bg-light rounded-4 w-100 shadow-none py-2 px-3 fw-bold" style="font-size: 13px;">
+                                <select id="candidateStatusFilter"
+                                    class="form-select border-0 bg-light rounded-4 w-100 shadow-none py-2 px-3 fw-bold"
+                                    style="font-size: 13px;">
                                     <option value="">Semua status</option>
-                                    <option value="none">Radar</option>
-                                    <option value="screening">Screening</option>
+                                    <option value="radar">Radar</option>
+                                    <option value="contacted">Contacted</option>
+                                    <option value="replied">Respond</option>
                                     <option value="interview">Interview</option>
-                                    <option value="microteaching">Microteaching</option>
+                                    <option value="ojt">On Job Test</option>
                                     <option value="decision">Decision</option>
                                     <option value="accepted">Accept</option>
                                     <option value="rejected">Reject</option>
+                                    <option value="screening">Screening</option>
+                                    <option value="microteaching">Microteaching</option>
                                 </select>
                             </div>
                             <div class="col-md-3">
-                                <select id="candidateSortSelect" class="form-select border-0 bg-light rounded-4 w-100 shadow-none py-2 px-3 fw-bold" style="font-size: 13px;">
+                                <select id="candidateSortSelect"
+                                    class="form-select border-0 bg-light rounded-4 w-100 shadow-none py-2 px-3 fw-bold"
+                                    style="font-size: 13px;">
                                     <option value="none">Urutkan</option>
                                     <option value="status">Status</option>
                                     <option value="created_desc">Tanggal input (terbaru)</option>
@@ -546,30 +577,35 @@
                             <div class="modal-content border-0 rounded-4 shadow-lg">
                                 <div class="modal-header border-0 pb-0">
                                     <h5 class="modal-title fw-bold">Tambah Kandidat</h5>
-                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                        aria-label="Close"></button>
                                 </div>
-                                <hr style="margin-top: 8px;"/>
+                                <hr style="margin-top: 8px;" />
                                 <div class="modal-body">
                                     <form id="candidateAddForm">
                                         <div class="row g-3">
                                             <div class="col-md-12">
-                                                <input type="text" class="form-control" placeholder="Nama Kandidat" id="candidateNameInput" style="border-radius: 75px;" required>
+                                                <input type="text" class="form-control" placeholder="Nama Kandidat"
+                                                    id="candidateNameInput" style="border-radius: 75px;" required>
                                             </div>
                                             <div class="col-md-12">
-                                                <select class="form-select" id="candidatePositionSelect" style="border-radius: 75px;" required>
+                                                <select class="form-select" id="candidatePositionSelect"
+                                                    style="border-radius: 75px;" required>
                                                     <option value="">Memuat data posisi...</option>
                                                 </select>
                                             </div>
                                             <div class="col-md-6">
                                                 <div class="mb-3">
-                                                    <select class="form-select" id="candidateRoleInput" style="border-radius: 75px;" required>
+                                                    <select class="form-select" id="candidateRoleInput"
+                                                        style="border-radius: 75px;" required>
                                                         <option value="">Memuat data role...</option>
                                                     </select>
                                                 </div>
                                             </div>
                                             <div class="col-md-6">
                                                 <div class="mb-3">
-                                                    <select class="form-select" id="candidateChannelTypeSelect" style="border-radius: 75px;" required>
+                                                    <select class="form-select" id="candidateChannelTypeSelect"
+                                                        style="border-radius: 75px;" required>
                                                         <option value="">Pilih channel</option>
                                                         <option value="linkedin">LinkedIn</option>
                                                         <option value="facebook">Facebook</option>
@@ -579,19 +615,24 @@
                                                 </div>
                                             </div>
                                             <div class="col-md-12">
-                                                <input type="url" class="form-control" id="candidateChannelUrlInput" style="border-radius: 75px;" placeholder="Put link social media here">
+                                                <input type="url" class="form-control" id="candidateChannelUrlInput"
+                                                    style="border-radius: 75px;"
+                                                    placeholder="Put link social media here">
                                             </div>
                                             <div class="col-md-12">
                                                 <div id="assignDisplay" class="assign-display">Pilih assign...</div>
                                                 <div class="assign-dropdown" id="assignDropdown">
                                                     <div class="assign-panel">
                                                         <div class="assign-search">
-                                                            <span class="assign-search-icon"><i class="fas fa-search"></i></span>
-                                                            <input type="text" id="assignUserSearch" class="assign-search-input" placeholder="Search...">
+                                                            <span class="assign-search-icon"><i
+                                                                    class="fas fa-search"></i></span>
+                                                            <input type="text" id="assignUserSearch"
+                                                                class="assign-search-input" placeholder="Search...">
                                                         </div>
                                                         <div class="assign-list">
                                                             <div class="assign-list-header">PEOPLE</div>
-                                                            <div id="candidateAssignUsers" class="candidate-assign-users"></div>
+                                                            <div id="candidateAssignUsers"
+                                                                class="candidate-assign-users"></div>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -602,14 +643,17 @@
                                                     <div class="photo-upload-inner">
                                                         <i class="fas fa-cloud-upload-alt photo-upload-icon"></i>
                                                         <div class="photo-upload-title">Upload Photo Candidate</div>
-                                                        <div class="photo-upload-subtitle">Format PNG, JPG (Max. 5MB), disarankan 400x400 px</div>
+                                                        <div class="photo-upload-subtitle">Format PNG, JPG (Max. 5MB),
+                                                            disarankan 400x400 px</div>
                                                     </div>
                                                 </div>
-                                                <input type="file" class="form-control d-none" id="candidateImageUrlInput" accept="image/*">
+                                                <input type="file" class="form-control d-none"
+                                                    id="candidateImageUrlInput" accept="image/*">
                                             </div>
                                         </div>
                                         <div class="d-flex justify-content-end gap-2 mt-3">
-                                            <button type="button" class="btn btn-light" data-bs-dismiss="modal">Batal</button>
+                                            <button type="button" class="btn btn-light"
+                                                data-bs-dismiss="modal">Batal</button>
                                             <button type="submit" class="btn btn-dlg-blue fw-bold">Simpan</button>
                                         </div>
                                     </form>
@@ -634,7 +678,8 @@
                                     <tr>
                                         <td class="ps-4 candidate-row" data-name="Raka Sudirman">
                                             <div class="d-flex align-items-center">
-                                                <img src="https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?auto=format&fit=crop&q=80&w=800" class="list-img">
+                                                <img src="https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?auto=format&fit=crop&q=80&w=800"
+                                                    class="list-img">
                                                 <div>
                                                     <div class="fw-bold candidate-name">Raka Sudirman</div>
                                                     <small class="text-muted">Creative Director</small>
@@ -643,13 +688,16 @@
                                         </td>
                                         <td>
                                             <div class="d-flex gap-2">
-                                                <a href="#" class="text-primary"><i class="fab fa-linkedin fa-lg"></i></a>
+                                                <a href="#" class="text-primary"><i
+                                                        class="fab fa-linkedin fa-lg"></i></a>
                                                 <a href="#" class="text-dark"><i class="fab fa-tiktok fa-lg"></i></a>
-                                                <a href="#" class="text-danger"><i class="fab fa-instagram fa-lg"></i></a>
+                                                <a href="#" class="text-danger"><i
+                                                        class="fab fa-instagram fa-lg"></i></a>
                                             </div>
                                         </td>
                                         <td>
-                                            <select class="form-select form-select-sm status-select status-waiting w-75">
+                                            <select
+                                                class="form-select form-select-sm status-select status-waiting w-75">
                                                 <option>Belum Dihubungi</option>
                                                 <option selected>Menunggu Balasan</option>
                                             </select>
@@ -657,12 +705,15 @@
                                         <td><span class="assign-badge">Sarah Johnson</span></td>
                                         <td class="text-center">
                                             <div class="dropdown">
-                                                <button class="btn btn-light btn-sm" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                                <button class="btn btn-light btn-sm" type="button"
+                                                    data-bs-toggle="dropdown" aria-expanded="false">
                                                     <i class="fas fa-ellipsis-v"></i>
                                                 </button>
                                                 <ul class="dropdown-menu dropdown-menu-end">
-                                                    <li><button class="dropdown-item candidate-edit-btn" type="button">Edit</button></li>
-                                                    <li><button class="dropdown-item text-danger candidate-delete-btn" type="button">Delete</button></li>
+                                                    <li><button class="dropdown-item candidate-edit-btn"
+                                                            type="button">Edit</button></li>
+                                                    <li><button class="dropdown-item text-danger candidate-delete-btn"
+                                                            type="button">Delete</button></li>
                                                 </ul>
                                             </div>
                                         </td>
@@ -671,7 +722,8 @@
                                     <tr class="candidate-row" data-name="Nadia Putri">
                                         <td class="ps-4">
                                             <div class="d-flex align-items-center">
-                                                <img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&q=80&w=800" class="list-img">
+                                                <img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&q=80&w=800"
+                                                    class="list-img">
                                                 <div>
                                                     <div class="fw-bold candidate-name">Nadia Putri</div>
                                                     <small class="text-muted">Fullstack Developer</small>
@@ -680,12 +732,15 @@
                                         </td>
                                         <td>
                                             <div class="d-flex gap-2">
-                                                <a href="#" class="text-primary"><i class="fab fa-linkedin fa-lg"></i></a>
-                                                <a href="#" class="text-primary"><i class="fab fa-facebook fa-lg"></i></a>
+                                                <a href="#" class="text-primary"><i
+                                                        class="fab fa-linkedin fa-lg"></i></a>
+                                                <a href="#" class="text-primary"><i
+                                                        class="fab fa-facebook fa-lg"></i></a>
                                             </div>
                                         </td>
                                         <td>
-                                            <select class="form-select form-select-sm status-select status-replied w-75">
+                                            <select
+                                                class="form-select form-select-sm status-select status-replied w-75">
                                                 <option selected>Membalas (Tertarik)</option>
                                                 <option>Menolak</option>
                                             </select>
@@ -693,12 +748,15 @@
                                         <td><span class="assign-badge">Budi Doremi</span></td>
                                         <td class="text-center">
                                             <div class="dropdown">
-                                                <button class="btn btn-light btn-sm" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                                <button class="btn btn-light btn-sm" type="button"
+                                                    data-bs-toggle="dropdown" aria-expanded="false">
                                                     <i class="fas fa-ellipsis-v"></i>
                                                 </button>
                                                 <ul class="dropdown-menu dropdown-menu-end">
-                                                    <li><button class="dropdown-item candidate-edit-btn" type="button">Edit</button></li>
-                                                    <li><button class="dropdown-item text-danger candidate-delete-btn" type="button">Delete</button></li>
+                                                    <li><button class="dropdown-item candidate-edit-btn"
+                                                            type="button">Edit</button></li>
+                                                    <li><button class="dropdown-item text-danger candidate-delete-btn"
+                                                            type="button">Delete</button></li>
                                                 </ul>
                                             </div>
                                         </td>
@@ -862,7 +920,7 @@
             }
         });
 
-        document.addEventListener('change', (e) => {
+        document.addEventListener('change', async (e) => {
             const select = e.target.closest('.status-select');
             if (!select) return;
             const row = select.closest('.candidate-row');
@@ -870,15 +928,28 @@
             const talentId = (row && row.dataset && row.dataset.talentId) ||
                 (card && card.dataset && card.dataset.talentId) ||
                 null;
-            const newStatus = select.value || "none";
+            const rawStatus = select.value || "radar";
+            const newStatus = (rawStatus === "none") ? "radar" : rawStatus;
             if (talentId) {
-                const gridSelect = document.querySelector('.candidate-item[data-talent-id="' + talentId + '"] .status-select');
-                const listSelect = document.querySelector('.candidate-row[data-talent-id="' + talentId + '"] .status-select');
+                const gridItem = document.querySelector('.candidate-item[data-talent-id="' + talentId + '"]');
+                const listRow = document.querySelector('.candidate-row[data-talent-id="' + talentId + '"]');
+                const gridSelect = gridItem ? gridItem.querySelector('.status-select') : null;
+                const listSelect = listRow ? listRow.querySelector('.status-select') : null;
                 if (gridSelect && gridSelect !== select) {
                     gridSelect.value = newStatus;
                 }
                 if (listSelect && listSelect !== select) {
                     listSelect.value = newStatus;
+                }
+                if (gridItem) gridItem.dataset.status = newStatus;
+                if (listRow) listRow.dataset.status = newStatus;
+
+                if (window.updateTalentStatus) {
+                    try {
+                        await window.updateTalentStatus(talentId, newStatus);
+                    } catch (err) {
+                        console.error('Gagal mengupdate status kandidat ke database:', err);
+                    }
                 }
             }
         });
@@ -909,14 +980,14 @@
             getDownloadURL
         } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js";
 
-        const firebaseConfig = { 
+        const firebaseConfig = {
             apiKey: "AIzaSyDyzzEYbJkkl-N8snrQf14qvj8De4YliV0",
-            authDomain: "pre-dialogika.firebaseapp.com", 
-            projectId: "pre-dialogika", 
-            storageBucket: "pre-dialogika.firebasestorage.app", 
-            messagingSenderId: "343771410480", 
-            appId: "1:343771410480:web:32881c9868522090237df5", 
-            measurementId: "G-SXN811P3N0" 
+            authDomain: "pre-dialogika.firebaseapp.com",
+            projectId: "pre-dialogika",
+            storageBucket: "pre-dialogika.firebasestorage.app",
+            messagingSenderId: "343771410480",
+            appId: "1:343771410480:web:32881c9868522090237df5",
+            measurementId: "G-SXN811P3N0"
         };
 
         const app = initializeApp(firebaseConfig);
@@ -993,10 +1064,11 @@
         async function updateTalentStatus(talentId, newStatus, actorName) {
             const ref = doc(db, "talents", talentId);
             const nowIso = new Date().toISOString();
+            const currentActor = actorName || (auth && auth.currentUser ? (auth.currentUser.displayName || auth.currentUser.email || "User") : null);
             const logEntry = {
                 action: "status_change",
                 to: newStatus,
-                by: actorName || null,
+                by: currentActor || null,
                 date: nowIso
             };
             await updateDoc(ref, {
@@ -1007,6 +1079,11 @@
                 }),
                 logs: arrayUnion(logEntry)
             });
+        }
+
+        async function deleteTalentById(talentId) {
+            const ref = doc(db, "talents", talentId);
+            await deleteDoc(ref);
         }
 
         async function addTalentLog(talentId, logEntry) {
@@ -1060,7 +1137,7 @@
                     try {
                         const fallbackSnap = await getDocs(collection(db, "positions"));
                         snap = fallbackSnap;
-                    } catch (e) {}
+                    } catch (e) { }
                 }
                 const options = [];
                 snap.forEach(docSnap => {
@@ -1150,7 +1227,8 @@
                     const data = docSnap.data() || {};
                     const recruitment = data.recruitment_status || {};
                     const history = Array.isArray(recruitment.history) ? recruitment.history : [];
-                    const hasRadarHistory = history.some(item => {
+                    const currentStatus = (recruitment.current || "radar").toString().toLowerCase().trim();
+                    const hasRadarHistory = (currentStatus === "radar") || history.some(item => {
                         const status = (item && item.status) ? item.status.toString().toLowerCase() : "";
                         return status === "radar";
                     });
@@ -1174,6 +1252,9 @@
                         assignLabel = extra > 0 ? (shown.join(', ') + ' +' + extra) : shown.join(', ');
                     }
                     const assignAvatarHtml = assignedTo.length > 0 ? buildAssignAvatarStack(assignedTo) : "";
+                    const createdAt = data.created_at ? (data.created_at.toMillis ? data.created_at.toMillis() : (data.created_at.seconds ? data.created_at.seconds * 1000 : 0)) : 0;
+                    const dueDate = recruitment.due_date || recruitment.interview_schedule || "";
+
                     appendCandidateToUI({
                         name,
                         role,
@@ -1183,7 +1264,10 @@
                         channelUrl,
                         assignLabel,
                         assignAvatarHtml,
-                        talentId: docSnap.id
+                        talentId: docSnap.id,
+                        status: currentStatus,
+                        createdAt,
+                        dueDate
                     });
                     found += 1;
                 });
@@ -1193,7 +1277,7 @@
                     listTbody.innerHTML =
                         '<tr><td colspan="5" class="text-center text-muted small py-4">Belum ada data kandidat scouting dengan status radar.</td></tr>';
                 }
-            } catch (e) {}
+            } catch (e) { }
         }
 
         window.startEditCandidate = async function (talentId) {
@@ -1316,6 +1400,10 @@
             const assignLabel = params.assignLabel ? escapeHtml(params.assignLabel) : "";
             const assignAvatarHtml = params.assignAvatarHtml || "";
             const talentId = params.talentId || "";
+            const rawStatus = (params.status || "radar").toString().toLowerCase().trim();
+            const currentStatus = (rawStatus === "none") ? "radar" : rawStatus;
+            const createdAt = params.createdAt || 0;
+            const dueDate = params.dueDate || "";
 
             const subtitleParts = [];
             if (role) subtitleParts.push(role);
@@ -1335,89 +1423,94 @@
                 ? '<div class="img-assign-badge">' + assignAvatarHtml + "</div>"
                 : "";
 
+            const statusOptions = [
+                { value: "radar", label: "Radar" },
+                { value: "contacted", label: "Contacted" },
+                { value: "replied", label: "Respond" },
+                { value: "interview", label: "Interview" },
+                { value: "ojt", label: "On Job Test" },
+                { value: "decision", label: "Decision" },
+                { value: "rejected", label: "Rejected" },
+                { value: "accepted", label: "Accepted" }
+            ];
+
+            let optionsHtml = "";
+            let matched = false;
+            statusOptions.forEach(opt => {
+                const isSelected = (opt.value === currentStatus) || (!matched && opt.value === "radar" && !statusOptions.some(o => o.value === currentStatus));
+                if (isSelected) matched = true;
+                optionsHtml += '<option value="' + opt.value + '"' + (isSelected ? ' selected' : '') + '>' + opt.label + '</option>';
+            });
+
             const gridHtml =
-                '<div class="col-12 col-md-6 col-lg-4 candidate-item" data-name="' + name + '" data-talent-id="' + talentId + '">' +
-                    '<div class="candidate-card">' +
-                        '<div class="img-wrapper">' +
-                            '<img src="' + avatarUrl + '" class="candidate-img" alt="Kandidat">' +
-                            '<div class="card-action-menu dropdown">' +
-                                '<button class="btn btn-light btn-sm" type="button" data-bs-toggle="dropdown" aria-expanded="false">' +
-                                    '<i class="fas fa-ellipsis-v"></i>' +
-                                '</button>' +
-                                '<ul class="dropdown-menu dropdown-menu-end">' +
-                                    '<li><button class="dropdown-item candidate-edit-btn" type="button">Edit</button></li>' +
-                                    '<li><button class="dropdown-item text-danger candidate-delete-btn" type="button">Delete</button></li>' +
-                                '</ul>' +
-                            '</div>' +
-                            '<div class="social-tags">' +
-                                '<a href="' + channelUrl + '" target="_blank" class="tag-icon"><i class="' + channelIcon + '"></i></a>' +
-                            '</div>' +
-                            assignBadgeHtml +
-                        '</div>' +
-                        '<div class="p-4">' +
-                            '<div class="d-flex justify-content-between align-items-start mb-3">' +
-                                '<div>' +
-                                    '<h5 class="fw-bold mb-0 candidate-name">' + name + '</h5>' +
-                                    '<small class="text-muted">' + subtitle + '</small>' +
-                                '</div>' +
-                            '</div>' +
-                            '<div class="status-box">' +
-                                '<hr/>' +
-                                '<select class="form-select status-select status-waiting">' +
-                                    '<option value="none" selected>Radar</option>' +
-                                    '<option value="contacted">Contacted</option>' +
-                                    '<option value="replied">Respond</option>' +
-                                    '<option value="interview">Interview</option>' +
-                                    '<option value="ojt">On Job Test</option>' +
-                                    '<option value="decision">Decision</option>' +
-                                    '<option value="rejected">Rejected</option>' +
-                                    '<option value="accepted">Accepted</option>' +
-                                '</select>' +
-                            '</div>' +
-                        '</div>' +
-                    '</div>' +
+                '<div class="col-12 col-md-6 col-lg-4 candidate-item" data-name="' + name + '" data-talent-id="' + talentId + '" data-status="' + currentStatus + '" data-created="' + createdAt + '" data-due-date="' + dueDate + '">' +
+                '<div class="candidate-card">' +
+                '<div class="img-wrapper">' +
+                '<img src="' + avatarUrl + '" class="candidate-img" alt="Kandidat">' +
+                '<div class="card-action-menu dropdown">' +
+                '<button class="btn btn-light btn-sm" type="button" data-bs-toggle="dropdown" aria-expanded="false">' +
+                '<i class="fas fa-ellipsis-v"></i>' +
+                '</button>' +
+                '<ul class="dropdown-menu dropdown-menu-end">' +
+                '<li><button class="dropdown-item candidate-edit-btn" type="button">Edit</button></li>' +
+                '<li><button class="dropdown-item text-danger candidate-delete-btn" type="button">Delete</button></li>' +
+                '</ul>' +
+                '</div>' +
+                '<div class="social-tags">' +
+                '<a href="' + channelUrl + '" target="_blank" class="tag-icon"><i class="' + channelIcon + '"></i></a>' +
+                '</div>' +
+                assignBadgeHtml +
+                '</div>' +
+                '<div class="p-4">' +
+                '<div class="d-flex justify-content-between align-items-start mb-3">' +
+                '<div>' +
+                '<h5 class="fw-bold mb-0 candidate-name">' + name + '</h5>' +
+                '<small class="text-muted">' + subtitle + '</small>' +
+                '</div>' +
+                '</div>' +
+                '<div class="status-box">' +
+                '<hr/>' +
+                '<select class="form-select status-select status-waiting">' +
+                optionsHtml +
+                '</select>' +
+                '</div>' +
+                '</div>' +
+                '</div>' +
                 '</div>';
 
             const listHtml =
-                '<tr class="candidate-row" data-name="' + name + '" data-talent-id="' + talentId + '">' +
-                    '<td class="ps-4">' +
-                        '<div class="d-flex align-items-center">' +
-                            '<img src="' + avatarUrl + '" class="list-img">' +
-                            '<div>' +
-                                '<div class="fw-bold candidate-name">' + name + '</div>' +
-                                '<small class="text-muted">' + subtitle + '</small>' +
-                            '</div>' +
-                        '</div>' +
-                    '</td>' +
-                    '<td>' +
-                        '<div class="d-flex gap-2">' +
-                            '<a href="' + channelUrl + '" target="_blank" class="text-primary"><i class="' + channelIcon + ' fa-lg"></i></a>' +
-                        '</div>' +
-                    '</td>' +
-                    '<td>' +
-                        '<select class="form-select status-select status-waiting">' +
-                            '<option value="none" selected>Radar</option>' +
-                            '<option value="contacted">Contacted</option>' +
-                            '<option value="replied">Respond</option>' +
-                            '<option value="interview">Interview</option>' +
-                            '<option value="ojt">On Job Test</option>' +
-                            '<option value="decision">Decision</option>' +
-                            '<option value="rejected">Rejected</option>' +
-                            '<option value="accepted">Accepted</option>' +
-                        '</select>' +
-                    '</td>' +
-                    '<td>' + (assignAvatarHtml || (assignLabel ? '<span class="assign-badge" data-bs-toggle="tooltip" title="' + assignLabel + '">' + assignLabel + '</span>' : '')) + '</td>' +
-                    '<td class="text-center">' +
-                        '<div class="dropdown">' +
-                            '<button class="btn btn-light btn-sm" type="button" data-bs-toggle="dropdown" aria-expanded="false">' +
-                                '<i class="fas fa-ellipsis-v"></i>' +
-                            '</button>' +
-                            '<ul class="dropdown-menu dropdown-menu-end">' +
-                                '<li><button class="dropdown-item candidate-edit-btn" type="button">Edit</button></li>' +
-                                '<li><button class="dropdown-item text-danger candidate-delete-btn" type="button">Delete</button></li>' +
-                            '</ul>' +
-                        '</div>' +
-                    '</td>' +
+                '<tr class="candidate-row" data-name="' + name + '" data-talent-id="' + talentId + '" data-status="' + currentStatus + '" data-created="' + createdAt + '" data-due-date="' + dueDate + '">' +
+                '<td class="ps-4">' +
+                '<div class="d-flex align-items-center">' +
+                '<img src="' + avatarUrl + '" class="list-img">' +
+                '<div>' +
+                '<div class="fw-bold candidate-name">' + name + '</div>' +
+                '<small class="text-muted">' + subtitle + '</small>' +
+                '</div>' +
+                '</div>' +
+                '</td>' +
+                '<td>' +
+                '<div class="d-flex gap-2">' +
+                '<a href="' + channelUrl + '" target="_blank" class="text-primary"><i class="' + channelIcon + ' fa-lg"></i></a>' +
+                '</div>' +
+                '</td>' +
+                '<td>' +
+                '<select class="form-select status-select status-waiting">' +
+                optionsHtml +
+                '</select>' +
+                '</td>' +
+                '<td>' + (assignAvatarHtml || (assignLabel ? '<span class="assign-badge" data-bs-toggle="tooltip" title="' + assignLabel + '">' + assignLabel + '</span>' : '')) + '</td>' +
+                '<td class="text-center">' +
+                '<div class="dropdown">' +
+                '<button class="btn btn-light btn-sm" type="button" data-bs-toggle="dropdown" aria-expanded="false">' +
+                '<i class="fas fa-ellipsis-v"></i>' +
+                '</button>' +
+                '<ul class="dropdown-menu dropdown-menu-end">' +
+                '<li><button class="dropdown-item candidate-edit-btn" type="button">Edit</button></li>' +
+                '<li><button class="dropdown-item text-danger candidate-delete-btn" type="button">Delete</button></li>' +
+                '</ul>' +
+                '</div>' +
+                '</td>' +
                 '</tr>';
 
             gridContainer.insertAdjacentHTML('afterbegin', gridHtml);
@@ -1507,7 +1600,7 @@
                     });
                     container.appendChild(item);
                 });
-            } catch (e) {}
+            } catch (e) { }
         }
 
         const candidateAddForm = document.getElementById('candidateAddForm');
@@ -1683,7 +1776,8 @@
                             channelUrl,
                             assignLabel,
                             assignAvatarHtml,
-                            talentId
+                            talentId,
+                            status: "radar"
                         });
                     }
                     candidateAddForm.reset();
@@ -1731,7 +1825,7 @@
                 }
             });
         }
-        
+
         async function initScoutingPage() {
             await loadAssignUsers();
             await loadCandidateRoles();
@@ -1743,7 +1837,9 @@
 
         window.createTalent = createTalent;
         window.updateTalentStatus = updateTalentStatus;
+        window.deleteTalentById = deleteTalentById;
         window.addTalentLog = addTalentLog;
     </script>
 </body>
+
 </html>
