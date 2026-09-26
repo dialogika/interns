@@ -12,7 +12,128 @@
     <script src="https://unpkg.com/lucide@latest"></script>
     <link href="../assets/css/style.css" rel="stylesheet" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
     <style>
+        /* Export Modal Styles */
+        .export-modal-dialog {
+            max-width: 480px;
+        }
+
+        .export-modal-content {
+            border-radius: 24px;
+            border: none;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.2);
+            padding: 6px;
+        }
+
+        .export-icon-box {
+            width: 44px;
+            height: 44px;
+            border-radius: 12px;
+            background-color: #ecfdf5;
+            color: #059669;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.35rem;
+        }
+
+        .export-section-label {
+            font-size: 0.72rem;
+            font-weight: 700;
+            color: #475569;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+            margin-bottom: 6px;
+            display: block;
+        }
+
+        .export-segmented-control {
+            background: #f1f5f9;
+            padding: 4px;
+            border-radius: 14px;
+            display: flex;
+            gap: 4px;
+        }
+
+        .export-segmented-btn {
+            flex: 1;
+            border: none;
+            background: transparent;
+            color: #64748b;
+            font-size: 0.88rem;
+            font-weight: 600;
+            padding: 9px 14px;
+            border-radius: 10px;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            cursor: pointer;
+        }
+
+        .export-segmented-btn.active {
+            background: #ffffff;
+            color: #0f172a;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.06);
+        }
+
+        .export-select,
+        .export-input {
+            border-radius: 12px;
+            border: 1.5px solid #e2e8f0;
+            padding: 10px 14px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: #334155;
+            background-color: #ffffff;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+
+        .export-select:focus,
+        .export-input:focus {
+            border-color: #059669;
+            box-shadow: 0 0 0 3px rgba(5, 150, 105, 0.12);
+            outline: none;
+        }
+
+        .btn-download-export {
+            background-color: #059669;
+            color: #ffffff;
+            border: none;
+            border-radius: 12px;
+            padding: 11px 20px;
+            font-weight: 700;
+            font-size: 0.92rem;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .btn-download-export:hover {
+            background-color: #047857;
+            color: #ffffff;
+            transform: translateY(-1px);
+        }
+
+        .btn-cancel-export {
+            border-radius: 12px;
+            border: 1.5px solid #e2e8f0;
+            color: #475569;
+            font-weight: 600;
+            padding: 11px 20px;
+            background: #ffffff;
+            transition: all 0.2s ease;
+        }
+
+        .btn-cancel-export:hover {
+            background: #f8fafc;
+            color: #1e293b;
+        }
+
         .page-title {
             color: #0B2B6A;
             font-weight: 800;
@@ -518,6 +639,11 @@
                                 <button type="button" class="btn view-btn" id="btnList"><i
                                         class="fas fa-list"></i></button>
                             </div>
+                            <button class="btn btn-outline-secondary rounded-pill px-4 fw-bold shadow-sm" id="btnOpenExportModal"
+                                data-bs-toggle="modal" data-bs-target="#exportCandidateModal"
+                                style="background: #ffffff; border: 1.5px solid #e2e8f0; color: #334155;">
+                                <i class="bi bi-download me-2 text-success"></i>Export
+                            </button>
                             <button class="btn btn-dlg-blue rounded-pill px-4 fw-bold border-0" id="btnAddCandidate"
                                 data-bs-toggle="modal" data-bs-target="#candidateAddModal">
                                 <i class="fas fa-plus me-2"></i>Tambah Data
@@ -655,6 +781,124 @@
                                             <button type="button" class="btn btn-light"
                                                 data-bs-dismiss="modal">Batal</button>
                                             <button type="submit" class="btn btn-dlg-blue fw-bold">Simpan</button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Modal Export Data -->
+                    <div class="modal fade" id="exportCandidateModal" tabindex="-1" aria-hidden="true">
+                        <div class="modal-dialog modal-dialog-centered export-modal-dialog">
+                            <div class="modal-content export-modal-content shadow-lg">
+                                <div class="modal-body p-4">
+                                    <!-- Header -->
+                                    <div class="d-flex align-items-start justify-content-between mb-4">
+                                        <div class="d-flex align-items-center gap-3">
+                                            <div class="export-icon-box">
+                                                <i class="bi bi-file-earmark-spreadsheet"></i>
+                                            </div>
+                                            <div>
+                                                <h5 class="fw-bold mb-1 text-dark" style="font-size: 1.15rem;">Export Data (Excel / CSV)</h5>
+                                                <p class="text-muted small mb-0" style="font-size: 0.8rem;">Pilih format file, periode, dan jenis data laporan</p>
+                                            </div>
+                                        </div>
+                                        <button type="button" class="btn-close shadow-none" data-bs-dismiss="modal" aria-label="Close"></button>
+                                    </div>
+
+                                    <!-- Form Export -->
+                                    <form id="exportCandidateForm" class="d-flex flex-column gap-3">
+                                        <!-- FORMAT FILE -->
+                                        <div>
+                                            <label class="export-section-label">FORMAT FILE</label>
+                                            <div class="export-segmented-control" id="formatFileSegmented">
+                                                <button type="button" class="export-segmented-btn active" data-format="xlsx" id="btnFormatXlsx">
+                                                    <i class="bi bi-file-earmark-excel text-success"></i> Excel (.xlsx)
+                                                </button>
+                                                <button type="button" class="export-segmented-btn" data-format="csv" id="btnFormatCsv">
+                                                    <i class="bi bi-file-earmark-text text-primary"></i> CSV (.csv)
+                                                </button>
+                                            </div>
+                                        </div>
+
+                                        <!-- DATA YANG DIEXPORT -->
+                                        <div>
+                                            <label class="export-section-label">DATA YANG DIEXPORT</label>
+                                            <select class="form-select export-select shadow-none" id="exportDataType">
+                                                <option value="all">Data Scouting Candidate</option>
+                                            </select>
+                                        </div>
+
+                                        <!-- PILIHAN RENTANG WAKTU -->
+                                        <div>
+                                            <label class="export-section-label">PILIHAN RENTANG WAKTU</label>
+                                            <div class="export-segmented-control" id="rangeTypeSegmented">
+                                                <button type="button" class="export-segmented-btn active" data-range="month" id="btnRangeMonth">
+                                                    <i class="bi bi-calendar3"></i> Per Bulan
+                                                </button>
+                                                <button type="button" class="export-segmented-btn" data-range="week" id="btnRangeWeek">
+                                                    <i class="bi bi-calendar-week"></i> Per Minggu
+                                                </button>
+                                            </div>
+                                        </div>
+
+                                        <!-- SECTION: PILIH BULAN (PER BULAN) -->
+                                        <div id="sectionMonthPicker">
+                                            <label class="export-section-label" id="monthPickerLabel">PILIH BULAN & TAHUN</label>
+                                            <input type="month" class="form-control export-input shadow-none w-100" id="exportMonthInput">
+                                            <small class="text-muted d-block mt-1" style="font-size: 0.75rem;" id="exportMonthHelpText">
+                                                Semua pengajuan pada bulan yang dipilih akan dimasukkan ke dalam file Excel.
+                                            </small>
+                                        </div>
+
+                                        <!-- SECTION: PILIH MINGGU (PER MINGGU) -->
+                                        <div id="sectionWeekPicker" style="display: none;">
+                                            <div class="row g-2">
+                                                <div class="col-6">
+                                                    <label class="export-section-label">BULAN & TAHUN</label>
+                                                    <input type="month" class="form-control export-input shadow-none w-100" id="exportWeekMonthInput">
+                                                </div>
+                                                <div class="col-6">
+                                                    <label class="export-section-label">PILIH MINGGU</label>
+                                                    <select class="form-select export-select shadow-none" id="exportWeekSelect">
+                                                        <option value="1">Minggu 1 (Tgl 1 - 7)</option>
+                                                        <option value="2">Minggu 2 (Tgl 8 - 14)</option>
+                                                        <option value="3">Minggu 3 (Tgl 15 - 21)</option>
+                                                        <option value="4">Minggu 4 (Tgl 22 - 28)</option>
+                                                        <option value="5">Minggu 5 (Tgl 29 - Akhir Bulan)</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                            <small class="text-muted d-block mt-1" style="font-size: 0.75rem;" id="exportWeekHelpText">
+                                                Semua pengajuan pada minggu yang dipilih akan dimasukkan ke dalam file Excel.
+                                            </small>
+                                        </div>
+
+                                        <!-- FILTER STATUS -->
+                                        <div>
+                                            <label class="export-section-label">FILTER STATUS KANDIDAT</label>
+                                            <select class="form-select export-select shadow-none" id="exportStatusFilter">
+                                                <option value="">Semua Status (Radar, Contacted, Respond, dll)</option>
+                                                <option value="radar">Radar</option>
+                                                <option value="contacted">Contacted</option>
+                                                <option value="replied">Respond</option>
+                                                <option value="interview">Interview</option>
+                                                <option value="ojt">On Job Test</option>
+                                                <option value="decision">Decision</option>
+                                                <option value="accepted">Accept</option>
+                                                <option value="rejected">Reject</option>
+                                                <option value="screening">Screening</option>
+                                                <option value="microteaching">Microteaching</option>
+                                            </select>
+                                        </div>
+
+                                        <!-- FOOTER BUTTONS -->
+                                        <div class="d-flex align-items-center justify-content-between gap-3 mt-3 pt-2">
+                                            <button type="button" class="btn btn-cancel-export flex-fill" data-bs-dismiss="modal">Batalkan</button>
+                                            <button type="submit" class="btn btn-download-export flex-fill" id="btnDownloadExport">
+                                                <i class="bi bi-download"></i> <span id="downloadBtnText">Download Excel (.xlsx)</span>
+                                            </button>
                                         </div>
                                     </form>
                                 </div>
@@ -1822,6 +2066,355 @@
                 } catch (err) {
                     console.error(err);
                     alert('Gagal menyimpan data kandidat. Silakan coba lagi.');
+                }
+            });
+        }
+
+        // ==========================================
+        // EXPORT DATA (EXCEL / CSV) LOGIC
+        // ==========================================
+        let exportFileFormat = "xlsx"; // 'xlsx' | 'csv'
+        let exportRangeType = "month"; // 'month' | 'week'
+
+        const formatBtnXlsx = document.getElementById('btnFormatXlsx');
+        const formatBtnCsv = document.getElementById('btnFormatCsv');
+        const rangeBtnMonth = document.getElementById('btnRangeMonth');
+        const rangeBtnWeek = document.getElementById('btnRangeWeek');
+        const sectionMonthPicker = document.getElementById('sectionMonthPicker');
+        const sectionWeekPicker = document.getElementById('sectionWeekPicker');
+        const exportMonthInput = document.getElementById('exportMonthInput');
+        const exportWeekMonthInput = document.getElementById('exportWeekMonthInput');
+        const exportWeekSelect = document.getElementById('exportWeekSelect');
+        const exportStatusFilter = document.getElementById('exportStatusFilter');
+        const downloadBtnText = document.getElementById('downloadBtnText');
+        const exportMonthHelpText = document.getElementById('exportMonthHelpText');
+        const exportWeekHelpText = document.getElementById('exportWeekHelpText');
+        const exportCandidateForm = document.getElementById('exportCandidateForm');
+
+        // Set default month input value (Current Year & Month: YYYY-MM)
+        const currentYearMonth = new Date().toISOString().substring(0, 7);
+        if (exportMonthInput) exportMonthInput.value = currentYearMonth;
+        if (exportWeekMonthInput) exportWeekMonthInput.value = currentYearMonth;
+
+        function updateExportUI() {
+            // Update Format Buttons
+            if (formatBtnXlsx && formatBtnCsv) {
+                if (exportFileFormat === "xlsx") {
+                    formatBtnXlsx.classList.add('active');
+                    formatBtnCsv.classList.remove('active');
+                    if (downloadBtnText) downloadBtnText.textContent = "Download Excel (.xlsx)";
+                    if (exportMonthHelpText) exportMonthHelpText.textContent = "Semua pengajuan pada bulan yang dipilih akan dimasukkan ke dalam file Excel.";
+                    if (exportWeekHelpText) exportWeekHelpText.textContent = "Semua pengajuan pada minggu yang dipilih akan dimasukkan ke dalam file Excel.";
+                } else {
+                    formatBtnCsv.classList.add('active');
+                    formatBtnXlsx.classList.remove('active');
+                    if (downloadBtnText) downloadBtnText.textContent = "Download CSV (.csv)";
+                    if (exportMonthHelpText) exportMonthHelpText.textContent = "Semua pengajuan pada bulan yang dipilih akan dimasukkan ke dalam file CSV.";
+                    if (exportWeekHelpText) exportWeekHelpText.textContent = "Semua pengajuan pada minggu yang dipilih akan dimasukkan ke dalam file CSV.";
+                }
+            }
+
+            // Update Range Buttons & Pickers
+            if (rangeBtnMonth && rangeBtnWeek) {
+                if (exportRangeType === "month") {
+                    rangeBtnMonth.classList.add('active');
+                    rangeBtnWeek.classList.remove('active');
+                    if (sectionMonthPicker) sectionMonthPicker.style.display = "block";
+                    if (sectionWeekPicker) sectionWeekPicker.style.display = "none";
+                } else {
+                    rangeBtnWeek.classList.add('active');
+                    rangeBtnMonth.classList.remove('active');
+                    if (sectionMonthPicker) sectionMonthPicker.style.display = "none";
+                    if (sectionWeekPicker) sectionWeekPicker.style.display = "block";
+                }
+            }
+        }
+
+        if (formatBtnXlsx) {
+            formatBtnXlsx.addEventListener('click', () => {
+                exportFileFormat = "xlsx";
+                updateExportUI();
+            });
+        }
+
+        if (formatBtnCsv) {
+            formatBtnCsv.addEventListener('click', () => {
+                exportFileFormat = "csv";
+                updateExportUI();
+            });
+        }
+
+        if (rangeBtnMonth) {
+            rangeBtnMonth.addEventListener('click', () => {
+                exportRangeType = "month";
+                updateExportUI();
+            });
+        }
+
+        if (rangeBtnWeek) {
+            rangeBtnWeek.addEventListener('click', () => {
+                exportRangeType = "week";
+                updateExportUI();
+            });
+        }
+
+        function getTalentTimestamp(data) {
+            if (data.created_at) {
+                if (typeof data.created_at.toMillis === 'function') return data.created_at.toMillis();
+                if (typeof data.created_at.toDate === 'function') return data.created_at.toDate().getTime();
+                if (data.created_at.seconds) return data.created_at.seconds * 1000;
+                if (typeof data.created_at === 'number') return data.created_at;
+                if (typeof data.created_at === 'string') {
+                    const parsed = Date.parse(data.created_at);
+                    if (!isNaN(parsed)) return parsed;
+                }
+            }
+            const history = data.recruitment_status?.history;
+            if (Array.isArray(history) && history.length > 0 && history[0]?.date) {
+                const parsed = Date.parse(history[0].date);
+                if (!isNaN(parsed)) return parsed;
+            }
+            return null;
+        }
+
+        function formatDisplayDate(timestamp) {
+            if (!timestamp) return "-";
+            const d = new Date(timestamp);
+            if (isNaN(d.getTime())) return "-";
+            const day = String(d.getDate()).padStart(2, '0');
+            const month = String(d.getMonth() + 1).padStart(2, '0');
+            const year = d.getFullYear();
+            const hours = String(d.getHours()).padStart(2, '0');
+            const mins = String(d.getMinutes()).padStart(2, '0');
+            return `${day}/${month}/${year} ${hours}:${mins}`;
+        }
+
+        function getMonthNameIndo(monthNum) {
+            const months = [
+                "Januari", "Februari", "Maret", "April", "Mei", "Juni",
+                "Juli", "Agustus", "September", "Oktober", "November", "Desember"
+            ];
+            return months[monthNum] || "Bulan";
+        }
+
+        if (exportCandidateForm) {
+            exportCandidateForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const submitBtn = document.getElementById('btnDownloadExport');
+                const origBtnHtml = submitBtn ? submitBtn.innerHTML : "";
+
+                try {
+                    if (submitBtn) {
+                        submitBtn.disabled = true;
+                        submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>Memproses...';
+                    }
+
+                    // Calculate date range filter
+                    let startTimestamp = 0;
+                    let endTimestamp = Number.MAX_SAFE_INTEGER;
+                    let periodLabel = "";
+
+                    if (exportRangeType === "month") {
+                        const monthVal = exportMonthInput?.value || currentYearMonth;
+                        const [yearStr, monthStr] = monthVal.split('-');
+                        const year = parseInt(yearStr, 10);
+                        const monthIdx = parseInt(monthStr, 10) - 1;
+
+                        const startDate = new Date(year, monthIdx, 1, 0, 0, 0, 0);
+                        const endDate = new Date(year, monthIdx + 1, 0, 23, 59, 59, 999);
+                        startTimestamp = startDate.getTime();
+                        endTimestamp = endDate.getTime();
+                        periodLabel = `${getMonthNameIndo(monthIdx)}_${year}`;
+                    } else {
+                        const monthVal = exportWeekMonthInput?.value || currentYearMonth;
+                        const [yearStr, monthStr] = monthVal.split('-');
+                        const year = parseInt(yearStr, 10);
+                        const monthIdx = parseInt(monthStr, 10) - 1;
+                        const weekVal = parseInt(exportWeekSelect?.value || "1", 10);
+
+                        const lastDayOfMonth = new Date(year, monthIdx + 1, 0).getDate();
+                        let startDay = 1;
+                        let endDay = 7;
+
+                        if (weekVal === 1) {
+                            startDay = 1; endDay = 7;
+                        } else if (weekVal === 2) {
+                            startDay = 8; endDay = 14;
+                        } else if (weekVal === 3) {
+                            startDay = 15; endDay = 21;
+                        } else if (weekVal === 4) {
+                            startDay = 22; endDay = 28;
+                        } else if (weekVal === 5) {
+                            startDay = 29; endDay = lastDayOfMonth;
+                        }
+
+                        const startDate = new Date(year, monthIdx, startDay, 0, 0, 0, 0);
+                        const endDate = new Date(year, monthIdx, Math.min(endDay, lastDayOfMonth), 23, 59, 59, 999);
+                        startTimestamp = startDate.getTime();
+                        endTimestamp = endDate.getTime();
+                        periodLabel = `Minggu_${weekVal}_${getMonthNameIndo(monthIdx)}_${year}`;
+                    }
+
+                    const selectedStatus = (exportStatusFilter?.value || "").toLowerCase().trim();
+
+                    // Fetch talents collection from Firestore
+                    const snap = await getDocs(collection(db, "talents"));
+                    if (snap.empty) {
+                        alert('Tidak ada data kandidat di dalam database.');
+                        return;
+                    }
+
+                    const exportRows = [];
+                    snap.forEach(docSnap => {
+                        const data = docSnap.data() || {};
+                        const recruitment = data.recruitment_status || {};
+                        const history = Array.isArray(recruitment.history) ? recruitment.history : [];
+                        const currentStatus = (recruitment.current || "radar").toString().toLowerCase().trim();
+                        
+                        const hasRadarHistory = (currentStatus === "radar") || history.some(item => {
+                            const st = (item && item.status) ? item.status.toString().toLowerCase() : "";
+                            return st === "radar";
+                        });
+                        if (!hasRadarHistory) return;
+
+                        // Filter by Status if specified
+                        if (selectedStatus && currentStatus !== selectedStatus) {
+                            return;
+                        }
+
+                        // Check timestamp against date range
+                        const candTimestamp = getTalentTimestamp(data);
+                        if (candTimestamp !== null) {
+                            if (candTimestamp < startTimestamp || candTimestamp > endTimestamp) {
+                                return;
+                            }
+                        }
+
+                        const basic = data.basic_info || {};
+                        const scouting = data.scouting_info || {};
+                        const name = basic.full_name || scouting.full_name || "Tanpa Nama";
+                        const role = basic.current_role || scouting.role_name || "-";
+                        const position = scouting.position_name || "-";
+                        const channelType = scouting.channel_type || "-";
+                        const channelUrl = scouting.channel_url || "-";
+                        const assignedTo = Array.isArray(scouting.assigned_to) ? scouting.assigned_to.filter(Boolean) : [];
+                        
+                        let assignLabel = "-";
+                        if (assignedTo.length > 0) {
+                            const names = assignedTo.map(uid => (assignUsersMap[uid]?.name || "User"));
+                            assignLabel = names.join(', ');
+                        }
+
+                        const statusDisplayMap = {
+                            "radar": "Radar",
+                            "contacted": "Contacted",
+                            "replied": "Respond",
+                            "interview": "Interview",
+                            "ojt": "On Job Test",
+                            "decision": "Decision",
+                            "accepted": "Accept",
+                            "rejected": "Reject",
+                            "screening": "Screening",
+                            "microteaching": "Microteaching"
+                        };
+
+                        const statusLabel = statusDisplayMap[currentStatus] || currentStatus;
+                        const createdFormatted = formatDisplayDate(candTimestamp);
+                        const dueDate = recruitment.due_date || recruitment.interview_schedule || "-";
+
+                        exportRows.push({
+                            "No": exportRows.length + 1,
+                            "ID Talenta": docSnap.id,
+                            "Nama Kandidat": name,
+                            "Posisi": position,
+                            "Sub Team / Role": role,
+                            "Platform Channel": channelType.toUpperCase(),
+                            "Link Channel": channelUrl,
+                            "Status": statusLabel,
+                            "PIC (Assigned To)": assignLabel,
+                            "Tanggal Input": createdFormatted,
+                            "Jadwal Interview / Due Date": dueDate
+                        });
+                    });
+
+                    if (exportRows.length === 0) {
+                        alert('Tidak ada data kandidat scouting pada periode / status yang dipilih.');
+                        return;
+                    }
+
+                    const fileNameBase = `Scouting_Candidate_${periodLabel}`;
+
+                    if (exportFileFormat === "xlsx") {
+                        if (!window.XLSX) {
+                            alert('Library XLSX belum selesai dimuat. Silakan coba sesaat lagi.');
+                            return;
+                        }
+                        const ws = window.XLSX.utils.json_to_sheet(exportRows);
+                        // Adjust column widths automatically
+                        const colWidths = [
+                            { wch: 6 },  // No
+                            { wch: 22 }, // ID Talenta
+                            { wch: 25 }, // Nama Kandidat
+                            { wch: 22 }, // Posisi
+                            { wch: 22 }, // Sub Team / Role
+                            { wch: 16 }, // Platform Channel
+                            { wch: 35 }, // Link Channel
+                            { wch: 16 }, // Status
+                            { wch: 24 }, // PIC
+                            { wch: 20 }, // Tanggal Input
+                            { wch: 26 }  // Jadwal Interview
+                        ];
+                        ws['!cols'] = colWidths;
+
+                        const wb = window.XLSX.utils.book_new();
+                        window.XLSX.utils.book_append_sheet(wb, ws, "Scouting Candidate");
+                        window.XLSX.writeFile(wb, `${fileNameBase}.xlsx`);
+                    } else {
+                        // Generate CSV with UTF-8 BOM so Excel displays accents & characters correctly
+                        let csvContent = "\uFEFF";
+                        if (window.XLSX) {
+                            const ws = window.XLSX.utils.json_to_sheet(exportRows);
+                            csvContent += window.XLSX.utils.sheet_to_csv(ws);
+                        } else {
+                            const headers = Object.keys(exportRows[0]);
+                            csvContent += headers.join(",") + "\n";
+                            exportRows.forEach(row => {
+                                const line = headers.map(h => {
+                                    let str = String(row[h] || "");
+                                    if (str.includes(",") || str.includes('"') || str.includes("\n")) {
+                                        str = '"' + str.replace(/"/g, '""') + '"';
+                                    }
+                                    return str;
+                                }).join(",");
+                                csvContent += line + "\n";
+                            });
+                        }
+
+                        const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+                        const link = document.createElement("a");
+                        const url = URL.createObjectURL(blob);
+                        link.setAttribute("href", url);
+                        link.setAttribute("download", `${fileNameBase}.csv`);
+                        link.style.visibility = "hidden";
+                        document.body.appendChild(link);
+                        link.click();
+                        document.body.removeChild(link);
+                    }
+
+                    // Close export modal
+                    const modalElement = document.getElementById('exportCandidateModal');
+                    if (modalElement && window.bootstrap && window.bootstrap.Modal) {
+                        const modalInstance = window.bootstrap.Modal.getInstance(modalElement) || new window.bootstrap.Modal(modalElement);
+                        modalInstance.hide();
+                    }
+                } catch (err) {
+                    console.error('Export Error:', err);
+                    alert('Terjadi kesalahan saat mengekspor data: ' + (err.message || err));
+                } finally {
+                    if (submitBtn) {
+                        submitBtn.disabled = false;
+                        submitBtn.innerHTML = origBtnHtml;
+                    }
                 }
             });
         }
