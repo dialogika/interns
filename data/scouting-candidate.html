@@ -834,7 +834,10 @@
                                         <div>
                                             <label class="export-section-label">PILIHAN RENTANG WAKTU</label>
                                             <div class="export-segmented-control" id="rangeTypeSegmented">
-                                                <button type="button" class="export-segmented-btn active" data-range="month" id="btnRangeMonth">
+                                                <button type="button" class="export-segmented-btn active" data-range="all" id="btnRangeAll">
+                                                    <i class="bi bi-globe"></i> Semua Data
+                                                </button>
+                                                <button type="button" class="export-segmented-btn" data-range="month" id="btnRangeMonth">
                                                     <i class="bi bi-calendar3"></i> Per Bulan
                                                 </button>
                                                 <button type="button" class="export-segmented-btn" data-range="week" id="btnRangeWeek">
@@ -843,8 +846,21 @@
                                             </div>
                                         </div>
 
+                                        <!-- SECTION: SEMUA DATA (TANPA FILTER WAKTU) -->
+                                        <div id="sectionAllPicker" style="display: block;">
+                                            <div class="p-3 rounded-3" style="background-color: #f8fafc; border: 1px dashed #cbd5e1;">
+                                                <div class="d-flex align-items-center gap-2 text-primary small fw-semibold">
+                                                    <i class="bi bi-info-circle"></i>
+                                                    <span>Ekspor Seluruh Data</span>
+                                                </div>
+                                                <small class="text-muted d-block mt-1" style="font-size: 0.75rem;" id="exportAllHelpText">
+                                                    Semua pengajuan kandidat tanpa batasan waktu akan dimasukkan ke dalam file Excel.
+                                                </small>
+                                            </div>
+                                        </div>
+
                                         <!-- SECTION: PILIH BULAN (PER BULAN) -->
-                                        <div id="sectionMonthPicker">
+                                        <div id="sectionMonthPicker" style="display: none;">
                                             <label class="export-section-label" id="monthPickerLabel">PILIH BULAN & TAHUN</label>
                                             <input type="month" class="form-control export-input shadow-none w-100" id="exportMonthInput">
                                             <small class="text-muted d-block mt-1" style="font-size: 0.75rem;" id="exportMonthHelpText">
@@ -2074,12 +2090,14 @@
         // EXPORT DATA (EXCEL / CSV) LOGIC
         // ==========================================
         let exportFileFormat = "xlsx"; // 'xlsx' | 'csv'
-        let exportRangeType = "month"; // 'month' | 'week'
+        let exportRangeType = "all"; // 'all' | 'month' | 'week'
 
         const formatBtnXlsx = document.getElementById('btnFormatXlsx');
         const formatBtnCsv = document.getElementById('btnFormatCsv');
+        const rangeBtnAll = document.getElementById('btnRangeAll');
         const rangeBtnMonth = document.getElementById('btnRangeMonth');
         const rangeBtnWeek = document.getElementById('btnRangeWeek');
+        const sectionAllPicker = document.getElementById('sectionAllPicker');
         const sectionMonthPicker = document.getElementById('sectionMonthPicker');
         const sectionWeekPicker = document.getElementById('sectionWeekPicker');
         const exportMonthInput = document.getElementById('exportMonthInput');
@@ -2087,6 +2105,7 @@
         const exportWeekSelect = document.getElementById('exportWeekSelect');
         const exportStatusFilter = document.getElementById('exportStatusFilter');
         const downloadBtnText = document.getElementById('downloadBtnText');
+        const exportAllHelpText = document.getElementById('exportAllHelpText');
         const exportMonthHelpText = document.getElementById('exportMonthHelpText');
         const exportWeekHelpText = document.getElementById('exportWeekHelpText');
         const exportCandidateForm = document.getElementById('exportCandidateForm');
@@ -2103,27 +2122,40 @@
                     formatBtnXlsx.classList.add('active');
                     formatBtnCsv.classList.remove('active');
                     if (downloadBtnText) downloadBtnText.textContent = "Download Excel (.xlsx)";
+                    if (exportAllHelpText) exportAllHelpText.textContent = "Semua pengajuan kandidat tanpa batasan waktu akan dimasukkan ke dalam file Excel.";
                     if (exportMonthHelpText) exportMonthHelpText.textContent = "Semua pengajuan pada bulan yang dipilih akan dimasukkan ke dalam file Excel.";
                     if (exportWeekHelpText) exportWeekHelpText.textContent = "Semua pengajuan pada minggu yang dipilih akan dimasukkan ke dalam file Excel.";
                 } else {
                     formatBtnCsv.classList.add('active');
                     formatBtnXlsx.classList.remove('active');
                     if (downloadBtnText) downloadBtnText.textContent = "Download CSV (.csv)";
+                    if (exportAllHelpText) exportAllHelpText.textContent = "Semua pengajuan kandidat tanpa batasan waktu akan dimasukkan ke dalam file CSV.";
                     if (exportMonthHelpText) exportMonthHelpText.textContent = "Semua pengajuan pada bulan yang dipilih akan dimasukkan ke dalam file CSV.";
                     if (exportWeekHelpText) exportWeekHelpText.textContent = "Semua pengajuan pada minggu yang dipilih akan dimasukkan ke dalam file CSV.";
                 }
             }
 
             // Update Range Buttons & Pickers
-            if (rangeBtnMonth && rangeBtnWeek) {
-                if (exportRangeType === "month") {
-                    rangeBtnMonth.classList.add('active');
+            if (rangeBtnAll && rangeBtnMonth && rangeBtnWeek) {
+                if (exportRangeType === "all") {
+                    rangeBtnAll.classList.add('active');
+                    rangeBtnMonth.classList.remove('active');
                     rangeBtnWeek.classList.remove('active');
+                    if (sectionAllPicker) sectionAllPicker.style.display = "block";
+                    if (sectionMonthPicker) sectionMonthPicker.style.display = "none";
+                    if (sectionWeekPicker) sectionWeekPicker.style.display = "none";
+                } else if (exportRangeType === "month") {
+                    rangeBtnMonth.classList.add('active');
+                    rangeBtnAll.classList.remove('active');
+                    rangeBtnWeek.classList.remove('active');
+                    if (sectionAllPicker) sectionAllPicker.style.display = "none";
                     if (sectionMonthPicker) sectionMonthPicker.style.display = "block";
                     if (sectionWeekPicker) sectionWeekPicker.style.display = "none";
                 } else {
                     rangeBtnWeek.classList.add('active');
+                    rangeBtnAll.classList.remove('active');
                     rangeBtnMonth.classList.remove('active');
+                    if (sectionAllPicker) sectionAllPicker.style.display = "none";
                     if (sectionMonthPicker) sectionMonthPicker.style.display = "none";
                     if (sectionWeekPicker) sectionWeekPicker.style.display = "block";
                 }
@@ -2140,6 +2172,13 @@
         if (formatBtnCsv) {
             formatBtnCsv.addEventListener('click', () => {
                 exportFileFormat = "csv";
+                updateExportUI();
+            });
+        }
+
+        if (rangeBtnAll) {
+            rangeBtnAll.addEventListener('click', () => {
+                exportRangeType = "all";
                 updateExportUI();
             });
         }
@@ -2214,7 +2253,11 @@
                     let endTimestamp = Number.MAX_SAFE_INTEGER;
                     let periodLabel = "";
 
-                    if (exportRangeType === "month") {
+                    if (exportRangeType === "all") {
+                        startTimestamp = 0;
+                        endTimestamp = Number.MAX_SAFE_INTEGER;
+                        periodLabel = "Semua_Data";
+                    } else if (exportRangeType === "month") {
                         const monthVal = exportMonthInput?.value || currentYearMonth;
                         const [yearStr, monthStr] = monthVal.split('-');
                         const year = parseInt(yearStr, 10);
@@ -2282,11 +2325,13 @@
                             return;
                         }
 
-                        // Check timestamp against date range
-                        const candTimestamp = getTalentTimestamp(data);
-                        if (candTimestamp !== null) {
-                            if (candTimestamp < startTimestamp || candTimestamp > endTimestamp) {
-                                return;
+                        // Check timestamp against date range (if not all)
+                        if (exportRangeType !== "all") {
+                            const candTimestamp = getTalentTimestamp(data);
+                            if (candTimestamp !== null) {
+                                if (candTimestamp < startTimestamp || candTimestamp > endTimestamp) {
+                                    return;
+                                }
                             }
                         }
 
