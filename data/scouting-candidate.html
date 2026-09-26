@@ -669,14 +669,13 @@
                                     <option value="">Semua status</option>
                                     <option value="radar">Radar</option>
                                     <option value="contacted">Contacted</option>
+                                    <option value="follow_up">Follow Up</option>
                                     <option value="replied">Respond</option>
                                     <option value="interview">Interview</option>
                                     <option value="ojt">On Job Test</option>
                                     <option value="decision">Decision</option>
-                                    <option value="accepted">Accept</option>
-                                    <option value="rejected">Reject</option>
-                                    <option value="screening">Screening</option>
-                                    <option value="microteaching">Microteaching</option>
+                                    <option value="rejected">Rejected</option>
+                                    <option value="accepted">Accepted</option>
                                 </select>
                             </div>
                             <div class="col-md-3">
@@ -898,14 +897,13 @@
                                                 <option value="">Semua Status (Radar, Contacted, Respond, dll)</option>
                                                 <option value="radar">Radar</option>
                                                 <option value="contacted">Contacted</option>
+                                                <option value="follow_up">Follow Up</option>
                                                 <option value="replied">Respond</option>
                                                 <option value="interview">Interview</option>
                                                 <option value="ojt">On Job Test</option>
                                                 <option value="decision">Decision</option>
-                                                <option value="accepted">Accept</option>
-                                                <option value="rejected">Reject</option>
-                                                <option value="screening">Screening</option>
-                                                <option value="microteaching">Microteaching</option>
+                                                <option value="rejected">Rejected</option>
+                                                <option value="accepted">Accepted</option>
                                             </select>
                                         </div>
 
@@ -1041,6 +1039,17 @@
         const statusFilter = document.getElementById('candidateStatusFilter');
         const sortSelect = document.getElementById('candidateSortSelect');
 
+        function isStatusMatching(filterVal, itemVal) {
+            if (!filterVal) return true;
+            if (itemVal === filterVal) return true;
+            if (filterVal === "follow_up" && (itemVal === "follow_up" || itemVal === "followup" || itemVal === "follow up")) return true;
+            if (filterVal === "replied" && (itemVal === "replied" || itemVal === "respond")) return true;
+            if (filterVal === "accepted" && (itemVal === "accepted" || itemVal === "accept")) return true;
+            if (filterVal === "rejected" && (itemVal === "rejected" || itemVal === "reject")) return true;
+            return false;
+        }
+        window.isStatusMatching = isStatusMatching;
+
         function applyCandidateFilters() {
             const term = (searchInput?.value || "").toLowerCase();
             const statusValue = statusFilter ? (statusFilter.value || "").toLowerCase() : "";
@@ -1053,7 +1062,7 @@
                 const text = item.innerText.toLowerCase();
                 const itemStatus = (item.dataset.status || "").toLowerCase();
                 const matchesSearch = text.includes(term);
-                const matchesStatus = !statusValue || itemStatus === statusValue;
+                const matchesStatus = isStatusMatching(statusValue, itemStatus);
                 item.style.display = matchesSearch && matchesStatus ? "" : "none";
             });
 
@@ -1061,7 +1070,7 @@
                 const text = row.innerText.toLowerCase();
                 const rowStatus = (row.dataset.status || "").toLowerCase();
                 const matchesSearch = text.includes(term);
-                const matchesStatus = !statusValue || rowStatus === statusValue;
+                const matchesStatus = isStatusMatching(statusValue, rowStatus);
                 row.style.display = matchesSearch && matchesStatus ? "" : "none";
             });
 
@@ -1500,7 +1509,7 @@
                     const name = basic.full_name || scouting.full_name || "Tanpa Nama";
                     const role = basic.current_role || scouting.role_name || "";
                     const positionName = scouting.position_name || "";
-                    const avatarUrl = basic.avatar_url || null;
+                    const avatarUrl = basic.avatar_url || basic.photo || basic.photoURL || scouting.avatar_url || scouting.photo || data.photo || data.photoURL || data.avatar || null;
                     const channelType = scouting.channel_type || "linkedin";
                     const channelUrl = scouting.channel_url || "#";
                     const assignedTo = Array.isArray(scouting.assigned_to) ? scouting.assigned_to.filter(Boolean) : [];
@@ -1559,7 +1568,7 @@
                 const channelType = scouting.channel_type || "";
                 const channelUrl = scouting.channel_url || "";
                 const assignedTo = Array.isArray(scouting.assigned_to) ? scouting.assigned_to.filter(Boolean) : [];
-                const avatarUrl = basic.avatar_url || null;
+                const avatarUrl = basic.avatar_url || basic.photo || basic.photoURL || scouting.avatar_url || scouting.photo || data.photo || data.photoURL || data.avatar || null;
 
                 const nameInput = document.getElementById('candidateNameInput');
                 if (nameInput) nameInput.value = name;
@@ -1654,7 +1663,8 @@
             const name = escapeHtml(params.name);
             const role = escapeHtml(params.role || "");
             const position = escapeHtml(params.positionName || "");
-            const avatarUrl = params.avatarUrl || "https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?auto=format&fit=crop&q=80&w=800";
+            const defaultAvatar = "https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?auto=format&fit=crop&q=80&w=800";
+            const avatarUrl = params.avatarUrl || defaultAvatar;
             const channelType = params.channelType || "linkedin";
             const channelUrl = params.channelUrl || "#";
             const assignLabel = params.assignLabel ? escapeHtml(params.assignLabel) : "";
@@ -1686,6 +1696,7 @@
             const statusOptions = [
                 { value: "radar", label: "Radar" },
                 { value: "contacted", label: "Contacted" },
+                { value: "follow_up", label: "Follow Up" },
                 { value: "replied", label: "Respond" },
                 { value: "interview", label: "Interview" },
                 { value: "ojt", label: "On Job Test" },
@@ -1696,8 +1707,9 @@
 
             let optionsHtml = "";
             let matched = false;
+            const normalizedStatus = (currentStatus === "followup" || currentStatus === "follow up") ? "follow_up" : currentStatus;
             statusOptions.forEach(opt => {
-                const isSelected = (opt.value === currentStatus) || (!matched && opt.value === "radar" && !statusOptions.some(o => o.value === currentStatus));
+                const isSelected = (opt.value === normalizedStatus) || (!matched && opt.value === "radar" && !statusOptions.some(o => o.value === normalizedStatus));
                 if (isSelected) matched = true;
                 optionsHtml += '<option value="' + opt.value + '"' + (isSelected ? ' selected' : '') + '>' + opt.label + '</option>';
             });
@@ -1706,7 +1718,7 @@
                 '<div class="col-12 col-md-6 col-lg-4 candidate-item" data-name="' + name + '" data-talent-id="' + talentId + '" data-status="' + currentStatus + '" data-created="' + createdAt + '" data-due-date="' + dueDate + '">' +
                 '<div class="candidate-card">' +
                 '<div class="img-wrapper">' +
-                '<img src="' + avatarUrl + '" class="candidate-img" alt="Kandidat">' +
+                '<img src="' + avatarUrl + '" class="candidate-img" alt="Kandidat" onerror="this.onerror=null;this.src=\'' + defaultAvatar + '\';">' +
                 '<div class="card-action-menu dropdown">' +
                 '<button class="btn btn-light btn-sm" type="button" data-bs-toggle="dropdown" aria-expanded="false">' +
                 '<i class="fas fa-ellipsis-v"></i>' +
@@ -1742,7 +1754,7 @@
                 '<tr class="candidate-row" data-name="' + name + '" data-talent-id="' + talentId + '" data-status="' + currentStatus + '" data-created="' + createdAt + '" data-due-date="' + dueDate + '">' +
                 '<td class="ps-4">' +
                 '<div class="d-flex align-items-center">' +
-                '<img src="' + avatarUrl + '" class="list-img">' +
+                '<img src="' + avatarUrl + '" class="list-img" alt="Kandidat" onerror="this.onerror=null;this.src=\'' + defaultAvatar + '\';">' +
                 '<div>' +
                 '<div class="fw-bold candidate-name">' + name + '</div>' +
                 '<small class="text-muted">' + subtitle + '</small>' +
@@ -2321,7 +2333,7 @@
                         if (!hasRadarHistory) return;
 
                         // Filter by Status if specified
-                        if (selectedStatus && currentStatus !== selectedStatus) {
+                        if (selectedStatus && !isStatusMatching(selectedStatus, currentStatus)) {
                             return;
                         }
 
@@ -2353,12 +2365,18 @@
                         const statusDisplayMap = {
                             "radar": "Radar",
                             "contacted": "Contacted",
+                            "follow_up": "Follow Up",
+                            "followup": "Follow Up",
+                            "follow up": "Follow Up",
                             "replied": "Respond",
+                            "respond": "Respond",
                             "interview": "Interview",
                             "ojt": "On Job Test",
                             "decision": "Decision",
-                            "accepted": "Accept",
-                            "rejected": "Reject",
+                            "rejected": "Rejected",
+                            "reject": "Rejected",
+                            "accepted": "Accepted",
+                            "accept": "Accepted",
                             "screening": "Screening",
                             "microteaching": "Microteaching"
                         };
