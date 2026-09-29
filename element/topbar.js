@@ -1,6 +1,35 @@
 export function renderTopBar(target) {
     if (!target) return;
 
+    if (!document.querySelector('link[rel*="icon"]')) {
+        const isLocalFile = window.location.protocol === 'file:';
+        let iconHref = '/assets/img/favicon.webp';
+        let appleHref = '/assets/img/apple-touch-icon.webp';
+
+        if (isLocalFile) {
+            const isSubdir = window.location.pathname.includes('/data/') ||
+                             window.location.pathname.includes('/setting/') ||
+                             window.location.pathname.includes('/quest/') ||
+                             window.location.pathname.includes('/project/') ||
+                             window.location.pathname.includes('/personal/') ||
+                             window.location.pathname.includes('/example/');
+            const prefix = isSubdir ? '../' : '';
+            iconHref = prefix + 'assets/img/favicon.webp';
+            appleHref = prefix + 'assets/img/apple-touch-icon.webp';
+        }
+
+        const faviconLink = document.createElement('link');
+        faviconLink.rel = 'icon';
+        faviconLink.type = 'image/webp';
+        faviconLink.href = iconHref;
+        document.head.appendChild(faviconLink);
+
+        const appleTouchLink = document.createElement('link');
+        appleTouchLink.rel = 'apple-touch-icon';
+        appleTouchLink.href = appleHref;
+        document.head.appendChild(appleTouchLink);
+    }
+
     if (!document.getElementById('topbarLogoNavStyles')) {
         const styleEl = document.createElement('style');
         styleEl.id = 'topbarLogoNavStyles';
