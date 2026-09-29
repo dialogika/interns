@@ -307,17 +307,25 @@
 
         <main class="main-content">
             <div class="ml-20 p-8 md:p-12 lg:p-16 max-w-[1700px] mx-auto">
-                <header class="flex flex-col md:flex-row justify-between items-start md:items-end mb-10 gap-6">
+                <header class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-10 gap-4">
                     <div>
                         <div class="flex items-center gap-2 mb-2">
                             <span class="active-pulse"></span>
                             <span class="text-xs font-bold tracking-[0.2em] text-slate-400 uppercase">Rekap Kehadiran
                                 Internship</span>
                         </div>
-                        <h1 class="text-4xl font-extrabold text-slate-900 tracking-tight">
+                        <h1 class="text-3xl md:text-4xl font-extrabold text-slate-900 tracking-tight">
                             Presensi Internship
-                            <span class="text-[#0B2B6A] text-base align-middle" id="subtitleText">Live realtime</span>
+                            <span class="text-[#0B2B6A] text-base align-middle font-semibold" id="subtitleText">Live realtime</span>
                         </h1>
+                    </div>
+                    <div>
+                        <button id="btnUnifiedExport"
+                            data-bs-toggle="modal" data-bs-target="#exportPresenceModal"
+                            class="px-5 py-2.5 rounded-2xl text-xs font-bold text-white bg-[#0B2B6A] hover:bg-[#113981] shadow-lg shadow-blue-900/15 transition inline-flex items-center gap-2">
+                            <i class="bi bi-file-earmark-spreadsheet text-emerald-400 text-sm"></i>
+                            <span>Export Data Presensi</span>
+                        </button>
                     </div>
                 </header>
 
@@ -354,10 +362,6 @@
                                 <div class="flex items-center gap-2 sm:ml-auto">
                                     <input type="date" id="filterDate"
                                         class="min-w-[180px] px-3 py-2 rounded-xl text-xs border border-slate-200 bg-white focus:outline-none focus:ring-2 focus:ring-[#0B2B6A]">
-                                    <button id="btnExportXlsx"
-                                        data-bs-toggle="modal" data-bs-target="#exportPresenceModal"
-                                        class="px-4 py-2 rounded-xl text-xs font-semibold text-white bg-[#0B2B6A] hover:bg-[#113981] transition"><i
-                                            class="bi bi-download me-1"></i>Export XLSX</button>
                                     <div id="loadingSpinner"
                                         class="w-5 h-5 border-2 border-[#0B2B6A] border-t-transparent rounded-full animate-spin">
                                     </div>
@@ -433,9 +437,6 @@
                             <div class="flex flex-wrap items-center gap-2">
                                 <input type="month" id="recapMonthFilter"
                                     class="px-3 py-2 rounded-xl text-xs border border-slate-200 bg-white focus:outline-none focus:ring-2 focus:ring-[#0B2B6A]">
-                                <button id="btnExportMonthlyRecapXlsx"
-                                    class="px-3 py-2 rounded-xl text-xs font-semibold text-white bg-[#0B2B6A] hover:bg-[#113981] transition"><i
-                                        class="bi bi-download me-1"></i>Export XLSX</button>
                             </div>
                         </div>
                         <div class="px-4 pb-4">
@@ -475,9 +476,6 @@
                                     aria-label="Bulan selesai">
                                 <button id="btnLoadInternshipTotal"
                                     class="px-3 py-2 rounded-xl text-xs font-semibold text-[#0B2B6A] border border-[#0B2B6A] hover:bg-[#0B2B6A]/10 transition">Muat</button>
-                                <button id="btnExportInternshipTotalXlsx"
-                                    class="px-3 py-2 rounded-xl text-xs font-semibold text-white bg-[#0B2B6A] hover:bg-[#113981] transition"><i
-                                        class="bi bi-download me-1"></i>Export XLSX</button>
                             </div>
                         </div>
                         <div class="px-4 pb-4">
@@ -488,10 +486,10 @@
                                             <tr
                                                 class="text-slate-400 text-[11px] font-extrabold uppercase tracking-[0.2em]">
                                                 <th class="px-4 py-3 cell-name">Nama Intern</th>
-                                                <th class="px-4 py-3" style="min-width: 180px;">Total Jam Internship
-                                                </th>
-                                                <th class="px-4 py-3" style="min-width: 150px;">Jumlah Hari Hadir</th>
-                                                <th class="px-4 py-3" style="min-width: 170px;">Rata-rata per Hari</th>
+                                                <th class="px-4 py-3" style="min-width: 180px;">Total Jam Internship</th>
+                                                <th class="px-4 py-3" style="min-width: 140px;">Jumlah Hari Hadir</th>
+                                                <th class="px-4 py-3" style="min-width: 160px;">Rata-rata per Hari</th>
+                                                <th class="px-4 py-3" style="min-width: 170px;">Total Keterlambatan</th>
                                             </tr>
                                         </thead>
                                         <tbody id="internshipTotalBody" class="text-slate-700 text-sm"></tbody>
@@ -590,6 +588,7 @@
                                         <option value="wfo_only">Data Presensi WFO / Hybrid Saja</option>
                                         <option value="wfh_only">Data Presensi WFH Saja</option>
                                         <option value="monthly_recap">Data Rekap Presensi Per Intern</option>
+                                        <option value="internship_total">Data Total Jam Internship & Keterlambatan</option>
                                     </select>
                                 </div>
 
@@ -728,6 +727,7 @@
         if (sidebarTarget) renderSidebar(sidebarTarget);
 
         const filterDateInput = document.getElementById('filterDate');
+        const btnUnifiedExport = document.getElementById('btnUnifiedExport');
         const btnExportXlsx = document.getElementById('btnExportXlsx');
         const summaryText = document.getElementById('summaryText');
         const subtitleText = document.getElementById('subtitleText');
@@ -784,6 +784,37 @@
             const jam = Math.floor(totalMinutes / 60);
             const menit = totalMinutes % 60;
             return `${jam} Jam ${menit} Menit`;
+        }
+
+        // Aturan jam masuk Dialogika:
+        // - Selasa & Kamis: Jam 10:00:00 (10 * 3600 = 36000 detik)
+        // - Sabtu & Minggu: Jam 09:00:00 (9 * 3600 = 32400 detik)
+        // - Hari selain itu (Senin, Rabu, Jumat): tidak ada jam masuk, keterlambatan tidak dihitung
+        function getDayExpectedStartTimeSeconds(dateStr) {
+            if (!dateStr) return null;
+            const d = new Date(dateStr + 'T00:00:00');
+            const day = d.getDay(); // 0: Minggu, 1: Senin, 2: Selasa, 3: Rabu, 4: Kamis, 5: Jumat, 6: Sabtu
+            if (day === 2 || day === 4) return 10 * 3600; // Selasa & Kamis: 10:00
+            if (day === 6 || day === 0) return 9 * 3600;  // Sabtu & Minggu: 09:00
+            return null; // Senin, Rabu, Jumat: tidak ada jam masuk
+        }
+
+        function calculateLateSeconds(loginSec, dateStr) {
+            if (loginSec == null) return 0;
+            const expectedSec = getDayExpectedStartTimeSeconds(dateStr);
+            if (expectedSec === null) return 0;
+            return loginSec > expectedSec ? (loginSec - expectedSec) : 0;
+        }
+
+        function formatLateLabel(lateSeconds) {
+            if (lateSeconds == null || lateSeconds <= 0) return '0 Menit';
+            const totalMinutes = Math.floor(lateSeconds / 60);
+            const jam = Math.floor(totalMinutes / 60);
+            const menit = totalMinutes % 60;
+            if (jam > 0) {
+                return `${jam} Jam ${menit} Menit`;
+            }
+            return `${menit} Menit`;
         }
 
         function getMonthRangeFromMonthKey(monthKey) {
@@ -1105,9 +1136,14 @@
                     if (v.loginSec == null || v.logoutSec == null || v.logoutSec < v.loginSec) return;
                     const dur = v.logoutSec - v.loginSec;
                     total += dur;
-                    const ex = perIntern.get(v.user_id) || { name: v.name, total: 0, days: 0 };
+                    const ex = perIntern.get(v.user_id) || { name: v.name, total: 0, days: 0, lateSeconds: 0, lateDays: 0 };
                     ex.total += dur;
                     ex.days += 1;
+                    const lateSec = calculateLateSeconds(v.loginSec, v.date);
+                    if (lateSec > 0) {
+                        ex.lateSeconds += lateSec;
+                        ex.lateDays += 1;
+                    }
                     perIntern.set(v.user_id, ex);
                 });
 
@@ -1117,7 +1153,15 @@
             const monthAgg = aggregateDuration(monthSnap);
             const recapRows = Array.from(monthAgg.perIntern.entries())
                 .filter(([userId]) => allInterns.some(u => u.id === userId))
-                .map(([userId, v]) => ({ userId, name: v.name, photo: getInternPhoto(userId), total: v.total, attendanceDays: v.days || 0 }))
+                .map(([userId, v]) => ({
+                    userId,
+                    name: v.name,
+                    photo: getInternPhoto(userId),
+                    total: v.total,
+                    attendanceDays: v.days || 0,
+                    lateSeconds: v.lateSeconds || 0,
+                    lateDays: v.lateDays || 0
+                }))
                 .sort((a, b) => b.total - a.total);
             monthlyRecapCache = recapRows;
 
@@ -1151,7 +1195,7 @@
             records.forEach(d => {
                 if (!d.user_id || !d.date || !d.type) return;
                 const key = `${d.user_id}__${d.date}`;
-                if (!byUserDate.has(key)) byUserDate.set(key, { user_id: d.user_id, name: d.name || 'Tanpa Nama', loginSec: null, logoutSec: null });
+                if (!byUserDate.has(key)) byUserDate.set(key, { user_id: d.user_id, date: d.date, name: d.name || 'Tanpa Nama', loginSec: null, logoutSec: null });
                 const row = byUserDate.get(key);
                 const sec = parseTimeToSeconds(d.time);
                 if (d.type === 'login' && (row.loginSec == null || (sec != null && sec < row.loginSec))) row.loginSec = sec;
@@ -1161,14 +1205,27 @@
             byUserDate.forEach(v => {
                 if (v.loginSec == null || v.logoutSec == null || v.logoutSec < v.loginSec) return;
                 const dur = v.logoutSec - v.loginSec;
-                const ex = perIntern.get(v.user_id) || { name: v.name, total: 0, days: 0 };
+                const ex = perIntern.get(v.user_id) || { name: v.name, total: 0, days: 0, lateSeconds: 0, lateDays: 0 };
                 ex.total += dur;
                 ex.days += 1;
+                const lateSec = calculateLateSeconds(v.loginSec, v.date);
+                if (lateSec > 0) {
+                    ex.lateSeconds += lateSec;
+                    ex.lateDays += 1;
+                }
                 perIntern.set(v.user_id, ex);
             });
             internshipTotalCache = Array.from(perIntern.entries())
                 .filter(([userId]) => allInterns.some(u => u.id === userId))
-                .map(([userId, v]) => ({ userId, name: v.name, photo: getInternPhoto(userId), total: v.total, days: v.days }))
+                .map(([userId, v]) => ({
+                    userId,
+                    name: v.name,
+                    photo: getInternPhoto(userId),
+                    total: v.total,
+                    days: v.days,
+                    lateSeconds: v.lateSeconds || 0,
+                    lateDays: v.lateDays || 0
+                }))
                 .sort((a, b) => b.total - a.total);
         }
 
@@ -1184,6 +1241,10 @@
                 const avgSeconds = r.days > 0 ? Math.floor(r.total / r.days) : 0;
                 const tr = document.createElement('tr');
                 tr.className = 'border-b border-slate-100 hover:bg-slate-50/70 transition-colors';
+                const lateCellHtml = r.lateSeconds > 0
+                    ? `<span class="font-semibold text-rose-600">${formatLateLabel(r.lateSeconds)}</span> <span class="text-xs text-rose-500 font-medium">(${r.lateDays}x)</span>`
+                    : `<span class="font-semibold text-emerald-600">0 Menit</span>`;
+
                 tr.innerHTML = `
                     <td class="px-4 py-3 cell-name">
                         <div class="flex items-center gap-3">
@@ -1197,6 +1258,7 @@
                     <td class="px-4 py-3 font-semibold text-[#0B2B6A]">${formatMinutes(r.total)}</td>
                     <td class="px-4 py-3">${r.days} hari</td>
                     <td class="px-4 py-3">${formatMinutes(avgSeconds)}</td>
+                    <td class="px-4 py-3">${lateCellHtml}</td>
                 `;
                 fragment.appendChild(tr);
             });
@@ -1280,21 +1342,29 @@
         }
 
         function exportInternshipTotalXlsx() {
-            const rows = internshipTotalCache.map(r => ({
+            const rows = internshipTotalCache.map((r, idx) => ({
+                No: idx + 1,
                 Nama_Intern: r.name,
                 Total_Hari_Hadir: r.days,
-                Total_Jam_Kerja: formatMinutes(r.total)
+                Total_Jam_Internship: formatMinutes(r.total),
+                Rata_Rata_per_Hari: formatMinutes(r.days > 0 ? Math.floor(r.total / r.days) : 0),
+                Total_Keterlambatan: formatLateLabel(r.lateSeconds),
+                Frekuensi_Terlambat: `${r.lateDays || 0} kali`
             }));
             exportToXlsx(rows, 'Total Internship', `total-jam-internship.xlsx`);
         }
 
         function exportMonthlyRecapXlsx() {
             const monthKey = recapMonthFilter.value || getMonthKeyFromDate(getTodayKey());
-            const rows = monthlyRecapCache.map(r => ({
+            const rows = monthlyRecapCache.map((r, idx) => ({
+                No: idx + 1,
                 Bulan: monthKey,
                 Nama_Intern: r.name,
                 Hari_Hadir: r.attendanceDays,
-                Total_Jam_Kerja: formatMinutes(r.total)
+                Total_Jam_Kerja: formatMinutes(r.total),
+                Rata_Rata_per_Hari: formatMinutes(r.attendanceDays > 0 ? Math.floor(r.total / r.attendanceDays) : 0),
+                Total_Keterlambatan: formatLateLabel(r.lateSeconds),
+                Frekuensi_Terlambat: `${r.lateDays || 0} kali`
             }));
             exportToXlsx(rows, 'Rekap Bulanan', `rekap-bulanan-intern-${monthKey}.xlsx`);
         }
@@ -1438,8 +1508,21 @@
             if (exportPresDayInput && !exportPresDayInput.value) {
                 exportPresDayInput.value = filterDateInput?.value || todayKey;
             }
+            if (sectionPresStatusFilter && exportPresDataType) {
+                const val = exportPresDataType.value;
+                sectionPresStatusFilter.style.display = (val === 'monthly_recap' || val === 'internship_total') ? 'none' : 'block';
+            }
             populateExportUserFilter();
             updateExportUI();
+        }
+
+        if (exportPresDataType) {
+            exportPresDataType.addEventListener('change', () => {
+                const val = exportPresDataType.value;
+                if (sectionPresStatusFilter) {
+                    sectionPresStatusFilter.style.display = (val === 'monthly_recap' || val === 'internship_total') ? 'none' : 'block';
+                }
+            });
         }
 
         if (btnPresFormatXlsx) {
@@ -1594,19 +1677,19 @@
 
                     const exportRows = [];
 
-                    if (dataType === "monthly_recap") {
-                        // Aggregate duration per intern
+                    if (dataType === "internship_total") {
+                        // Aggregate duration & lateness per intern over the chosen range
                         const internStats = new Map();
                         allInterns.forEach(u => {
                             if (userFilter && u.id !== userFilter) return;
-                            if (dataType === 'wfo_only' && u.mode === 'WFH') return;
-                            if (dataType === 'wfh_only' && u.mode !== 'WFH') return;
                             internStats.set(u.id, {
                                 user_id: u.id,
                                 name: u.name,
                                 mode: u.mode || 'WFO',
                                 days: 0,
-                                totalSeconds: 0
+                                totalSeconds: 0,
+                                lateSeconds: 0,
+                                lateDays: 0
                             });
                         });
 
@@ -1617,6 +1700,60 @@
                                 const stat = internStats.get(item.user_id);
                                 stat.days += 1;
                                 stat.totalSeconds += dur;
+                                const lateSec = calculateLateSeconds(item.loginSec, item.date);
+                                if (lateSec > 0) {
+                                    stat.lateSeconds += lateSec;
+                                    stat.lateDays += 1;
+                                }
+                            }
+                        });
+
+                        Array.from(internStats.values())
+                            .sort((a, b) => b.totalSeconds - a.totalSeconds)
+                            .forEach((stat, idx) => {
+                                const avg = stat.days > 0 ? Math.floor(stat.totalSeconds / stat.days) : 0;
+                                exportRows.push({
+                                    "No": idx + 1,
+                                    "Periode": periodLabel.replace(/_/g, ' '),
+                                    "Nama Intern": stat.name,
+                                    "Mode Kerja": stat.mode,
+                                    "Jumlah Hari Hadir": `${stat.days} hari`,
+                                    "Total Jam Internship": formatMinutes(stat.totalSeconds),
+                                    "Rata-rata per Hari": formatMinutes(avg),
+                                    "Total Keterlambatan": formatLateLabel(stat.lateSeconds),
+                                    "Frekuensi Terlambat": `${stat.lateDays} kali`
+                                });
+                            });
+                    } else if (dataType === "monthly_recap") {
+                        // Aggregate duration & lateness per intern
+                        const internStats = new Map();
+                        allInterns.forEach(u => {
+                            if (userFilter && u.id !== userFilter) return;
+                            if (dataType === 'wfo_only' && u.mode === 'WFH') return;
+                            if (dataType === 'wfh_only' && u.mode !== 'WFH') return;
+                            internStats.set(u.id, {
+                                user_id: u.id,
+                                name: u.name,
+                                mode: u.mode || 'WFO',
+                                days: 0,
+                                totalSeconds: 0,
+                                lateSeconds: 0,
+                                lateDays: 0
+                            });
+                        });
+
+                        byUserDate.forEach(item => {
+                            if (!internStats.has(item.user_id)) return;
+                            if (item.loginSec != null && item.logoutSec != null && item.logoutSec >= item.loginSec) {
+                                const dur = item.logoutSec - item.loginSec;
+                                const stat = internStats.get(item.user_id);
+                                stat.days += 1;
+                                stat.totalSeconds += dur;
+                                const lateSec = calculateLateSeconds(item.loginSec, item.date);
+                                if (lateSec > 0) {
+                                    stat.lateSeconds += lateSec;
+                                    stat.lateDays += 1;
+                                }
                             }
                         });
 
@@ -1631,7 +1768,9 @@
                                     "Mode Kerja": stat.mode,
                                     "Total Hari Hadir": `${stat.days} hari`,
                                     "Total Jam Kerja": formatMinutes(stat.totalSeconds),
-                                    "Rata-rata per Hari": formatMinutes(avg)
+                                    "Rata-rata per Hari": formatMinutes(avg),
+                                    "Total Keterlambatan": formatLateLabel(stat.lateSeconds),
+                                    "Frekuensi Terlambat": `${stat.lateDays} kali`
                                 });
                             });
                     } else {
@@ -1653,6 +1792,7 @@
                                 let totalLabel = "-";
                                 let status = "Tidak Hadir";
                                 let shift = "-";
+                                let lateLabel = "-";
 
                                 if (hit && hit.loginTime) {
                                     loginTime = hit.loginTime;
@@ -1670,6 +1810,18 @@
                                     }
                                 }
 
+                                const expSec = getDayExpectedStartTimeSeconds(startDateKey);
+                                if (expSec !== null) {
+                                    if (hit && hit.loginSec != null) {
+                                        const lateSec = calculateLateSeconds(hit.loginSec, startDateKey);
+                                        lateLabel = lateSec > 0 ? formatLateLabel(lateSec) : "0 Menit (Tepat Waktu)";
+                                    } else {
+                                        lateLabel = "-";
+                                    }
+                                } else {
+                                    lateLabel = "Tidak Ada Jam Masuk";
+                                }
+
                                 processedList.push({
                                     date: startDateKey,
                                     name: u.name,
@@ -1677,6 +1829,7 @@
                                     loginTime,
                                     logoutTime,
                                     totalLabel,
+                                    lateLabel,
                                     status,
                                     shift,
                                     sortKey: hit?.loginSec ?? 999999
@@ -1707,6 +1860,19 @@
                                     status = "Tidak Valid";
                                 }
 
+                                let lateLabel = "-";
+                                const expSec = getDayExpectedStartTimeSeconds(hit.date);
+                                if (expSec !== null) {
+                                    if (hit.loginSec != null) {
+                                        const lateSec = calculateLateSeconds(hit.loginSec, hit.date);
+                                        lateLabel = lateSec > 0 ? formatLateLabel(lateSec) : "0 Menit (Tepat Waktu)";
+                                    } else {
+                                        lateLabel = "-";
+                                    }
+                                } else {
+                                    lateLabel = "Tidak Ada Jam Masuk";
+                                }
+
                                 processedList.push({
                                     date: hit.date,
                                     name,
@@ -1714,6 +1880,7 @@
                                     loginTime: hit.loginTime || "-",
                                     logoutTime: hit.logoutTime || "-",
                                     totalLabel,
+                                    lateLabel,
                                     status,
                                     shift: hit.shift || "-",
                                     sortKey: hit.loginSec ?? 999999
@@ -1755,6 +1922,7 @@
                                 "Clock In": r.loginTime,
                                 "Clock Out": r.logoutTime,
                                 "Total Jam Kerja": r.totalLabel,
+                                "Keterlambatan": r.lateLabel || "-",
                                 "Status": r.status,
                                 "Shift / Keterangan": r.shift
                             });
@@ -1766,7 +1934,16 @@
                         return;
                     }
 
-                    const fileNameBase = `Presensi_Intern_${periodLabel}`;
+                    let sheetName = "Presensi Intern";
+                    let fileNamePrefix = "Presensi_Intern";
+                    if (dataType === "internship_total") {
+                        sheetName = "Total Jam Internship";
+                        fileNamePrefix = "Total_Jam_Internship";
+                    } else if (dataType === "monthly_recap") {
+                        sheetName = "Rekap Bulanan";
+                        fileNamePrefix = "Rekap_Bulanan_Intern";
+                    }
+                    const fileNameBase = `${fileNamePrefix}_${periodLabel}`;
 
                     if (exportFileFormat === "xlsx") {
                         if (!window.XLSX) {
@@ -1774,29 +1951,37 @@
                             return;
                         }
                         const ws = window.XLSX.utils.json_to_sheet(exportRows);
-                        const colWidths = (dataType === "monthly_recap") ? [
-                            { wch: 6 },  // No
-                            { wch: 18 }, // Periode
-                            { wch: 28 }, // Nama Intern
-                            { wch: 14 }, // Mode Kerja
-                            { wch: 18 }, // Total Hari Hadir
-                            { wch: 20 }, // Total Jam Kerja
-                            { wch: 20 }  // Rata-rata per Hari
-                        ] : [
-                            { wch: 6 },  // No
-                            { wch: 14 }, // Tanggal
-                            { wch: 28 }, // Nama Intern
-                            { wch: 14 }, // Mode Kerja
-                            { wch: 14 }, // Clock In
-                            { wch: 14 }, // Clock Out
-                            { wch: 18 }, // Total Jam Kerja
-                            { wch: 18 }, // Status
-                            { wch: 16 }  // Shift
-                        ];
+                        let colWidths = [];
+                        if (dataType === "internship_total" || dataType === "monthly_recap") {
+                            colWidths = [
+                                { wch: 6 },  // No
+                                { wch: 20 }, // Periode
+                                { wch: 28 }, // Nama Intern
+                                { wch: 14 }, // Mode Kerja
+                                { wch: 18 }, // Total / Jumlah Hari Hadir
+                                { wch: 22 }, // Total Jam Kerja / Internship
+                                { wch: 20 }, // Rata-rata per Hari
+                                { wch: 20 }, // Total Keterlambatan
+                                { wch: 18 }  // Frekuensi Terlambat
+                            ];
+                        } else {
+                            colWidths = [
+                                { wch: 6 },  // No
+                                { wch: 14 }, // Tanggal
+                                { wch: 28 }, // Nama Intern
+                                { wch: 14 }, // Mode Kerja
+                                { wch: 14 }, // Clock In
+                                { wch: 14 }, // Clock Out
+                                { wch: 18 }, // Total Jam Kerja
+                                { wch: 24 }, // Keterlambatan
+                                { wch: 18 }, // Status
+                                { wch: 18 }  // Shift / Keterangan
+                            ];
+                        }
                         ws['!cols'] = colWidths;
 
                         const wb = window.XLSX.utils.book_new();
-                        window.XLSX.utils.book_append_sheet(wb, ws, "Presensi Intern");
+                        window.XLSX.utils.book_append_sheet(wb, ws, sheetName);
                         window.XLSX.writeFile(wb, `${fileNameBase}.xlsx`);
                     } else {
                         // Generate CSV with UTF-8 BOM
@@ -1877,23 +2062,34 @@
             await loadMonthlyRecap(monthKey);
         });
 
-        btnExportXlsx.addEventListener('click', () => {
-            prepareExportModalValues();
-        });
-        btnExportMonthlyRecapXlsx.addEventListener('click', exportMonthlyRecapXlsx);
+        if (btnUnifiedExport) {
+            btnUnifiedExport.addEventListener('click', () => {
+                prepareExportModalValues();
+            });
+        }
+        if (btnExportXlsx) {
+            btnExportXlsx.addEventListener('click', () => {
+                prepareExportModalValues();
+            });
+        }
+        if (btnExportMonthlyRecapXlsx) {
+            btnExportMonthlyRecapXlsx.addEventListener('click', exportMonthlyRecapXlsx);
+        }
         if (btnLoadInternshipTotal) {
             btnLoadInternshipTotal.addEventListener('click', async () => {
                 await loadInternshipTotalRange();
             });
         }
-        btnExportInternshipTotalXlsx.addEventListener('click', async () => {
-            if (!internshipTotalCache.length) {
-                await loadInternshipTotalRange();
-            }
-            if (internshipTotalCache.length) {
-                exportInternshipTotalXlsx();
-            }
-        });
+        if (btnExportInternshipTotalXlsx) {
+            btnExportInternshipTotalXlsx.addEventListener('click', async () => {
+                if (!internshipTotalCache.length) {
+                    await loadInternshipTotalRange();
+                }
+                if (internshipTotalCache.length) {
+                    exportInternshipTotalXlsx();
+                }
+            });
+        }
 
         if (tabWfoBtn && tabWfhBtn) {
             tabWfoBtn.addEventListener('click', () => {
