@@ -175,6 +175,126 @@
             box-shadow: 0 2px 10px rgba(15, 23, 42, 0.08);
             flex-shrink: 0;
         }
+
+        /* Export Modal Styles */
+        .export-modal-dialog {
+            max-width: 480px;
+        }
+
+        .export-modal-content {
+            border-radius: 24px;
+            border: none;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.2);
+            padding: 6px;
+        }
+
+        .export-icon-box {
+            width: 44px;
+            height: 44px;
+            border-radius: 12px;
+            background-color: #ecfdf5;
+            color: #059669;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.35rem;
+        }
+
+        .export-section-label {
+            font-size: 0.72rem;
+            font-weight: 700;
+            color: #475569;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+            margin-bottom: 6px;
+            display: block;
+        }
+
+        .export-segmented-control {
+            background: #f1f5f9;
+            padding: 4px;
+            border-radius: 14px;
+            display: flex;
+            gap: 4px;
+        }
+
+        .export-segmented-btn {
+            flex: 1;
+            border: none;
+            background: transparent;
+            color: #64748b;
+            font-size: 0.88rem;
+            font-weight: 600;
+            padding: 9px 14px;
+            border-radius: 10px;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            cursor: pointer;
+        }
+
+        .export-segmented-btn.active {
+            background: #ffffff;
+            color: #0f172a;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.06);
+        }
+
+        .export-select,
+        .export-input {
+            border-radius: 12px;
+            border: 1.5px solid #e2e8f0;
+            padding: 10px 14px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: #334155;
+            background-color: #ffffff;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+
+        .export-select:focus,
+        .export-input:focus {
+            border-color: #059669;
+            box-shadow: 0 0 0 3px rgba(5, 150, 105, 0.12);
+            outline: none;
+        }
+
+        .btn-download-export {
+            background-color: #059669;
+            color: #ffffff;
+            border: none;
+            border-radius: 12px;
+            padding: 11px 20px;
+            font-weight: 700;
+            font-size: 0.92rem;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .btn-download-export:hover {
+            background-color: #047857;
+            color: #ffffff;
+            transform: translateY(-1px);
+        }
+
+        .btn-cancel-export {
+            border-radius: 12px;
+            border: 1.5px solid #e2e8f0;
+            color: #475569;
+            font-weight: 600;
+            padding: 11px 20px;
+            background: #ffffff;
+            transition: all 0.2s ease;
+        }
+
+        .btn-cancel-export:hover {
+            background: #f8fafc;
+            color: #1e293b;
+        }
     </style>
 </head>
 
@@ -235,6 +355,7 @@
                                     <input type="date" id="filterDate"
                                         class="min-w-[180px] px-3 py-2 rounded-xl text-xs border border-slate-200 bg-white focus:outline-none focus:ring-2 focus:ring-[#0B2B6A]">
                                     <button id="btnExportXlsx"
+                                        data-bs-toggle="modal" data-bs-target="#exportPresenceModal"
                                         class="px-4 py-2 rounded-xl text-xs font-semibold text-white bg-[#0B2B6A] hover:bg-[#113981] transition"><i
                                             class="bi bi-download me-1"></i>Export XLSX</button>
                                     <div id="loadingSpinner"
@@ -422,6 +543,157 @@
                             <button type="button"
                                 class="px-5 py-2 rounded-xl text-sm font-semibold text-slate-600 bg-slate-100 hover:bg-slate-200 transition"
                                 data-bs-dismiss="modal">Tutup</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Modal Export Data Presensi -->
+            <div class="modal fade" id="exportPresenceModal" tabindex="-1" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered export-modal-dialog">
+                    <div class="modal-content export-modal-content shadow-lg">
+                        <div class="modal-body p-4">
+                            <!-- Header -->
+                            <div class="d-flex align-items-start justify-content-between mb-4">
+                                <div class="d-flex align-items-center gap-3">
+                                    <div class="export-icon-box">
+                                        <i class="bi bi-file-earmark-spreadsheet"></i>
+                                    </div>
+                                    <div>
+                                        <h5 class="fw-bold mb-1 text-dark" style="font-size: 1.15rem;">Export Data (Excel / CSV)</h5>
+                                        <p class="text-muted small mb-0" style="font-size: 0.8rem;">Pilih format file, periode, dan jenis data laporan</p>
+                                    </div>
+                                </div>
+                                <button type="button" class="btn-close shadow-none" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+
+                            <!-- Form Export -->
+                            <form id="exportPresenceForm" class="d-flex flex-column gap-3">
+                                <!-- FORMAT FILE -->
+                                <div>
+                                    <label class="export-section-label">FORMAT FILE</label>
+                                    <div class="export-segmented-control" id="presenceFormatSegmented">
+                                        <button type="button" class="export-segmented-btn active" data-format="xlsx" id="btnPresFormatXlsx">
+                                            <i class="bi bi-file-earmark-excel text-success"></i> Excel (.xlsx)
+                                        </button>
+                                        <button type="button" class="export-segmented-btn" data-format="csv" id="btnPresFormatCsv">
+                                            <i class="bi bi-file-earmark-text text-primary"></i> CSV (.csv)
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <!-- DATA YANG DIEXPORT -->
+                                <div>
+                                    <label class="export-section-label">DATA YANG DIEXPORT</label>
+                                    <select class="form-select export-select shadow-none" id="exportPresDataType">
+                                        <option value="all_presence">Data Presensi Harian (WFO & WFH)</option>
+                                        <option value="wfo_only">Data Presensi WFO / Hybrid Saja</option>
+                                        <option value="wfh_only">Data Presensi WFH Saja</option>
+                                        <option value="monthly_recap">Data Rekap Presensi Per Intern</option>
+                                    </select>
+                                </div>
+
+                                <!-- PILIHAN RENTANG WAKTU -->
+                                <div>
+                                    <label class="export-section-label">PILIHAN RENTANG WAKTU</label>
+                                    <div class="export-segmented-control" id="presenceRangeSegmented">
+                                        <button type="button" class="export-segmented-btn active" data-range="month" id="btnPresRangeMonth">
+                                            <i class="bi bi-calendar3"></i> Per Bulan
+                                        </button>
+                                        <button type="button" class="export-segmented-btn" data-range="week" id="btnPresRangeWeek">
+                                            <i class="bi bi-calendar-week"></i> Per Minggu
+                                        </button>
+                                        <button type="button" class="export-segmented-btn" data-range="day" id="btnPresRangeDay">
+                                            <i class="bi bi-calendar-check"></i> Per Tanggal
+                                        </button>
+                                        <button type="button" class="export-segmented-btn" data-range="all" id="btnPresRangeAll">
+                                            <i class="bi bi-globe"></i> Semua
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <!-- SECTION: PILIH BULAN (PER BULAN) -->
+                                <div id="sectionPresMonthPicker" style="display: block;">
+                                    <label class="export-section-label">PILIH BULAN & TAHUN</label>
+                                    <input type="month" class="form-control export-input shadow-none w-100" id="exportPresMonthInput">
+                                    <small class="text-muted d-block mt-1" style="font-size: 0.75rem;" id="exportPresMonthHelpText">
+                                        Semua data presensi pada bulan yang dipilih akan dimasukkan ke dalam file laporan.
+                                    </small>
+                                </div>
+
+                                <!-- SECTION: PILIH MINGGU (PER MINGGU) -->
+                                <div id="sectionPresWeekPicker" style="display: none;">
+                                    <div class="row g-2">
+                                        <div class="col-6">
+                                            <label class="export-section-label">BULAN & TAHUN</label>
+                                            <input type="month" class="form-control export-input shadow-none w-100" id="exportPresWeekMonthInput">
+                                        </div>
+                                        <div class="col-6">
+                                            <label class="export-section-label">PILIH MINGGU</label>
+                                            <select class="form-select export-select shadow-none" id="exportPresWeekSelect">
+                                                <option value="1">Minggu 1 (Tgl 1 - 7)</option>
+                                                <option value="2">Minggu 2 (Tgl 8 - 14)</option>
+                                                <option value="3">Minggu 3 (Tgl 15 - 21)</option>
+                                                <option value="4">Minggu 4 (Tgl 22 - 28)</option>
+                                                <option value="5">Minggu 5 (Tgl 29 - Akhir Bulan)</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <small class="text-muted d-block mt-1" style="font-size: 0.75rem;" id="exportPresWeekHelpText">
+                                        Semua data presensi pada minggu yang dipilih akan dimasukkan ke dalam file laporan.
+                                    </small>
+                                </div>
+
+                                <!-- SECTION: PILIH TANGGAL (PER TANGGAL) -->
+                                <div id="sectionPresDayPicker" style="display: none;">
+                                    <label class="export-section-label">PILIH TANGGAL</label>
+                                    <input type="date" class="form-control export-input shadow-none w-100" id="exportPresDayInput">
+                                    <small class="text-muted d-block mt-1" style="font-size: 0.75rem;">
+                                        Data presensi pada tanggal yang dipilih akan dimasukkan ke dalam file laporan.
+                                    </small>
+                                </div>
+
+                                <!-- SECTION: SEMUA DATA -->
+                                <div id="sectionPresAllPicker" style="display: none;">
+                                    <div class="p-3 rounded-3" style="background-color: #f8fafc; border: 1px dashed #cbd5e1;">
+                                        <div class="d-flex align-items-center gap-2 text-primary small fw-semibold">
+                                            <i class="bi bi-info-circle"></i>
+                                            <span>Ekspor Seluruh Periode</span>
+                                        </div>
+                                        <small class="text-muted d-block mt-1" style="font-size: 0.75rem;">
+                                            Semua catatan presensi di database akan dimasukkan ke dalam file laporan.
+                                        </small>
+                                    </div>
+                                </div>
+
+                                <!-- FILTER STATUS PRESENSI -->
+                                <div id="sectionPresStatusFilter">
+                                    <label class="export-section-label">FILTER STATUS PRESENSI</label>
+                                    <select class="form-select export-select shadow-none" id="exportPresStatusFilter">
+                                        <option value="">Semua Status (Present, Belum Clock Out, Tidak Hadir)</option>
+                                        <option value="hadir">Hadir (Present & Belum Clock Out)</option>
+                                        <option value="present">Hanya Present (Sudah Clock Out)</option>
+                                        <option value="belum_clock_out">Belum Clock Out</option>
+                                        <option value="tidak_hadir">Tidak Hadir</option>
+                                    </select>
+                                </div>
+
+                                <!-- FILTER NAMA INTERN (OPSIONAL) -->
+                                <div>
+                                    <label class="export-section-label">FILTER INTERN</label>
+                                    <select class="form-select export-select shadow-none" id="exportPresUserFilter">
+                                        <option value="">Semua Intern</option>
+                                    </select>
+                                </div>
+
+                                <!-- FOOTER BUTTONS -->
+                                <div class="d-flex align-items-center justify-content-between gap-3 mt-3 pt-2">
+                                    <button type="button" class="btn btn-cancel-export flex-fill" data-bs-dismiss="modal">Batalkan</button>
+                                    <button type="submit" class="btn btn-download-export flex-fill" id="btnPresDownloadExport">
+                                        <i class="bi bi-download"></i> <span id="presDownloadBtnText">Download Excel (.xlsx)</span>
+                                    </button>
+                                </div>
+                            </form>
                         </div>
                     </div>
                 </div>
@@ -1063,18 +1335,517 @@
             });
         }
 
-        function exportPresenceXlsx() {
-            const dateKey = filterDateInput.value || getTodayKey();
-            const rows = aggregateSelectedDateRows(dateKey);
-            const exportRows = rows.filter(r => r.isValidPair).map(r => ({
-                Tanggal: dateKey,
-                Nama_Intern: r.name,
-                Clock_In: r.loginTime,
-                Clock_Out: r.logoutTime,
-                Total_Jam_Kerja: r.totalLabel,
-                Status: r.status
-            }));
-            exportToXlsx(exportRows, 'Presensi Harian', `presensi-intern-${dateKey}.xlsx`);
+        // ----------------------------------------------------
+        // EXPORT MODAL LOGIC (EXCEL / CSV)
+        // ----------------------------------------------------
+        let exportFileFormat = "xlsx"; // "xlsx" | "csv"
+        let exportPresRangeType = "month"; // "month" | "week" | "day" | "all"
+
+        const exportPresenceForm = document.getElementById('exportPresenceForm');
+        const btnPresFormatXlsx = document.getElementById('btnPresFormatXlsx');
+        const btnPresFormatCsv = document.getElementById('btnPresFormatCsv');
+        const exportPresDataType = document.getElementById('exportPresDataType');
+        const btnPresRangeMonth = document.getElementById('btnPresRangeMonth');
+        const btnPresRangeWeek = document.getElementById('btnPresRangeWeek');
+        const btnPresRangeDay = document.getElementById('btnPresRangeDay');
+        const btnPresRangeAll = document.getElementById('btnPresRangeAll');
+        const sectionPresMonthPicker = document.getElementById('sectionPresMonthPicker');
+        const sectionPresWeekPicker = document.getElementById('sectionPresWeekPicker');
+        const sectionPresDayPicker = document.getElementById('sectionPresDayPicker');
+        const sectionPresAllPicker = document.getElementById('sectionPresAllPicker');
+        const exportPresMonthInput = document.getElementById('exportPresMonthInput');
+        const exportPresWeekMonthInput = document.getElementById('exportPresWeekMonthInput');
+        const exportPresWeekSelect = document.getElementById('exportPresWeekSelect');
+        const exportPresDayInput = document.getElementById('exportPresDayInput');
+        const exportPresStatusFilter = document.getElementById('exportPresStatusFilter');
+        const exportPresUserFilter = document.getElementById('exportPresUserFilter');
+        const btnPresDownloadExport = document.getElementById('btnPresDownloadExport');
+        const presDownloadBtnText = document.getElementById('presDownloadBtnText');
+
+        function getMonthNameIndo(monthNum) {
+            const months = [
+                "Januari", "Februari", "Maret", "April", "Mei", "Juni",
+                "Juli", "Agustus", "September", "Oktober", "November", "Desember"
+            ];
+            return months[monthNum] || "Bulan";
+        }
+
+        function formatDateToIndo(dateStr) {
+            if (!dateStr) return "-";
+            const parts = String(dateStr).split('-');
+            if (parts.length === 3) {
+                return `${parts[2]}/${parts[1]}/${parts[0]}`;
+            }
+            return dateStr;
+        }
+
+        function populateExportUserFilter() {
+            if (!exportPresUserFilter) return;
+            exportPresUserFilter.innerHTML = '<option value="">Semua Intern</option>';
+            allInterns.forEach(u => {
+                const opt = document.createElement('option');
+                opt.value = u.id;
+                opt.textContent = `${u.name} (${u.mode || 'WFO'})`;
+                exportPresUserFilter.appendChild(opt);
+            });
+        }
+
+        function updateExportUI() {
+            // Update format buttons
+            if (btnPresFormatXlsx && btnPresFormatCsv) {
+                if (exportFileFormat === "xlsx") {
+                    btnPresFormatXlsx.classList.add('active');
+                    btnPresFormatCsv.classList.remove('active');
+                    if (presDownloadBtnText) presDownloadBtnText.textContent = "Download Excel (.xlsx)";
+                } else {
+                    btnPresFormatCsv.classList.add('active');
+                    btnPresFormatXlsx.classList.remove('active');
+                    if (presDownloadBtnText) presDownloadBtnText.textContent = "Download CSV (.csv)";
+                }
+            }
+
+            // Update range buttons & visible pickers
+            const rangeBtns = [
+                { type: 'month', btn: btnPresRangeMonth, sec: sectionPresMonthPicker },
+                { type: 'week', btn: btnPresRangeWeek, sec: sectionPresWeekPicker },
+                { type: 'day', btn: btnPresRangeDay, sec: sectionPresDayPicker },
+                { type: 'all', btn: btnPresRangeAll, sec: sectionPresAllPicker }
+            ];
+
+            rangeBtns.forEach(item => {
+                if (item.btn) {
+                    if (exportPresRangeType === item.type) {
+                        item.btn.classList.add('active');
+                    } else {
+                        item.btn.classList.remove('active');
+                    }
+                }
+                if (item.sec) {
+                    item.sec.style.display = (exportPresRangeType === item.type) ? "block" : "none";
+                }
+            });
+        }
+
+        function prepareExportModalValues() {
+            const todayKey = getTodayKey();
+            const currentMonthKey = getMonthKeyFromDate(todayKey);
+            if (exportPresMonthInput && !exportPresMonthInput.value) {
+                exportPresMonthInput.value = recapMonthFilter?.value || currentMonthKey;
+            }
+            if (exportPresWeekMonthInput && !exportPresWeekMonthInput.value) {
+                exportPresWeekMonthInput.value = recapMonthFilter?.value || currentMonthKey;
+            }
+            if (exportPresDayInput && !exportPresDayInput.value) {
+                exportPresDayInput.value = filterDateInput?.value || todayKey;
+            }
+            populateExportUserFilter();
+            updateExportUI();
+        }
+
+        if (btnPresFormatXlsx) {
+            btnPresFormatXlsx.addEventListener('click', () => {
+                exportFileFormat = "xlsx";
+                updateExportUI();
+            });
+        }
+
+        if (btnPresFormatCsv) {
+            btnPresFormatCsv.addEventListener('click', () => {
+                exportFileFormat = "csv";
+                updateExportUI();
+            });
+        }
+
+        if (btnPresRangeMonth) {
+            btnPresRangeMonth.addEventListener('click', () => {
+                exportPresRangeType = "month";
+                updateExportUI();
+            });
+        }
+
+        if (btnPresRangeWeek) {
+            btnPresRangeWeek.addEventListener('click', () => {
+                exportPresRangeType = "week";
+                updateExportUI();
+            });
+        }
+
+        if (btnPresRangeDay) {
+            btnPresRangeDay.addEventListener('click', () => {
+                exportPresRangeType = "day";
+                updateExportUI();
+            });
+        }
+
+        if (btnPresRangeAll) {
+            btnPresRangeAll.addEventListener('click', () => {
+                exportPresRangeType = "all";
+                updateExportUI();
+            });
+        }
+
+        if (exportPresenceForm) {
+            exportPresenceForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const submitBtn = btnPresDownloadExport;
+                const origBtnHtml = submitBtn ? submitBtn.innerHTML : "";
+
+                try {
+                    if (submitBtn) {
+                        submitBtn.disabled = true;
+                        submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>Memproses...';
+                    }
+
+                    const todayKey = getTodayKey();
+                    const currentMonthKey = getMonthKeyFromDate(todayKey);
+                    let startDateKey = "2020-01-01";
+                    let endDateKey = "2099-12-31";
+                    let periodLabel = "Semua_Data";
+
+                    if (exportPresRangeType === "month") {
+                        const monthVal = exportPresMonthInput?.value || currentMonthKey;
+                        const [yearStr, monthStr] = monthVal.split('-');
+                        const year = parseInt(yearStr, 10);
+                        const monthIdx = parseInt(monthStr, 10) - 1;
+                        const lastDay = new Date(year, monthIdx + 1, 0).getDate();
+                        startDateKey = `${yearStr}-${monthStr}-01`;
+                        endDateKey = `${yearStr}-${monthStr}-${String(lastDay).padStart(2, '0')}`;
+                        periodLabel = `${getMonthNameIndo(monthIdx)}_${year}`;
+                    } else if (exportPresRangeType === "week") {
+                        const monthVal = exportPresWeekMonthInput?.value || currentMonthKey;
+                        const [yearStr, monthStr] = monthVal.split('-');
+                        const year = parseInt(yearStr, 10);
+                        const monthIdx = parseInt(monthStr, 10) - 1;
+                        const weekVal = parseInt(exportPresWeekSelect?.value || "1", 10);
+                        const lastDayOfMonth = new Date(year, monthIdx + 1, 0).getDate();
+
+                        let startDay = 1, endDay = 7;
+                        if (weekVal === 1) { startDay = 1; endDay = 7; }
+                        else if (weekVal === 2) { startDay = 8; endDay = 14; }
+                        else if (weekVal === 3) { startDay = 15; endDay = 21; }
+                        else if (weekVal === 4) { startDay = 22; endDay = 28; }
+                        else if (weekVal === 5) { startDay = 29; endDay = lastDayOfMonth; }
+
+                        startDateKey = `${yearStr}-${monthStr}-${String(startDay).padStart(2, '0')}`;
+                        endDateKey = `${yearStr}-${monthStr}-${String(Math.min(endDay, lastDayOfMonth)).padStart(2, '0')}`;
+                        periodLabel = `Minggu_${weekVal}_${getMonthNameIndo(monthIdx)}_${year}`;
+                    } else if (exportPresRangeType === "day") {
+                        const dayVal = exportPresDayInput?.value || filterDateInput?.value || todayKey;
+                        startDateKey = dayVal;
+                        endDateKey = dayVal;
+                        periodLabel = `Tanggal_${dayVal}`;
+                    }
+
+                    const dataType = exportPresDataType?.value || "all_presence";
+                    const statusFilter = (exportPresStatusFilter?.value || "").toLowerCase().trim();
+                    const userFilter = exportPresUserFilter?.value || "";
+
+                    // Query user_attendance from Firestore
+                    let qAttendance;
+                    if (exportPresRangeType === "all") {
+                        qAttendance = query(collection(db, 'user_attendance'));
+                    } else {
+                        qAttendance = query(
+                            collection(db, 'user_attendance'),
+                            where('date', '>=', startDateKey),
+                            where('date', '<=', endDateKey)
+                        );
+                    }
+
+                    const snap = await getDocs(qAttendance);
+                    const byUserDate = new Map();
+
+                    snap.forEach(docSnap => {
+                        const d = docSnap.data() || {};
+                        if (!d.user_id || !d.date || !d.type) return;
+                        const key = `${d.user_id}__${d.date}`;
+                        if (!byUserDate.has(key)) {
+                            byUserDate.set(key, {
+                                user_id: d.user_id,
+                                date: d.date,
+                                name: d.name || '',
+                                loginTime: null,
+                                logoutTime: null,
+                                loginSec: null,
+                                logoutSec: null,
+                                shift: d.shift || ''
+                            });
+                        }
+                        const item = byUserDate.get(key);
+                        const sec = parseTimeToSeconds(d.time);
+                        if (d.type === 'login') {
+                            if (item.loginSec == null || (sec != null && sec < item.loginSec)) {
+                                item.loginSec = sec;
+                                item.loginTime = d.time || '-';
+                                if (d.shift) item.shift = d.shift;
+                            }
+                        }
+                        if (d.type === 'logout') {
+                            if (item.logoutSec == null || (sec != null && sec > item.logoutSec)) {
+                                item.logoutSec = sec;
+                                item.logoutTime = d.time || '-';
+                            }
+                        }
+                    });
+
+                    // Build lookup for intern details
+                    const internMap = new Map();
+                    allInterns.forEach(u => internMap.set(u.id, u));
+
+                    const exportRows = [];
+
+                    if (dataType === "monthly_recap") {
+                        // Aggregate duration per intern
+                        const internStats = new Map();
+                        allInterns.forEach(u => {
+                            if (userFilter && u.id !== userFilter) return;
+                            if (dataType === 'wfo_only' && u.mode === 'WFH') return;
+                            if (dataType === 'wfh_only' && u.mode !== 'WFH') return;
+                            internStats.set(u.id, {
+                                user_id: u.id,
+                                name: u.name,
+                                mode: u.mode || 'WFO',
+                                days: 0,
+                                totalSeconds: 0
+                            });
+                        });
+
+                        byUserDate.forEach(item => {
+                            if (!internStats.has(item.user_id)) return;
+                            if (item.loginSec != null && item.logoutSec != null && item.logoutSec >= item.loginSec) {
+                                const dur = item.logoutSec - item.loginSec;
+                                const stat = internStats.get(item.user_id);
+                                stat.days += 1;
+                                stat.totalSeconds += dur;
+                            }
+                        });
+
+                        Array.from(internStats.values())
+                            .sort((a, b) => b.totalSeconds - a.totalSeconds)
+                            .forEach((stat, idx) => {
+                                const avg = stat.days > 0 ? Math.floor(stat.totalSeconds / stat.days) : 0;
+                                exportRows.push({
+                                    "No": idx + 1,
+                                    "Periode": periodLabel.replace(/_/g, ' '),
+                                    "Nama Intern": stat.name,
+                                    "Mode Kerja": stat.mode,
+                                    "Total Hari Hadir": `${stat.days} hari`,
+                                    "Total Jam Kerja": formatMinutes(stat.totalSeconds),
+                                    "Rata-rata per Hari": formatMinutes(avg)
+                                });
+                            });
+                    } else {
+                        // Detailed rows (Daily attendance)
+                        const processedList = [];
+
+                        if (exportPresRangeType === "day") {
+                            // On a single day: show all active interns (matching table on screen)
+                            allInterns.forEach(u => {
+                                if (userFilter && u.id !== userFilter) return;
+                                if (dataType === "wfo_only" && u.mode === "WFH") return;
+                                if (dataType === "wfh_only" && u.mode !== "WFH") return;
+
+                                const key = `${u.id}__${startDateKey}`;
+                                const hit = byUserDate.get(key);
+
+                                let loginTime = "-";
+                                let logoutTime = "-";
+                                let totalLabel = "-";
+                                let status = "Tidak Hadir";
+                                let shift = "-";
+
+                                if (hit && hit.loginTime) {
+                                    loginTime = hit.loginTime;
+                                    shift = hit.shift || "-";
+                                    if (hit.logoutTime) {
+                                        logoutTime = hit.logoutTime;
+                                        if (hit.logoutSec != null && hit.loginSec != null && hit.logoutSec >= hit.loginSec) {
+                                            totalLabel = formatMinutes(hit.logoutSec - hit.loginSec);
+                                            status = "Present";
+                                        } else {
+                                            status = "Tidak Valid";
+                                        }
+                                    } else {
+                                        status = "Belum Clock Out";
+                                    }
+                                }
+
+                                processedList.push({
+                                    date: startDateKey,
+                                    name: u.name,
+                                    mode: u.mode || 'WFO',
+                                    loginTime,
+                                    logoutTime,
+                                    totalLabel,
+                                    status,
+                                    shift,
+                                    sortKey: hit?.loginSec ?? 999999
+                                });
+                            });
+                        } else {
+                            // Multi-day range (month, week, all): list all records with attendance
+                            byUserDate.forEach((hit) => {
+                                const internInfo = internMap.get(hit.user_id);
+                                const name = internInfo?.name || hit.name || "Tanpa Nama";
+                                const mode = internInfo?.mode || "WFO";
+
+                                if (userFilter && hit.user_id !== userFilter) return;
+                                if (dataType === "wfo_only" && mode === "WFH") return;
+                                if (dataType === "wfh_only" && mode !== "WFH") return;
+
+                                let status = "Belum Clock Out";
+                                let totalLabel = "-";
+
+                                if (hit.loginTime && hit.logoutTime) {
+                                    if (hit.logoutSec != null && hit.loginSec != null && hit.logoutSec >= hit.loginSec) {
+                                        status = "Present";
+                                        totalLabel = formatMinutes(hit.logoutSec - hit.loginSec);
+                                    } else {
+                                        status = "Tidak Valid";
+                                    }
+                                } else if (!hit.loginTime && hit.logoutTime) {
+                                    status = "Tidak Valid";
+                                }
+
+                                processedList.push({
+                                    date: hit.date,
+                                    name,
+                                    mode,
+                                    loginTime: hit.loginTime || "-",
+                                    logoutTime: hit.logoutTime || "-",
+                                    totalLabel,
+                                    status,
+                                    shift: hit.shift || "-",
+                                    sortKey: hit.loginSec ?? 999999
+                                });
+                            });
+                        }
+
+                        // Apply Status Filter
+                        const filtered = processedList.filter(item => {
+                            if (!statusFilter) return true;
+                            if (statusFilter === "hadir") {
+                                return item.status === "Present" || item.status === "Belum Clock Out";
+                            }
+                            if (statusFilter === "present") {
+                                return item.status === "Present";
+                            }
+                            if (statusFilter === "belum_clock_out") {
+                                return item.status === "Belum Clock Out" || item.status === "Tidak Valid";
+                            }
+                            if (statusFilter === "tidak_hadir") {
+                                return item.status === "Tidak Hadir";
+                            }
+                            return true;
+                        });
+
+                        // Sort chronologically by Date (descending) and then Clock In
+                        filtered.sort((a, b) => {
+                            const dateComp = b.date.localeCompare(a.date);
+                            if (dateComp !== 0) return dateComp;
+                            return a.sortKey - b.sortKey;
+                        });
+
+                        filtered.forEach((r, idx) => {
+                            exportRows.push({
+                                "No": idx + 1,
+                                "Tanggal": formatDateToIndo(r.date),
+                                "Nama Intern": r.name,
+                                "Mode Kerja": r.mode,
+                                "Clock In": r.loginTime,
+                                "Clock Out": r.logoutTime,
+                                "Total Jam Kerja": r.totalLabel,
+                                "Status": r.status,
+                                "Shift / Keterangan": r.shift
+                            });
+                        });
+                    }
+
+                    if (exportRows.length === 0) {
+                        alert('Tidak ada data presensi pada periode / filter yang dipilih.');
+                        return;
+                    }
+
+                    const fileNameBase = `Presensi_Intern_${periodLabel}`;
+
+                    if (exportFileFormat === "xlsx") {
+                        if (!window.XLSX) {
+                            alert('Library XLSX belum selesai dimuat. Silakan coba sesaat lagi.');
+                            return;
+                        }
+                        const ws = window.XLSX.utils.json_to_sheet(exportRows);
+                        const colWidths = (dataType === "monthly_recap") ? [
+                            { wch: 6 },  // No
+                            { wch: 18 }, // Periode
+                            { wch: 28 }, // Nama Intern
+                            { wch: 14 }, // Mode Kerja
+                            { wch: 18 }, // Total Hari Hadir
+                            { wch: 20 }, // Total Jam Kerja
+                            { wch: 20 }  // Rata-rata per Hari
+                        ] : [
+                            { wch: 6 },  // No
+                            { wch: 14 }, // Tanggal
+                            { wch: 28 }, // Nama Intern
+                            { wch: 14 }, // Mode Kerja
+                            { wch: 14 }, // Clock In
+                            { wch: 14 }, // Clock Out
+                            { wch: 18 }, // Total Jam Kerja
+                            { wch: 18 }, // Status
+                            { wch: 16 }  // Shift
+                        ];
+                        ws['!cols'] = colWidths;
+
+                        const wb = window.XLSX.utils.book_new();
+                        window.XLSX.utils.book_append_sheet(wb, ws, "Presensi Intern");
+                        window.XLSX.writeFile(wb, `${fileNameBase}.xlsx`);
+                    } else {
+                        // Generate CSV with UTF-8 BOM
+                        let csvContent = "\uFEFF";
+                        if (window.XLSX) {
+                            const ws = window.XLSX.utils.json_to_sheet(exportRows);
+                            csvContent += window.XLSX.utils.sheet_to_csv(ws);
+                        } else {
+                            const headers = Object.keys(exportRows[0]);
+                            csvContent += headers.join(",") + "\n";
+                            exportRows.forEach(row => {
+                                const line = headers.map(h => {
+                                    let str = String(row[h] || "");
+                                    if (str.includes(",") || str.includes('"') || str.includes("\n")) {
+                                        str = '"' + str.replace(/"/g, '""') + '"';
+                                    }
+                                    return str;
+                                }).join(",");
+                                csvContent += line + "\n";
+                            });
+                        }
+
+                        const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+                        const link = document.createElement("a");
+                        const url = URL.createObjectURL(blob);
+                        link.setAttribute("href", url);
+                        link.setAttribute("download", `${fileNameBase}.csv`);
+                        link.style.visibility = "hidden";
+                        document.body.appendChild(link);
+                        link.click();
+                        document.body.removeChild(link);
+                    }
+
+                    // Close export modal
+                    const modalElement = document.getElementById('exportPresenceModal');
+                    if (modalElement && window.bootstrap && window.bootstrap.Modal) {
+                        const modalInstance = window.bootstrap.Modal.getInstance(modalElement) || new window.bootstrap.Modal(modalElement);
+                        modalInstance.hide();
+                    }
+                } catch (err) {
+                    console.error('Export Error:', err);
+                    alert('Terjadi kesalahan saat mengekspor data: ' + (err.message || err));
+                } finally {
+                    if (submitBtn) {
+                        submitBtn.disabled = false;
+                        submitBtn.innerHTML = origBtnHtml;
+                    }
+                }
+            });
         }
 
         async function refreshByDate(dateKey) {
@@ -1089,6 +1860,8 @@
             if (internshipTotalStart) internshipTotalStart.value = `${new Date().getFullYear()}-01`;
             if (internshipTotalEnd) internshipTotalEnd.value = monthKey;
             await loadInterns();
+            populateExportUserFilter();
+            prepareExportModalValues();
             await refreshByDate(todayKey);
             await loadMonthlyRecap(recapMonthFilter.value);
             await loadInternshipTotalRange();
@@ -1104,7 +1877,9 @@
             await loadMonthlyRecap(monthKey);
         });
 
-        btnExportXlsx.addEventListener('click', exportPresenceXlsx);
+        btnExportXlsx.addEventListener('click', () => {
+            prepareExportModalValues();
+        });
         btnExportMonthlyRecapXlsx.addEventListener('click', exportMonthlyRecapXlsx);
         if (btnLoadInternshipTotal) {
             btnLoadInternshipTotal.addEventListener('click', async () => {
