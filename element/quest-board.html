@@ -1,4 +1,4 @@
-
+﻿
 <!DOCTYPE html>
 <html lang="id">
 <head>
@@ -271,13 +271,12 @@
 
         // Konfigurasi Firebase (sama dengan halaman interns lain)
         const firebaseConfig = {
-            apiKey: "AIzaSyDyzzEYbJkkl-N8snrQf14qvj8De4YliV0",
-            authDomain: "pre-dialogika.firebaseapp.com",
-            projectId: "pre-dialogika",
-            storageBucket: "pre-dialogika.firebasestorage.app",
-            messagingSenderId: "343771410480",
-            appId: "1:343771410480:web:32881c9868522090237df5",
-            measurementId: "G-SXN811P3N0"
+            apiKey: "AIzaSyDYrzxyQ1oGaVRIdnFfYvjydWZz3xdxpTs",
+            authDomain: "dialogika-co.firebaseapp.com",
+            projectId: "dialogika-co",
+            storageBucket: "dialogika-co.firebasestorage.app",
+            messagingSenderId: "664395741941",
+            appId: "1:664395741941:web:f20ff01c166e4423d823bc"
         };
 
         const app = initializeApp(firebaseConfig);
@@ -432,9 +431,9 @@
                             <div class="relative">
                                 <select id="questUrgencySelect" class="w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-700 focus:border-blue-500 focus:outline-none appearance-none pl-3 pr-8">
                                     <option value="">Select urgency...</option>
-                                    <option value="urgent"><span class="inline-block w-2 h-2 rounded-full bg-red-600 mr-2"></span>🔴 High</option>
-                                    <option value="medium"><span class="inline-block w-2 h-2 rounded-full bg-yellow-500 mr-2"></span>🟡 Medium</option>
-                                    <option value="normal"><span class="inline-block w-2 h-2 rounded-full bg-green-600 mr-2"></span>🟢 Normal</option>
+                                    <option value="urgent"><span class="inline-block w-2 h-2 rounded-full bg-red-600 mr-2"></span>ðŸ”´ High</option>
+                                    <option value="medium"><span class="inline-block w-2 h-2 rounded-full bg-yellow-500 mr-2"></span>ðŸŸ¡ Medium</option>
+                                    <option value="normal"><span class="inline-block w-2 h-2 rounded-full bg-green-600 mr-2"></span>ðŸŸ¢ Normal</option>
                                 </select>
                             </div>
                         </div>
@@ -1363,7 +1362,7 @@
             var titleText = data.title || 'Untitled Quest';
             if (titleEl) titleEl.textContent = titleText;
 
-            var deadlineTime = data.deadline_time || '—';
+            var deadlineTime = data.deadline_time || 'â€”';
             var priority = data.priority || 'normal';
             var points = typeof data.points === 'number' ? data.points : 0;
             var hasRawDesc = data.description && String(data.description).replace(/<[^>]*>/g, '').trim().length > 0;
@@ -1417,11 +1416,11 @@
             }
             html += '</div>';
 
-            // Info cards: 3 kolom desktop, 2 tablet, 1 mobile — selalu tampil 3 kartu
+            // Info cards: 3 kolom desktop, 2 tablet, 1 mobile â€” selalu tampil 3 kartu
             html += '<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">';
             html += infoCard('Deadline', esc(deadlineTime), 'clock');
-            html += infoCard('Department', departmentNames.length > 0 ? esc(departmentNames.join(', ')) : '<span class="text-slate-400 italic">—</span>', 'building-2');
-            html += infoCard('Position', positionNames.length > 0 ? esc(positionNames.join(', ')) : '<span class="text-slate-400 italic">—</span>', 'badge-check');
+            html += infoCard('Department', departmentNames.length > 0 ? esc(departmentNames.join(', ')) : '<span class="text-slate-400 italic">â€”</span>', 'building-2');
+            html += infoCard('Position', positionNames.length > 0 ? esc(positionNames.join(', ')) : '<span class="text-slate-400 italic">â€”</span>', 'badge-check');
             html += '</div>';
 
             // Assignees (max 4 chip + ellipsis, avatar konsisten)
@@ -1657,7 +1656,7 @@
                 });
 
                 var html = '';
-                // Header: siapa yang me-report (dari task.last_reported_by) — selalu tampil saat ada
+                // Header: siapa yang me-report (dari task.last_reported_by) â€” selalu tampil saat ada
                 if (reporterNames.length > 0) {
                     html += '<div class="flex flex-wrap items-center gap-1.5 mb-3">' +
                         '<span class="text-[10px] font-semibold uppercase tracking-wider text-slate-400">Reported by</span>';
@@ -1741,7 +1740,7 @@
                             });
                             html += '</div>';
                         }
-                        // Tombol edit laporan — hanya tampil untuk orang yang melapor
+                        // Tombol edit laporan â€” hanya tampil untuk orang yang melapor
                         if (r.reporterUid && currentUid && String(r.reporterUid) === String(currentUid)) {
                             html += '<div class="mt-2 pt-2 border-t border-slate-100 flex justify-end">' +
                                 '<button type="button" class="inline-flex items-center gap-1 text-[10px] font-bold text-blue-600 hover:text-blue-700 bg-blue-50 hover:bg-blue-100 px-2.5 py-1 rounded-full transition" onclick="editQuestReport(\'' + esc(String(r.docId)) + '\',\'' + esc(String(taskId)) + '\',this)">' +
@@ -1914,7 +1913,7 @@
                 }
             });
             var deptNames = Object.keys(deptSet);
-            if (deptInput) deptInput.value = deptNames.length > 0 ? deptNames.join(', ') : '—';
+            if (deptInput) deptInput.value = deptNames.length > 0 ? deptNames.join(', ') : 'â€”';
 
             // --- Populate checked tasks ---
             var container = document.getElementById('reportTasksContainer');
@@ -2258,7 +2257,7 @@
                 });
 
                 closeDailyReportModal();
-                showSuccessToast('Daily Report', 'Laporan harian berhasil dikirim! 🎉', 'check-circle');
+                showSuccessToast('Daily Report', 'Laporan harian berhasil dikirim! ðŸŽ‰', 'check-circle');
             } catch (err) {
                 console.error('Gagal mengirim report', err);
                 alert('Gagal mengirim report: ' + (err && err.message ? err.message : String(err)));
@@ -2491,7 +2490,7 @@
                 pill.textContent = tag;
                 var remove = document.createElement('span');
                 remove.className = 'tag-remove';
-                remove.textContent = '×';
+                remove.textContent = 'Ã—';
                 remove.onclick = function (event) {
                     event.stopPropagation();
                     removeSideQuestTagFromSelection(tag);
@@ -3603,7 +3602,7 @@
                 pill.textContent = tag;
                 var remove = document.createElement('span');
                 remove.className = 'tag-remove';
-                remove.textContent = '×';
+                remove.textContent = 'Ã—';
                 remove.onclick = function (event) {
                     event.stopPropagation();
                     removeQuestTagFromSelection(tag);
@@ -4020,7 +4019,7 @@
                             if (h3El) {
                                 var badge = document.createElement('span');
                                 badge.className = 'inline-flex items-center gap-1 text-[9px] font-bold px-1.5 py-0.5 rounded-full bg-slate-200 text-slate-500 ml-1';
-                                badge.textContent = '✓ Reported';
+                                badge.textContent = 'âœ“ Reported';
                                 h3El.parentNode.insertBefore(badge, h3El.nextSibling);
                             }
                         } else {
@@ -4049,7 +4048,7 @@
                             if (h3El) {
                                 var badge = document.createElement('span');
                                 badge.className = 'inline-flex items-center gap-1 text-[9px] font-bold px-1.5 py-0.5 rounded-full bg-orange-100 text-orange-600 border border-orange-200 ml-1';
-                                badge.innerHTML = '🔒 Claimed by ' + claimedText;
+                                badge.innerHTML = 'ðŸ”’ Claimed by ' + claimedText;
                                 h3El.parentNode.insertBefore(badge, h3El.nextSibling);
                             }
                         }
@@ -5224,7 +5223,7 @@
 
 
                 if (notifySelected.length === 0) {
-                    // Notify To otomatis mengikuti Assign To — pesan ini berarti belum ada user yang di-assign
+                    // Notify To otomatis mengikuti Assign To â€” pesan ini berarti belum ada user yang di-assign
                     showQuestAlert('Perhatian', 'Quest harus di-assign ke minimal satu user');
                     return;
                 }
@@ -5495,7 +5494,7 @@
             if (!el) return;
             el.classList.toggle('hidden');
             if (!el.classList.contains('hidden')) {
-                // Mode tambah baru (bukan edit) — reset state edit agar tidak menimpa quest lama
+                // Mode tambah baru (bukan edit) â€” reset state edit agar tidak menimpa quest lama
                 questEditingTaskId = null;
                 // Sesuaikan form dgn tab aktif (recurring disembunyikan untuk side quest)
                 if (typeof syncQuestFormForTab === 'function') {
@@ -6006,7 +6005,7 @@
         // Simpan referensi handler quest board standalone. Sidebar.js (dimuat via module
         // import di bawah) mendefinisikan ulang fungsi-fungsi ini untuk mode iframe
         // (questBoardFrame). Di halaman standalone, versi iframe tidak berfungsi karena
-        // iframe-nya kosong — jadi handler standalone harus dipulihkan setelah render.
+        // iframe-nya kosong â€” jadi handler standalone harus dipulihkan setelah render.
         window.__questBoardStandaloneHandlers = {
             onQuestStepChange: window.onQuestStepChange,
             resetQuestSteps: window.resetQuestSteps,

@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="id">
 
 <head>
@@ -280,13 +280,12 @@
         import { renderSidebar } from "../element/sidebar.js";
 
         const firebaseConfig = {
-            apiKey: "AIzaSyDyzzEYbJkkl-N8snrQf14qvj8De4YliV0",
-            authDomain: "pre-dialogika.firebaseapp.com",
-            projectId: "pre-dialogika",
-            storageBucket: "pre-dialogika.firebasestorage.app",
-            messagingSenderId: "343771410480",
-            appId: "1:343771410480:web:32881c9868522090237df5",
-            measurementId: "G-SXN811P3N0"
+            apiKey: "AIzaSyDYrzxyQ1oGaVRIdnFfYvjydWZz3xdxpTs",
+            authDomain: "dialogika-co.firebaseapp.com",
+            projectId: "dialogika-co",
+            storageBucket: "dialogika-co.firebasestorage.app",
+            messagingSenderId: "664395741941",
+            appId: "1:664395741941:web:f20ff01c166e4423d823bc"
         };
 
         const app = initializeApp(firebaseConfig);
@@ -478,7 +477,7 @@
 
             if (!openAt || !closeAt) {
                 banner.classList.remove('hidden');
-                banner.innerHTML = '<span>⚠️ Jadwal quiz belum diatur. Hubungi admin.</span>';
+                banner.innerHTML = '<span>âš ï¸ Jadwal quiz belum diatur. Hubungi admin.</span>';
                 banner.style.background = '#fef3c7';
                 banner.style.color = '#92400e';
                 banner.style.border = '1px solid #f59e0b';
@@ -497,7 +496,7 @@
                 let timeText = '';
                 if (d > 0) timeText += d + ' hari ';
                 timeText += String(h).padStart(2, '0') + ':' + String(m).padStart(2, '0') + ':' + String(s).padStart(2, '0');
-                banner.innerHTML = '<span>🔒 Quiz belum dibuka. Buka dalam: <strong>' + timeText + '</strong></span>';
+                banner.innerHTML = '<span>ðŸ”’ Quiz belum dibuka. Buka dalam: <strong>' + timeText + '</strong></span>';
                 banner.style.background = '#fef3c7';
                 banner.style.color = '#92400e';
                 banner.style.border = '1px solid #f59e0b';
@@ -512,14 +511,14 @@
                 let timeText = '';
                 if (d > 0) timeText += d + ' hari ';
                 timeText += String(h).padStart(2, '0') + ':' + String(m).padStart(2, '0') + ':' + String(s).padStart(2, '0');
-                banner.innerHTML = '<span>✅ Quiz tersedia! Sisa waktu: <strong>' + timeText + '</strong></span>';
+                banner.innerHTML = '<span>âœ… Quiz tersedia! Sisa waktu: <strong>' + timeText + '</strong></span>';
                 banner.style.background = '#ecfdf5';
                 banner.style.color = '#065f46';
                 banner.style.border = '1px solid #10b981';
             } else {
                 quizStatus = 'closed';
                 banner.classList.remove('hidden');
-                banner.innerHTML = '<span>🔒 Quiz sudah ditutup</span>';
+                banner.innerHTML = '<span>ðŸ”’ Quiz sudah ditutup</span>';
                 banner.style.background = '#fef2f2';
                 banner.style.color = '#991b1b';
                 banner.style.border = '1px solid #ef4444';
@@ -749,7 +748,7 @@
                         <p class="text-xs mt-0.5" style="color:#64748b">
                             ${isC
                                 ? `Jawaban: <span style="color:#10b981;font-weight:600">${a.selected}</span>`
-                                : `Kamu: <span style="color:#ef4444;font-weight:600">${a.selected}</span> — Benar: <span style="color:#10b981;font-weight:600">${a.correct}</span>`
+                                : `Kamu: <span style="color:#ef4444;font-weight:600">${a.selected}</span> â€” Benar: <span style="color:#10b981;font-weight:600">${a.correct}</span>`
                             }
                         </p>
                     </div>

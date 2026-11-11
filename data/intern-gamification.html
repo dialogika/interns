@@ -1,4 +1,4 @@
-<!doctype html>
+﻿<!doctype html>
 <html lang="id">
   <head>
     <meta charset="UTF-8" />
@@ -314,7 +314,7 @@
                       class="bg-white border border-slate-100 rounded-2xl p-5"
                     >
                       <p class="font-semibold text-slate-800 mb-1">
-                        ☀️ Early Attend
+                        â˜€ï¸ Early Attend
                       </p>
                       <p class="text-xs text-slate-500 mb-3">
                         Diberikan untuk intern dengan total clock in paling awal
@@ -322,13 +322,13 @@
                       </p>
                       <div class="flex flex-col gap-2">
                         <span class="badge-chip early-bgn w-fit"
-                          >☀️ Beginner - total 2x paling awal</span
+                          >â˜€ï¸ Beginner - total 2x paling awal</span
                         >
                         <span class="badge-chip early-nov w-fit"
-                          >☀️ Novice - total 4x paling awal</span
+                          >â˜€ï¸ Novice - total 4x paling awal</span
                         >
                         <span class="badge-chip early-mas w-fit"
-                          >☀️ Mastery - total 10x paling awal</span
+                          >â˜€ï¸ Mastery - total 10x paling awal</span
                         >
                       </div>
                     </div>
@@ -336,7 +336,7 @@
                       class="bg-white border border-slate-100 rounded-2xl p-5"
                     >
                       <p class="font-semibold text-slate-800 mb-1">
-                        🔥 Step-in Master
+                        ðŸ”¥ Step-in Master
                       </p>
                       <p class="text-xs text-slate-500 mb-3">
                         Diberikan untuk intern dengan streak kehadiran valid
@@ -344,13 +344,13 @@
                       </p>
                       <div class="flex flex-col gap-2">
                         <span class="badge-chip step-rookie w-fit"
-                          >🔥 Rookie - 3 hari berturut-turut</span
+                          >ðŸ”¥ Rookie - 3 hari berturut-turut</span
                         >
                         <span class="badge-chip step-strider w-fit"
-                          >🔥 Strider - 7 hari berturut-turut</span
+                          >ðŸ”¥ Strider - 7 hari berturut-turut</span
                         >
                         <span class="badge-chip step-sprint w-fit"
-                          >🔥 Sprinter - 14 hari berturut-turut</span
+                          >ðŸ”¥ Sprinter - 14 hari berturut-turut</span
                         >
                       </div>
                     </div>
@@ -386,13 +386,12 @@
       import { renderSidebar } from "../element/sidebar.js";
 
       const firebaseConfig = {
-        apiKey: "AIzaSyDyzzEYbJkkl-N8snrQf14qvj8De4YliV0",
-        authDomain: "pre-dialogika.firebaseapp.com",
-        projectId: "pre-dialogika",
-        storageBucket: "pre-dialogika.firebasestorage.app",
-        messagingSenderId: "343771410480",
-        appId: "1:343771410480:web:32881c9868522090237df5",
-        measurementId: "G-SXN811P3N0",
+        apiKey: "AIzaSyDYrzxyQ1oGaVRIdnFfYvjydWZz3xdxpTs",
+        authDomain: "dialogika-co.firebaseapp.com",
+        projectId: "dialogika-co",
+        storageBucket: "dialogika-co.firebasestorage.app",
+        messagingSenderId: "664395741941",
+        appId: "1:664395741941:web:f20ff01c166e4423d823bc",
       };
 
       const app = initializeApp(firebaseConfig);
@@ -525,16 +524,16 @@
       }
 
       function earlyBadge(earlyCount) {
-        if (earlyCount >= 10) return ["early-mas", "☀️ Early Mastery"];
-        if (earlyCount >= 4) return ["early-nov", "☀️ Early Novice"];
-        if (earlyCount >= 2) return ["early-bgn", "☀️ Early Beginner"];
+        if (earlyCount >= 10) return ["early-mas", "â˜€ï¸ Early Mastery"];
+        if (earlyCount >= 4) return ["early-nov", "â˜€ï¸ Early Novice"];
+        if (earlyCount >= 2) return ["early-bgn", "â˜€ï¸ Early Beginner"];
         return null;
       }
 
       function stepBadge(streak) {
-        if (streak >= 14) return ["step-sprint", "🔥 Step-in Sprinter"];
-        if (streak >= 7) return ["step-strider", "🔥 Step-in Strider"];
-        if (streak >= 3) return ["step-rookie", "🔥 Step-in Rookie"];
+        if (streak >= 14) return ["step-sprint", "ðŸ”¥ Step-in Sprinter"];
+        if (streak >= 7) return ["step-strider", "ðŸ”¥ Step-in Strider"];
+        if (streak >= 3) return ["step-rookie", "ðŸ”¥ Step-in Rookie"];
         return null;
       }
 
@@ -751,7 +750,7 @@
           let flameRowHTML = "";
           flameSegments.forEach((segment) => {
             const leftPct = (((segment.end + 1) / totalDays) * 100).toFixed(3);
-            flameRowHTML += `<div style="position:absolute;left:${leftPct}%;bottom:0;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:0"><span style="font-size:13px;line-height:1">🔥</span><span style="font-size:8px;font-weight:700;color:#A32D2D;line-height:1.2">${segment.len}x</span></div>`;
+            flameRowHTML += `<div style="position:absolute;left:${leftPct}%;bottom:0;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:0"><span style="font-size:13px;line-height:1">ðŸ”¥</span><span style="font-size:8px;font-weight:700;color:#A32D2D;line-height:1.2">${segment.len}x</span></div>`;
           });
 
           let barInnerHTML = "";
@@ -803,10 +802,10 @@
           let badgesHTML = "";
           badgesHTML += early
             ? `<span class="${badgeClassMap[early[0]]}">${early[1]}</span>`
-            : '<span class="badge-chip locked">🔒 Early Beginner (total 2x paling awal)</span>';
+            : '<span class="badge-chip locked">ðŸ”’ Early Beginner (total 2x paling awal)</span>';
           badgesHTML += streak
             ? `<span class="${badgeClassMap[streak[0]]}">${streak[1]}</span>`
-            : '<span class="badge-chip locked">🔒 Step-in Rookie (3 hari)</span>';
+            : '<span class="badge-chip locked">ðŸ”’ Step-in Rookie (3 hari)</span>';
 
           const card = document.createElement("div");
           card.className = "intern-gami-card";
@@ -838,7 +837,7 @@
           gamiCards.appendChild(card);
         });
 
-        const medals = ["🥇", "🥈", "🥉"];
+        const medals = ["ðŸ¥‡", "ðŸ¥ˆ", "ðŸ¥‰"];
 
         const hdr = document.createElement("div");
         hdr.style.cssText =
@@ -847,10 +846,10 @@
                 <span></span><span></span>
                 <span style="font-size:10px;font-weight:800;color:#94a3b8;letter-spacing:.08em;text-transform:uppercase">Nama</span>
                 <span style="font-size:10px;font-weight:800;color:#94a3b8;letter-spacing:.08em;text-transform:uppercase;text-align:center">Total Pts</span>
-                <span style="font-size:10px;font-weight:800;color:#f59e0b;letter-spacing:.08em;text-transform:uppercase;text-align:center">☀️ Early</span>
-                <span style="font-size:10px;font-weight:800;color:#E24B4A;letter-spacing:.08em;text-transform:uppercase;text-align:center">🔥 Streak</span>
-                <span style="font-size:10px;font-weight:800;color:#3b82f6;letter-spacing:.08em;text-transform:uppercase;text-align:center">💡 Quiz</span>
-                <span style="font-size:10px;font-weight:800;color:#10b981;letter-spacing:.08em;text-transform:uppercase;text-align:center">✅ Quest</span>
+                <span style="font-size:10px;font-weight:800;color:#f59e0b;letter-spacing:.08em;text-transform:uppercase;text-align:center">â˜€ï¸ Early</span>
+                <span style="font-size:10px;font-weight:800;color:#E24B4A;letter-spacing:.08em;text-transform:uppercase;text-align:center">ðŸ”¥ Streak</span>
+                <span style="font-size:10px;font-weight:800;color:#3b82f6;letter-spacing:.08em;text-transform:uppercase;text-align:center">ðŸ’¡ Quiz</span>
+                <span style="font-size:10px;font-weight:800;color:#10b981;letter-spacing:.08em;text-transform:uppercase;text-align:center">âœ… Quest</span>
                 <span style="font-size:10px;font-weight:800;color:#94a3b8;letter-spacing:.08em;text-transform:uppercase;text-align:center">Hadir</span>
             `;
         gamiLeaderboard.appendChild(hdr);

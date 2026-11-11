@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="id">
 <head>
     <meta charset="UTF-8">
@@ -215,9 +215,9 @@
                     <div class="d-inline-flex align-items-center gap-2 text-muted small" id="messageMeta">
                         <div id="messageAvatar" class="rounded-circle bg-secondary text-white d-flex align-items-center justify-content-center fw-bold overflow-hidden" style="width:28px; height:28px;"></div>
                         <span id="messageAuthorName"></span>
-                        <span>·</span>
+                        <span>Â·</span>
                         <span id="messageDateText"></span>
-                        <span>·</span>
+                        <span>Â·</span>
                         <span id="messageNotifiedText"></span>
                     </div>
                 </div>
@@ -229,19 +229,19 @@
                         <div class="d-flex align-items-center avatar-pile" id="messageBoostAvatars"></div>
                         <div class="boost-emoji-container">
                             <button type="button" class="btn btn-sm btn-light border rounded-pill px-3 d-flex align-items-center gap-2" onclick="toggleBoostMessage()" id="messageBoostButton">
-                                <span id="messageBoostEmoji">👏</span>
+                                <span id="messageBoostEmoji">ðŸ‘</span>
                                 <span id="messageBoostLabel" class="small fw-semibold">Boost this</span>
                             </button>
                             <div id="boostEmojiPopover" class="boost-emoji-popover" style="display:none;">
-                                <button type="button" class="boost-emoji-option" data-emoji="❤️">❤️</button>
-                                <button type="button" class="boost-emoji-option" data-emoji="👏🏻">👏🏻</button>
-                                <button type="button" class="boost-emoji-option" data-emoji="🚀">🚀</button>
-                                <button type="button" class="boost-emoji-option" data-emoji="⭐️">⭐️</button>
-                                <button type="button" class="boost-emoji-option" data-emoji="✍🏻">✍🏻</button>
-                                <button type="button" class="boost-emoji-option" data-emoji="❌">❌</button>
+                                <button type="button" class="boost-emoji-option" data-emoji="â¤ï¸">â¤ï¸</button>
+                                <button type="button" class="boost-emoji-option" data-emoji="ðŸ‘ðŸ»">ðŸ‘ðŸ»</button>
+                                <button type="button" class="boost-emoji-option" data-emoji="ðŸš€">ðŸš€</button>
+                                <button type="button" class="boost-emoji-option" data-emoji="â­ï¸">â­ï¸</button>
+                                <button type="button" class="boost-emoji-option" data-emoji="âœðŸ»">âœðŸ»</button>
+                                <button type="button" class="boost-emoji-option" data-emoji="âŒ">âŒ</button>
                             </div>
                         </div>
-                        <button type="button" class="boost-emoji-delete" onclick="handleBoostDeleteClick()">🚫</button>
+                        <button type="button" class="boost-emoji-delete" onclick="handleBoostDeleteClick()">ðŸš«</button>
                     </div>
                 </div>
                 <div class="mt-5 pt-5 border-top">
@@ -277,7 +277,7 @@
                     <p class="small text-muted mb-3">People listed below will be notified when comments are posted.</p>
                     <div class="d-flex align-items-center gap-2 flex-wrap" id="subsContainer"></div>
                     <div class="mt-3 p-2 bg-light rounded-pill d-inline-block border">
-                        <small id="subscriptionStatusText" class="text-dark fw-bold px-2">You’re subscribed</small>
+                        <small id="subscriptionStatusText" class="text-dark fw-bold px-2">Youâ€™re subscribed</small>
                         <button id="subscriptionToggleButton" class="btn btn-sm btn-link text-muted text-decoration-none p-0" style="font-size:0.8rem;" onclick="toggleSubscription()">Unsubscribe me</button>
                     </div>
                 </div>
@@ -379,12 +379,12 @@
             getDownloadURL
         } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js";
         const firebaseConfig = {
-            apiKey: "AIzaSyDyzzEYbJkkl-N8snrQf14qvj8De4YliV0",
-            authDomain: "pre-dialogika.firebaseapp.com",
-            projectId: "pre-dialogika",
-            storageBucket: "pre-dialogika.firebasestorage.app",
-            messagingSenderId: "343771410480",
-            appId: "1:343771410480:web:32881c9868522090237df5"
+            apiKey: "AIzaSyDYrzxyQ1oGaVRIdnFfYvjydWZz3xdxpTs",
+            authDomain: "dialogika-co.firebaseapp.com",
+            projectId: "dialogika-co",
+            storageBucket: "dialogika-co.firebasestorage.app",
+            messagingSenderId: "664395741941",
+            appId: "1:664395741941:web:f20ff01c166e4423d823bc"
         };
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
@@ -879,7 +879,7 @@
             messageBoostAvatarsEl.innerHTML = "";
             if (!boosts || boosts.length === 0) {
                 messageBoostSectionEl.style.display = "block";
-                messageBoostEmojiEl.innerText = "👏";
+                messageBoostEmojiEl.innerText = "ðŸ‘";
                 messageBoostLabelEl.innerText = "Boost this";
                 currentUserBoosted = false;
                 currentUserBoostEmoji = "";
@@ -890,7 +890,7 @@
                 const name = b.user_name || b.userName || "User";
                 const photo = b.user_photo || "";
                 const src = getDirectPhotoUrl(photo || "", uid || "");
-                const emoji = b.emoji || b.emoticon || "👏";
+                const emoji = b.emoji || b.emoticon || "ðŸ‘";
                 const wrapper = document.createElement("div");
                 wrapper.style.position = "relative";
                 wrapper.style.display = "inline-block";
@@ -924,7 +924,7 @@
             const myBoost = uid ? boosts.find(b => (b.user_id || b.userId) === uid) : null;
             const isBoosted = !!myBoost;
             currentUserBoosted = isBoosted;
-            const myEmoji = myBoost && (myBoost.emoji || myBoost.emoticon) ? (myBoost.emoji || myBoost.emoticon) : "👏";
+            const myEmoji = myBoost && (myBoost.emoji || myBoost.emoticon) ? (myBoost.emoji || myBoost.emoticon) : "ðŸ‘";
             currentUserBoostEmoji = isBoosted ? myEmoji : "";
             messageBoostEmojiEl.innerText = myEmoji;
             messageBoostLabelEl.innerText = isBoosted ? "Boosted" : "Boost this";
@@ -1026,7 +1026,7 @@
                 const photoUrl = getDirectPhotoUrl(rawPhoto || "", uid || "");
                 const initialsSource = userName || uid || "";
                 const initials = buildInitials(initialsSource);
-                const usedEmoji = emoji && typeof emoji === "string" && emoji.trim() ? emoji.trim() : "👏";
+                const usedEmoji = emoji && typeof emoji === "string" && emoji.trim() ? emoji.trim() : "ðŸ‘";
                 await addDoc(boostsRef, {
                     user_id: uid,
                     user_name: userName,
@@ -1048,7 +1048,7 @@
             const snap = await getDocs(q);
             const docsArr = [];
             snap.forEach(docSnap => docsArr.push(docSnap));
-            const usedEmoji = emoji && typeof emoji === "string" && emoji.trim() ? emoji.trim() : "👏";
+            const usedEmoji = emoji && typeof emoji === "string" && emoji.trim() ? emoji.trim() : "ðŸ‘";
             if (docsArr.length === 0) {
                 const localData = JSON.parse(localStorage.getItem("userData") || "null");
                 const userName = localData && localData.name ? localData.name : (currentUser && currentUser.email ? currentUser.email : "User");
@@ -1075,14 +1075,14 @@
         function updateSubscriptionUI() {
             if (!subscriptionStatusText || !subscriptionToggleButton) return;
             if (!currentUser) {
-                subscriptionStatusText.innerText = "You’re not subscribed";
+                subscriptionStatusText.innerText = "Youâ€™re not subscribed";
                 subscriptionToggleButton.innerText = "Subscribe me";
                 subscriptionToggleButton.disabled = true;
                 return;
             }
             const uid = currentUser.uid;
             const isSubscribed = currentSubscribers.some(s => (s.user_id || s.userId) === uid);
-            subscriptionStatusText.innerText = isSubscribed ? "You’re subscribed" : "You’re not subscribed";
+            subscriptionStatusText.innerText = isSubscribed ? "Youâ€™re subscribed" : "Youâ€™re not subscribed";
             subscriptionToggleButton.innerText = isSubscribed ? "Unsubscribe me" : "Subscribe me";
             subscriptionToggleButton.disabled = false;
         }
@@ -1598,7 +1598,7 @@
                 if (boostEmojiButtons && boostEmojiButtons.length > 0) {
                     boostEmojiButtons.forEach(btn => {
                         btn.addEventListener("click", () => {
-                            const emoji = btn.getAttribute("data-emoji") || btn.innerText || "👏";
+                            const emoji = btn.getAttribute("data-emoji") || btn.innerText || "ðŸ‘";
                             window.handleBoostEmojiClick(emoji);
                         });
                     });

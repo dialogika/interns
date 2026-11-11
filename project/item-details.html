@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="id">
 <head>
     <meta charset="UTF-8">
@@ -535,7 +535,7 @@
                         <div class="d-flex align-items-center gap-2 flex-wrap" id="subsContainer"></div>
                         
                         <div class="mt-3 p-2 bg-light rounded-pill d-inline-block border">
-                            <button id="taskSubscriptionStatus" class="btn btn-sm text-dark fw-bold px-2 border-0 bg-transparent p-0">You’re subscribed</button>
+                            <button id="taskSubscriptionStatus" class="btn btn-sm text-dark fw-bold px-2 border-0 bg-transparent p-0">Youâ€™re subscribed</button>
                             <button id="taskSubscriptionToggle" class="btn btn-sm btn-link text-muted text-decoration-none p-0" style="font-size:0.8rem;">Unsubscribe me</button>
                         </div>
                 </div>
@@ -744,12 +744,12 @@
         } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js";
 
         const firebaseConfig = {
-            apiKey: "AIzaSyDyzzEYbJkkl-N8snrQf14qvj8De4YliV0",
-            authDomain: "pre-dialogika.firebaseapp.com",
-            projectId: "pre-dialogika",
-            storageBucket: "pre-dialogika.firebasestorage.app",
-            messagingSenderId: "343771410480",
-            appId: "1:343771410480:web:32881c9868522090237df5"
+            apiKey: "AIzaSyDYrzxyQ1oGaVRIdnFfYvjydWZz3xdxpTs",
+            authDomain: "dialogika-co.firebaseapp.com",
+            projectId: "dialogika-co",
+            storageBucket: "dialogika-co.firebasestorage.app",
+            messagingSenderId: "664395741941",
+            appId: "1:664395741941:web:f20ff01c166e4423d823bc"
         };
 
         const app = initializeApp(firebaseConfig);
@@ -1223,14 +1223,14 @@
         function updateTaskSubscriptionUI() {
             if (!taskSubscriptionStatus || !taskSubscriptionToggle) return;
             if (!currentUser) {
-                taskSubscriptionStatus.innerText = "You’re not subscribed";
+                taskSubscriptionStatus.innerText = "Youâ€™re not subscribed";
                 taskSubscriptionToggle.innerText = "Subscribe me";
                 taskSubscriptionToggle.disabled = true;
                 return;
             }
             const uid = currentUser.uid;
             const isSubscribed = taskSubscribers.some(s => (s.user_id || s.userId) === uid);
-            taskSubscriptionStatus.innerText = isSubscribed ? "You’re subscribed" : "You’re not subscribed";
+            taskSubscriptionStatus.innerText = isSubscribed ? "Youâ€™re subscribed" : "Youâ€™re not subscribed";
             taskSubscriptionToggle.innerText = isSubscribed ? "Unsubscribe me" : "Subscribe me";
             taskSubscriptionToggle.disabled = false;
         }
@@ -2013,7 +2013,7 @@
                 pill.innerText = tag;
                 const remove = document.createElement("span");
                 remove.className = "tag-remove";
-                remove.innerText = "×";
+                remove.innerText = "Ã—";
                 remove.onclick = function (event) {
                     event.stopPropagation();
                     removeTagFromSelectionDetail(tag);
@@ -2321,7 +2321,7 @@
                 const dateStr = createdAt ? createdAt.toLocaleString() : 'Just now';
                 const userName = comment.user_name || comment.userName || 'User';
                 const plain = comment.text_plain || (comment.text ? comment.text.replace(/<[^>]+>/g, '') : '');
-                const shortText = plain.length > 200 ? plain.substring(0, 200) + '…' : plain;
+                const shortText = plain.length > 200 ? plain.substring(0, 200) + 'â€¦' : plain;
                 targetBox.innerHTML = `
                     <div class="fw-semibold mb-1">${userName}</div>
                     <div class="text-muted small mb-1">${dateStr}</div>
