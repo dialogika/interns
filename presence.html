@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="id">
 
 <head>
@@ -642,24 +642,42 @@
                 unsubscribeUsersListener();
                 unsubscribeUsersListener = null;
             }
-            const q = query(
-                collection(db, "users"),
-                where("role", "in", ["internship", "Internship"]),
-                where("status", "==", "Active"),
-                where("mode", "in", ["Hybrid", "WFO"])
-            );
+            const q = collection(db, "users");
             unsubscribeUsersListener = onSnapshot(q, (snap) => {
                 const selectedUserId = select.value;
                 const users = [];
                 snap.forEach(docSnap => {
                     const d = docSnap.data() || {};
+
+                    // 1. Validasi Role: internship / Internship / access.role_id === "internship"
+                    const role = String(d.role || (d.access && d.access.role_id) || "").toLowerCase().trim();
+                    const isIntern = role === "internship" || role === "intern" || role.includes("intern");
+                    if (!isIntern) return;
+
+                    // 2. Validasi Status: status atau internshipStatus
+                    const status = String(d.status || d.internshipStatus || "active").toLowerCase().trim();
+                    const isInactive = ["left", "inactive", "nonactive", "graduate", "alumni", "resigned"].includes(status);
+                    const isActive = (status === "active") || (!isInactive && status !== "pending");
+                    if (!isActive) return;
+
+                    // 3. Validasi Mode: Presensi kantor (WFO) mengizinkan WFO, Hybrid, atau yang belum diset mode (default WFO).
+                    // Hanya kecualikan jika secara eksplisit diset WFH.
+                    const mode = String(d.mode || d.internshipMode || "").toLowerCase().trim();
+                    const isWFH = mode === "wfh";
+                    if (isWFH) return;
+
                     users.push({
                         id: docSnap.id,
-                        name: d.name || d.email || "Tanpa Nama",
-                        photo: d.photo || ""
+                        name: d.name || d.fullName || d.nickname || d.email || "Tanpa Nama",
+                        photo: d.photo || d.candidatePhoto || ""
                     });
                 });
                 users.sort((a, b) => a.name.localeCompare(b.name));
+
+                if (users.length === 0) {
+                    select.innerHTML = '<option value="" disabled selected>Tidak ada anggota aktif</option>';
+                    return;
+                }
 
                 select.innerHTML = '<option value="" disabled selected>Pilih nama...</option>';
                 users.forEach(u => {
@@ -744,13 +762,16 @@
                     collection(db, "user_attendance"),
                     where("user_id", "==", userId),
                     where("date", "==", dateStr),
-                    where("type", "==", "login"),
-                    orderBy("time", "desc"),
-                    limit(1)
+                    where("type", "==", "login")
                 );
                 const snap = await getDocs(q);
                 if (snap.empty) return null;
-                const docData = snap.docs[0].data() || {};
+                const docs = snap.docs.sort((a, b) => {
+                    const timeA = a.data().time || "";
+                    const timeB = b.data().time || "";
+                    return timeB.localeCompare(timeA);
+                });
+                const docData = docs[0].data() || {};
                 return docData.time || null;
             } catch (e) {
                 console.error("Gagal mengambil login terakhir hari ini", e);
