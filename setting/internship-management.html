@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="id">
 <head>
     <meta charset="UTF-8">
@@ -590,7 +590,7 @@
     <script type="module">
         import { renderTopBar } from "../element/topbar.js";
         import { renderSidebar } from "../element/sidebar.js";
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { initializeApp, getApps, getApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
         import {
             getFirestore,
@@ -616,7 +616,7 @@
             appId: "1:664395741941:web:f20ff01c166e4423d823bc" 
         };
 
-        const app = initializeApp(firebaseConfig);
+        const app = getApps().length ? getApp() : initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getFirestore(app);
         window.db = db;
@@ -677,55 +677,161 @@
 
         async function ensureInternshipPositionsCache() {
             if (internshipPositionsCache) return;
-            let snap = await getDocs(collection(db, "position"));
-            if (snap.empty) {
-                try {
-                    const altSnap = await getDocs(collection(db, "positions"));
-                    snap = altSnap;
-                } catch (e) {
-                    console.warn("Fallback positions collection 'positions' not readable", e);
+            try {
+                let snap = await getDocs(collection(db, "positions"));
+                if (snap.empty) {
+                    try {
+                        const altSnap = await getDocs(collection(db, "position"));
+                        snap = altSnap;
+                    } catch (_) {}
                 }
+                const map = {};
+                snap.forEach(d => {
+                    const r = d.data() || {};
+                    const key = d.id;
+                    const label = r.name || r.label || r.title || r.position || key;
+                    map[key] = label;
+                });
+                internshipPositionsCache = map;
+            } catch (e) {
+                console.warn("Positions collection not readable", e);
+                internshipPositionsCache = {};
             }
-            const map = {};
-            snap.forEach(d => {
-                const r = d.data() || {};
-                const key = d.id;
-                const label = r.name || r.label || r.title || r.position || key;
-                map[key] = label;
-            });
-            internshipPositionsCache = map;
         }
 
         async function ensureInternshipDepartmentsCache() {
             if (internshipDepartmentsCache) return;
-            let snap = await getDocs(collection(db, "department"));
-            if (snap.empty) {
-                try {
-                    const altSnap = await getDocs(collection(db, "departments"));
-                    snap = altSnap;
-                } catch (e) {
-                    console.warn("Fallback departments collection 'departments' not readable", e);
+            try {
+                let snap = await getDocs(collection(db, "departments"));
+                if (snap.empty) {
+                    try {
+                        const altSnap = await getDocs(collection(db, "department"));
+                        snap = altSnap;
+                    } catch (_) {}
                 }
+                const map = {};
+                snap.forEach(d => {
+                    const r = d.data() || {};
+                    const key = d.id;
+                    const label = r.name || r.label || r.title || r.department || key;
+                    map[key] = label;
+                });
+                internshipDepartmentsCache = map;
+            } catch (e) {
+                console.warn("Departments collection not readable", e);
+                internshipDepartmentsCache = {};
             }
-            const map = {};
-            snap.forEach(d => {
-                const r = d.data() || {};
-                const key = d.id;
-                const label = r.name || r.label || r.title || r.department || key;
-                map[key] = label;
-            });
-            internshipDepartmentsCache = map;
+        }
+
+        function isInternUser(d) {
+            if (!d) return false;
+            const access = d.access || {};
+            const employment = d.employment || {};
+
+            // 1. PRIMARY AUTHORITATIVE OVERRIDE: Level Order & Official Staff/Management Roles
+            const rawLevel = access.level_order !== undefined ? access.level_order : d.level_order;
+            const levelOrder =
+                rawLevel !== undefined && rawLevel !== null && rawLevel !== ""
+                    ? Number(rawLevel)
+                    : NaN;
+
+            const roleId = String(access.role_id || d.role_id || "").toLowerCase().trim();
+            const rootRole = String(d.role || "").toLowerCase().trim();
+            const accessRole = String(access.role || "").toLowerCase().trim();
+
+            const STAFF_ROLES = [
+                "staff",
+                "team",
+                "sub_team",
+                "management",
+                "admin",
+                "owner",
+                "mentor",
+            ];
+
+            if (
+                (!isNaN(levelOrder) && levelOrder > 0 && levelOrder <= 3) ||
+                STAFF_ROLES.includes(roleId) ||
+                STAFF_ROLES.includes(accessRole) ||
+                rootRole === "staff" ||
+                rootRole === "team"
+            ) {
+                return false;
+            }
+
+            // 2. EXPLICIT INTERN LEVEL ORDER OR ROLE
+            if (
+                levelOrder === 4 ||
+                roleId === "intern" ||
+                roleId === "internship" ||
+                roleId === "magang" ||
+                accessRole === "intern" ||
+                accessRole === "internship" ||
+                rootRole === "intern" ||
+                rootRole === "internship"
+            ) {
+                return true;
+            }
+
+            // 3. LEGACY FALLBACK
+            const checkValues = [
+                rootRole,
+                d.role_name,
+                access.role_name,
+                employment.role,
+                employment.role_id,
+                d.position,
+                employment.position,
+                d.department,
+                employment.department,
+                d.category,
+                d.type,
+                d.user_type,
+            ]
+                .filter((v) => v !== undefined && v !== null && v !== "")
+                .map((v) => String(v).trim().toLowerCase());
+
+            if (
+                checkValues.some(
+                    (val) =>
+                        val === "intern" ||
+                        val === "internship" ||
+                        val === "magang" ||
+                        val.includes("intern") ||
+                        val.includes("magang"),
+                )
+            ) {
+                return true;
+            }
+
+            if (
+                Boolean(d.internshipStatus) ||
+                Boolean(d.internshipStartDate) ||
+                Boolean(d.internshipEndDate) ||
+                Boolean(d.internship && (d.internship.startDate || d.internship.endDate)) ||
+                Boolean(
+                    employment &&
+                        (employment.department === "internship" ||
+                            employment.role === "intern" ||
+                            employment.department === "magang"),
+                )
+            ) {
+                return true;
+            }
+
+            return false;
         }
 
         async function loadInternshipUsers() {
             try {
                 await ensureInternshipPositionsCache();
+                await ensureInternshipDepartmentsCache();
                 const usersRef = collection(db, "users");
-                const q = query(usersRef, where("role", "in", ["Internship", "internship"]));
-                const snap = await getDocs(q);
+                const snap = await getDocs(usersRef);
                 const list = [];
                 snap.forEach(docSnap => {
                     const data = docSnap.data() || {};
+                    if (!isInternUser(data)) return;
                     const employment = data.employment || {};
                     const socials = data.socials || {};
                     const name = data.name || data.fullName || data.username || data.email || "";
@@ -794,6 +900,7 @@
                         logoutDoneByUid
                     });
                 });
+                sortInternshipList(list);
                 internshipUsersAll = list;
                 internshipState.page = 1;
                 updateInternshipStats();
@@ -927,7 +1034,7 @@
                     return true;
                 });
             }
-            return data;
+            return sortInternshipList(data);
         }
 
         function getInternshipDisplayStatus(u) {
@@ -969,6 +1076,27 @@
                 type = "success";
             }
             return { label, type };
+        }
+
+        function getInternshipStatusRank(u) {
+            const statusInfo = getInternshipDisplayStatus(u);
+            const label = statusInfo ? statusInfo.label : "";
+            if (label === "Active") return 1;
+            if (label === "On Leave") return 2;
+            if (label === "Graduate") return 3;
+            if (label === "Left") return 4;
+            return 5;
+        }
+
+        function sortInternshipList(list) {
+            return list.sort((a, b) => {
+                const rankA = getInternshipStatusRank(a);
+                const rankB = getInternshipStatusRank(b);
+                if (rankA !== rankB) {
+                    return rankA - rankB;
+                }
+                return (a.name || "").localeCompare(b.name || "", "id", { sensitivity: "base" });
+            });
         }
 
         function renderInternshipTable() {
@@ -1276,7 +1404,13 @@
 
             const payload = {};
             payload.name = nameInput.value.trim();
-            payload.role = "Internship";
+            payload.role = "intern";
+            payload.role_id = "intern";
+            payload.access = {
+                role_id: "intern",
+                level_order: 4
+            };
+            payload.status = statusSelect.value;
             payload.internshipStatus = statusSelect.value;
 
             const startVal = startInput.value ? new Date(startInput.value) : null;
