@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="id">
 
 <head>
@@ -534,7 +534,7 @@
         import { renderTopBar } from "../element/topbar.js";
         import { renderSidebar } from "../element/sidebar.js";
         import { renderRightbarRecruit } from "../element/rightbar-recruit.js";
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { initializeApp, getApps, getApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
         import {
             getFirestore,
@@ -574,7 +574,7 @@
         const statuses = ['Open', 'Close'];
         const statusClasses = ['st-new', 'st-hired'];
 
-        const app = initializeApp(firebaseConfig);
+        const app = getApps().length ? getApp() : initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getFirestore(app);
         window.db = db;
@@ -590,7 +590,7 @@
         window.serverTimestamp = serverTimestamp;
 
         let positionsData = [];
-        let positionsCollection = "position";
+        let positionsCollection = "positions";
         let departmentsCache = null;
         let departmentsColorById = {};
         let currentView = "grid";
@@ -617,9 +617,10 @@
             grid.innerHTML = "";
             items.forEach((item, index) => {
                 const color = colorPalette[index % colorPalette.length];
-                const deptBadge = item.departmentLabel
-                    ? `<span class="badge rounded-pill" style="background-color: ${item.departmentColor || '#e5e7eb'}; color: #fff;">
-                        ${item.departmentLabel.toUpperCase()}
+                const deptColor = item.departmentColor || getDepartmentColor(item.department, departmentsColorById);
+                const deptBadge = (item.departmentLabel || item.department)
+                    ? `<span class="badge rounded-pill" style="background-color: ${deptColor}; color: #fff;">
+                        ${(item.departmentLabel || item.department).toUpperCase()}
                    </span>`
                     : "";
                 grid.innerHTML += `
@@ -737,26 +738,66 @@
             return dateObj;
         }
 
+        const DEFAULT_DEPT_COLORS = {
+            happy: "#f59e0b",
+            closing: "#10b981",
+            team: "#8b5cf6",
+            branding: "#3b82f6",
+            rebuy: "#ef4444"
+        };
+
+        function getDepartmentColor(deptKey, colorMap = {}) {
+            if (!deptKey) return "#94a3b8";
+            if (colorMap && colorMap[deptKey]) return colorMap[deptKey];
+            const normalized = deptKey.toLowerCase().trim();
+            return DEFAULT_DEPT_COLORS[normalized] || "#6366f1";
+        }
+
         async function loadCompanyPositions() {
             positionsData = [];
 
             await ensureDepartmentsCache();
 
             try {
-                const positions = await window.getFirestorePositions();
-                positionsData = positions.map(p => {
-                    const data = p; 
-                    const name = data.name || "Unknown Position";
-                    const headCount = data.headCount ?? data.quota ?? 0;
-                    const activeCount = data.activeCount ?? 0;
-                    const applicantCount = data.applicantCount ?? 0;
-                    const jobdesk = data.jobdesk || "";
-                    const department = data.department || "";
+                let snap = null;
+                const sources = ["positions", "position"];
+                for (const collName of sources) {
+                    try {
+                        const s = await getDocs(collection(db, collName));
+                        if (!s.empty) {
+                            snap = s;
+                            positionsCollection = collName;
+                            break;
+                        }
+                    } catch (e) {
+                        console.warn(`Positions source '${collName}' not readable:`, e);
+                    }
+                }
+                if (!snap) {
+                    snap = await getDocs(collection(db, "positions"));
+                    positionsCollection = "positions";
+                }
+
+                positionsData = [];
+                snap.forEach(docSnap => {
+                    const data = docSnap.data() || {};
+                    const name = data.name || data.label || data.title || data.position || "Unknown Position";
+                    const headCount = parseInt(data.headCount ?? data.quota ?? 0, 10);
+                    const activeCount = parseInt(data.activeCount ?? 0, 10);
+                    const applicantCount = parseInt(data.applicantCount ?? 0, 10);
+                    const jobdesk = data.jobdesk || data.description || "";
+                    const department = data.department || data.dept_id || "";
                     const createdRaw = data.createdAt || data.created || data.created_at || data.date || data.createdDate || null;
 
-                    const initials = name.split(" ").map(n => n[0]).join("").substring(0, 2).toUpperCase();
+                    const initials = name
+                        .split(" ")
+                        .filter(w => Boolean(w.trim()))
+                        .map(n => n[0])
+                        .join("")
+                        .substring(0, 2)
+                        .toUpperCase() || "CP";
 
-                    const rawStatus = (data.status || "").toString();
+                    const rawStatus = (data.status || "Open").toString();
                     let status = "Open";
                     let statusClass = "st-new";
                     if (/close/i.test(rawStatus)) {
@@ -765,11 +806,11 @@
                     }
 
                     const departmentLabel = departmentsCache && department ? (departmentsCache[department] || department) : department;
-                    const departmentColor = departmentsColorById && department ? (departmentsColorById[department] || "") : "";
+                    const departmentColor = getDepartmentColor(department, departmentsColorById);
 
-                    return {
-                        id: p.id,
-                        collection: "position",
+                    positionsData.push({
+                        id: docSnap.id,
+                        collection: positionsCollection,
                         name,
                         headCount,
                         activeCount,
@@ -782,7 +823,7 @@
                         status,
                         statusClass,
                         createdAt: normalizePositionDate(createdRaw)
-                    };
+                    });
                 });
             } catch (e) {
                 console.error("Gagal load positions", e);
@@ -794,20 +835,49 @@
 
         async function ensureDepartmentsCache() {
             if (departmentsCache) return;
-            try {
-                const items = await window.getFirestoreDepartments();
-                const map = {};
-                const colors = {};
-                items.forEach(d => {
-                    const key = d.id;
-                    map[key] = d.name;
-                    colors[key] = d.color || "";
-                });
-                departmentsCache = map;
-                departmentsColorById = colors;
-            } catch (e) {
-                console.warn("Gagal memuat departments cache", e);
+            departmentsCache = {};
+            departmentsColorById = {};
+
+            const sources = ["departments", "department"];
+            for (const collName of sources) {
+                try {
+                    const snap = await getDocs(collection(db, collName));
+                    if (!snap.empty) {
+                        snap.forEach(docSnap => {
+                            const d = docSnap.data() || {};
+                            const key = docSnap.id;
+                            const label = d.name || d.label || d.title || d.department || key;
+                            const color = d.color || d.badgeColor || d.bgColor || d.backgroundColor || "";
+                            departmentsCache[key] = label;
+                            if (color) departmentsColorById[key] = color;
+                        });
+                        break;
+                    }
+                } catch (e) {
+                    console.warn(`Departments source '${collName}' not readable:`, e);
+                }
             }
+
+            if (Object.keys(departmentsCache).length === 0 && typeof window.getFirestoreDepartments === "function") {
+                try {
+                    const items = await window.getFirestoreDepartments();
+                    items.forEach(d => {
+                        departmentsCache[d.id] = d.name;
+                        if (d.color) departmentsColorById[d.id] = d.color;
+                    });
+                } catch (_) {}
+            }
+
+            const defaultDeptNames = {
+                "closing": "Closing",
+                "branding": "Branding",
+                "rebuy": "Rebuy",
+                "happy": "Happy",
+                "team": "Team"
+            };
+            Object.keys(defaultDeptNames).forEach(k => {
+                if (!departmentsCache[k]) departmentsCache[k] = defaultDeptNames[k];
+            });
         }
 
         let editingPositionId = null;
@@ -827,8 +897,8 @@
 
             if (positionFilterState.department !== "All") {
                 items = items.filter(item => {
-                    if (!item.departmentLabel) return false;
-                    return item.departmentLabel.toLowerCase() === positionFilterState.department.toLowerCase();
+                    const label = (item.departmentLabel || item.department || "").toLowerCase();
+                    return label === positionFilterState.department.toLowerCase();
                 });
             }
 

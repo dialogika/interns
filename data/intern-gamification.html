@@ -1,4 +1,4 @@
-﻿<!doctype html>
+<!doctype html>
 <html lang="id">
   <head>
     <meta charset="UTF-8" />
@@ -314,7 +314,7 @@
                       class="bg-white border border-slate-100 rounded-2xl p-5"
                     >
                       <p class="font-semibold text-slate-800 mb-1">
-                        â˜€ï¸ Early Attend
+                        &#x2600;&#xFE0F; Early Attend
                       </p>
                       <p class="text-xs text-slate-500 mb-3">
                         Diberikan untuk intern dengan total clock in paling awal
@@ -322,13 +322,13 @@
                       </p>
                       <div class="flex flex-col gap-2">
                         <span class="badge-chip early-bgn w-fit"
-                          >â˜€ï¸ Beginner - total 2x paling awal</span
+                          >&#x2600;&#xFE0F; Beginner - total 2x paling awal</span
                         >
                         <span class="badge-chip early-nov w-fit"
-                          >â˜€ï¸ Novice - total 4x paling awal</span
+                          >&#x2600;&#xFE0F; Novice - total 4x paling awal</span
                         >
                         <span class="badge-chip early-mas w-fit"
-                          >â˜€ï¸ Mastery - total 10x paling awal</span
+                          >&#x2600;&#xFE0F; Mastery - total 10x paling awal</span
                         >
                       </div>
                     </div>
@@ -336,7 +336,7 @@
                       class="bg-white border border-slate-100 rounded-2xl p-5"
                     >
                       <p class="font-semibold text-slate-800 mb-1">
-                        ðŸ”¥ Step-in Master
+                        &#x1F525; Step-in Master
                       </p>
                       <p class="text-xs text-slate-500 mb-3">
                         Diberikan untuk intern dengan streak kehadiran valid
@@ -344,13 +344,13 @@
                       </p>
                       <div class="flex flex-col gap-2">
                         <span class="badge-chip step-rookie w-fit"
-                          >ðŸ”¥ Rookie - 3 hari berturut-turut</span
+                          >&#x1F525; Rookie - 3 hari berturut-turut</span
                         >
                         <span class="badge-chip step-strider w-fit"
-                          >ðŸ”¥ Strider - 7 hari berturut-turut</span
+                          >&#x1F525; Strider - 7 hari berturut-turut</span
                         >
                         <span class="badge-chip step-sprint w-fit"
-                          >ðŸ”¥ Sprinter - 14 hari berturut-turut</span
+                          >&#x1F525; Sprinter - 14 hari berturut-turut</span
                         >
                       </div>
                     </div>
@@ -365,7 +365,8 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script type="module">
-      import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+      import { initializeApp, getApps, getApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+      import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
       import {
         getFirestore,
         collection,
@@ -394,8 +395,11 @@
         appId: "1:664395741941:web:f20ff01c166e4423d823bc",
       };
 
-      const app = initializeApp(firebaseConfig);
+      const app = getApps().length ? getApp() : initializeApp(firebaseConfig);
+      const auth = getAuth(app);
       const db = getFirestore(app);
+      window.auth = auth;
+      window.db = db;
 
       const topbarTarget = document.getElementById("topbarContainer");
       if (topbarTarget) renderTopBar(topbarTarget);
@@ -524,16 +528,16 @@
       }
 
       function earlyBadge(earlyCount) {
-        if (earlyCount >= 10) return ["early-mas", "â˜€ï¸ Early Mastery"];
-        if (earlyCount >= 4) return ["early-nov", "â˜€ï¸ Early Novice"];
-        if (earlyCount >= 2) return ["early-bgn", "â˜€ï¸ Early Beginner"];
+        if (earlyCount >= 10) return ["early-mas", "\u{2600}\u{FE0F} Early Mastery"];
+        if (earlyCount >= 4) return ["early-nov", "\u{2600}\u{FE0F} Early Novice"];
+        if (earlyCount >= 2) return ["early-bgn", "\u{2600}\u{FE0F} Early Beginner"];
         return null;
       }
 
       function stepBadge(streak) {
-        if (streak >= 14) return ["step-sprint", "ðŸ”¥ Step-in Sprinter"];
-        if (streak >= 7) return ["step-strider", "ðŸ”¥ Step-in Strider"];
-        if (streak >= 3) return ["step-rookie", "ðŸ”¥ Step-in Rookie"];
+        if (streak >= 14) return ["step-sprint", "\u{1F525} Step-in Sprinter"];
+        if (streak >= 7) return ["step-strider", "\u{1F525} Step-in Strider"];
+        if (streak >= 3) return ["step-rookie", "\u{1F525} Step-in Rookie"];
         return null;
       }
 
@@ -750,7 +754,7 @@
           let flameRowHTML = "";
           flameSegments.forEach((segment) => {
             const leftPct = (((segment.end + 1) / totalDays) * 100).toFixed(3);
-            flameRowHTML += `<div style="position:absolute;left:${leftPct}%;bottom:0;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:0"><span style="font-size:13px;line-height:1">ðŸ”¥</span><span style="font-size:8px;font-weight:700;color:#A32D2D;line-height:1.2">${segment.len}x</span></div>`;
+            flameRowHTML += `<div style="position:absolute;left:${leftPct}%;bottom:0;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:0"><span style="font-size:13px;line-height:1">\u{1F525}</span><span style="font-size:8px;font-weight:700;color:#A32D2D;line-height:1.2">${segment.len}x</span></div>`;
           });
 
           let barInnerHTML = "";
@@ -802,10 +806,10 @@
           let badgesHTML = "";
           badgesHTML += early
             ? `<span class="${badgeClassMap[early[0]]}">${early[1]}</span>`
-            : '<span class="badge-chip locked">ðŸ”’ Early Beginner (total 2x paling awal)</span>';
+            : '<span class="badge-chip locked">\u{1F512} Early Beginner (total 2x paling awal)</span>';
           badgesHTML += streak
             ? `<span class="${badgeClassMap[streak[0]]}">${streak[1]}</span>`
-            : '<span class="badge-chip locked">ðŸ”’ Step-in Rookie (3 hari)</span>';
+            : '<span class="badge-chip locked">\u{1F512} Step-in Rookie (3 hari)</span>';
 
           const card = document.createElement("div");
           card.className = "intern-gami-card";
@@ -837,7 +841,7 @@
           gamiCards.appendChild(card);
         });
 
-        const medals = ["ðŸ¥‡", "ðŸ¥ˆ", "ðŸ¥‰"];
+        const medals = ["\u{1F947}", "\u{1F948}", "\u{1F949}"];
 
         const hdr = document.createElement("div");
         hdr.style.cssText =
@@ -846,10 +850,10 @@
                 <span></span><span></span>
                 <span style="font-size:10px;font-weight:800;color:#94a3b8;letter-spacing:.08em;text-transform:uppercase">Nama</span>
                 <span style="font-size:10px;font-weight:800;color:#94a3b8;letter-spacing:.08em;text-transform:uppercase;text-align:center">Total Pts</span>
-                <span style="font-size:10px;font-weight:800;color:#f59e0b;letter-spacing:.08em;text-transform:uppercase;text-align:center">â˜€ï¸ Early</span>
-                <span style="font-size:10px;font-weight:800;color:#E24B4A;letter-spacing:.08em;text-transform:uppercase;text-align:center">ðŸ”¥ Streak</span>
-                <span style="font-size:10px;font-weight:800;color:#3b82f6;letter-spacing:.08em;text-transform:uppercase;text-align:center">ðŸ’¡ Quiz</span>
-                <span style="font-size:10px;font-weight:800;color:#10b981;letter-spacing:.08em;text-transform:uppercase;text-align:center">âœ… Quest</span>
+                <span style="font-size:10px;font-weight:800;color:#f59e0b;letter-spacing:.08em;text-transform:uppercase;text-align:center">\u{2600}\u{FE0F} Early</span>
+                <span style="font-size:10px;font-weight:800;color:#E24B4A;letter-spacing:.08em;text-transform:uppercase;text-align:center">\u{1F525} Streak</span>
+                <span style="font-size:10px;font-weight:800;color:#3b82f6;letter-spacing:.08em;text-transform:uppercase;text-align:center">\u{1F4A1} Quiz</span>
+                <span style="font-size:10px;font-weight:800;color:#10b981;letter-spacing:.08em;text-transform:uppercase;text-align:center">\u{2705} Quest</span>
                 <span style="font-size:10px;font-weight:800;color:#94a3b8;letter-spacing:.08em;text-transform:uppercase;text-align:center">Hadir</span>
             `;
         gamiLeaderboard.appendChild(hdr);
@@ -931,45 +935,66 @@
             where("status", "in", ["Approved", "Partially Approved"]),
           );
 
-          const [snap, quizSnap, reportSnap] = await Promise.all([
-            getDocs(qMonth),
-            getDocs(qQuiz),
-            getDocs(qReports),
-          ]);
+          let snap = null;
+          try {
+            snap = await getDocs(qMonth);
+          } catch (attErr) {
+            console.error("Gagal memuat attendance records:", attErr);
+          }
+
+          let quizSnap = null;
+          try {
+            quizSnap = await getDocs(qQuiz);
+          } catch (quizErr) {
+            console.warn("Gagal memuat quiz results (mungkin butuh izin rules atau data belum ada):", quizErr);
+          }
+
+          let reportSnap = null;
+          try {
+            reportSnap = await getDocs(qReports);
+          } catch (repErr) {
+            console.warn("Gagal memuat intern daily reports (mungkin butuh izin rules atau data belum ada):", repErr);
+          }
 
           const rows = [];
-          snap.forEach((docSnap) => {
-            const d = docSnap.data() || {};
-            rows.push({
-              user_id: d.user_id || "",
-              name: d.name || "",
-              date: d.date || "",
-              time: d.time || "",
-              type: d.type || "",
+          if (snap) {
+            snap.forEach((docSnap) => {
+              const d = docSnap.data() || {};
+              rows.push({
+                user_id: d.user_id || "",
+                name: d.name || "",
+                date: d.date || "",
+                time: d.time || "",
+                type: d.type || "",
+              });
             });
-          });
+          }
 
           const qResults = [];
-          quizSnap.forEach((docSnap) => {
-            const d = docSnap.data() || {};
-            qResults.push({
-              user_id: d.user_id || "",
-              score: d.score || 0,
+          if (quizSnap) {
+            quizSnap.forEach((docSnap) => {
+              const d = docSnap.data() || {};
+              qResults.push({
+                user_id: d.user_id || "",
+                score: d.score || 0,
+              });
             });
-          });
+          }
 
           const approvedReports = [];
-          reportSnap.forEach((docSnap) => {
-            const d = docSnap.data() || {};
-            // Filter client-side berdasarkan report_date agar sesuai bulan aktif
-            const rDate = d.report_date; // Format string YYYY-MM-DD
-            if (rDate && rDate >= range.startKey && rDate <= range.endKey) {
-              approvedReports.push({
-                user_id: d.user_id || "",
-                tasks: d.tasks || [],
-              });
-            }
-          });
+          if (reportSnap) {
+            reportSnap.forEach((docSnap) => {
+              const d = docSnap.data() || {};
+              // Filter client-side berdasarkan report_date agar sesuai bulan aktif
+              const rDate = d.report_date; // Format string YYYY-MM-DD
+              if (rDate && rDate >= range.startKey && rDate <= range.endKey) {
+                approvedReports.push({
+                  user_id: d.user_id || "",
+                  tasks: d.tasks || [],
+                });
+              }
+            });
+          }
 
           allAttendanceRecords = rows;
           allQuizResults = qResults;
@@ -986,21 +1011,125 @@
         }
       }
 
+      function isInternUser(d) {
+        if (!d) return false;
+        const access = d.access || {};
+        const employment = d.employment || {};
+
+        // 1. PRIMARY AUTHORITATIVE OVERRIDE: Level Order & Official Staff/Management Roles
+        const rawLevel = access.level_order !== undefined ? access.level_order : d.level_order;
+        const levelOrder =
+          rawLevel !== undefined && rawLevel !== null && rawLevel !== ""
+            ? Number(rawLevel)
+            : NaN;
+
+        const roleId = String(access.role_id || d.role_id || "").toLowerCase().trim();
+        const rootRole = String(d.role || "").toLowerCase().trim();
+        const accessRole = String(access.role || "").toLowerCase().trim();
+
+        const STAFF_ROLES = [
+          "staff",
+          "team",
+          "sub_team",
+          "management",
+          "admin",
+          "owner",
+          "mentor",
+        ];
+
+        if (
+          (!isNaN(levelOrder) && levelOrder > 0 && levelOrder <= 3) ||
+          STAFF_ROLES.includes(roleId) ||
+          STAFF_ROLES.includes(accessRole) ||
+          rootRole === "staff" ||
+          rootRole === "team"
+        ) {
+          return false;
+        }
+
+        // 2. EXPLICIT INTERN LEVEL ORDER OR ROLE
+        if (
+          levelOrder === 4 ||
+          roleId === "intern" ||
+          roleId === "internship" ||
+          roleId === "magang" ||
+          accessRole === "intern" ||
+          accessRole === "internship" ||
+          rootRole === "intern" ||
+          rootRole === "internship"
+        ) {
+          return true;
+        }
+
+        // 3. LEGACY FALLBACK
+        const checkValues = [
+          rootRole,
+          d.role_name,
+          access.role_name,
+          employment.role,
+          employment.role_id,
+          d.position,
+          employment.position,
+          d.department,
+          employment.department,
+          d.category,
+          d.type,
+          d.user_type,
+        ]
+          .filter((v) => v !== undefined && v !== null && v !== "")
+          .map((v) => String(v).trim().toLowerCase());
+
+        if (
+          checkValues.some(
+            (val) =>
+              val === "intern" ||
+              val === "internship" ||
+              val === "magang" ||
+              val.includes("intern") ||
+              val.includes("magang"),
+          )
+        ) {
+          return true;
+        }
+
+        if (
+          Boolean(d.internshipStatus) ||
+          Boolean(d.internshipStartDate) ||
+          Boolean(d.internshipEndDate) ||
+          Boolean(d.internship && (d.internship.startDate || d.internship.endDate)) ||
+          Boolean(
+            employment &&
+              (employment.department === "internship" ||
+                employment.role === "intern" ||
+                employment.department === "magang"),
+          )
+        ) {
+          return true;
+        }
+
+        return false;
+      }
+
+      function isActiveIntern(d) {
+        const statusRaw = d.status || d.internshipStatus || "";
+        const s = String(statusRaw).toLowerCase().trim();
+        if (["inactive", "resigned", "left", "graduate", "graduated", "nonaktif", "keluar"].includes(s)) {
+          return false;
+        }
+        return s === "active" || s === "aktif" || s === "";
+      }
+
       async function loadInterns() {
-        const qIntern = query(
-          collection(db, "users"),
-          where("access.role_id", "==", "internship"),
-          where("status", "==", "Active"),
-        );
-        const snap = await getDocs(qIntern);
+        const snap = await getDocs(collection(db, "users"));
         const users = [];
         snap.forEach((docSnap) => {
           const d = docSnap.data() || {};
+          if (!isInternUser(d) || !isActiveIntern(d)) return;
           users.push({
             id: docSnap.id,
             name: d.name || d.email || "Tanpa Nama",
             photo: d.photo || "",
-            mode: d.mode || "WFO",
+            mode: d.mode || d.internshipMode || "WFO",
           });
         });
         users.sort((a, b) => a.name.localeCompare(b.name));
@@ -1042,9 +1171,24 @@
         });
       });
 
-      init().catch((e) => {
-        console.error("Init gagal:", e);
+      let isInitialized = false;
+      async function startApp() {
+        if (isInitialized) return;
+        isInitialized = true;
+        try {
+          await init();
+        } catch (e) {
+          console.error("Init gagal:", e);
+        }
+      }
+
+      onAuthStateChanged(auth, async () => {
+        await startApp();
       });
+
+      setTimeout(() => {
+        if (!isInitialized) startApp();
+      }, 300);
 
       async function checkAccess() {
         let userData = null;
