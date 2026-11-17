@@ -278,11 +278,14 @@
       // ini jadi `false` supaya restriction dimatikan sementara,
       // lalu kembalikan ke `true` sebelum production.
       // =====================================================
-      const ENFORCE_ACCESS_RESTRICTION = true;
+      // Akses dibuka untuk semua orang (tidak ada pembatasan posisi)
+      const ENFORCE_ACCESS_RESTRICTION = false;
       const ALLOWED_POSITIONS = [
         "gtebWhJ7db4xxHQxI67t",
         "Head of Department of Happy Team",
         "3jlfwya0KQuAk5Twkike",
+        "HR Assistant",
+        "Human Resource Assistant",
       ];
 
       const firebaseConfig = {
@@ -334,27 +337,8 @@
       });
 
       async function checkAccess() {
-        let userData = null;
-        try {
-          userData = JSON.parse(localStorage.getItem("userData") || "null");
-        } catch (e) {}
-        const userId =
-          userData?.uid ||
-          localStorage.getItem("userId") ||
-          (currentUser ? currentUser.uid : null);
-        if (!userId) return false;
-        try {
-          const userDoc = await getDoc(doc(db, "users", userId));
-          if (!userDoc.exists()) return false;
-          const data = userDoc.data();
-          return (
-            ALLOWED_POSITIONS.includes(data?.employment?.position) ||
-            ALLOWED_POSITIONS.includes(data?.position)
-          );
-        } catch (e) {
-          console.error("Error checking access:", e);
-          return false;
-        }
+        // Semua user yang login diizinkan
+        return true;
       }
 
       const exitContentInput = document.getElementById("exitContentInput");
