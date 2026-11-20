@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="id">
 
 <head>
@@ -7,7 +7,7 @@
     <title>Quiz Intern - Team Dialogika</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
-    <link href="../assets/css/style.css" rel="stylesheet" />
+    <link href="assets/css/style.css" rel="stylesheet" onerror="this.onerror=null;this.href='../assets/css/style.css';" />
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap"
         rel="stylesheet">
@@ -276,9 +276,6 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getFirestore, collection, getDocs, query, where, orderBy, addDoc, serverTimestamp, getDoc, doc, Timestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
-        import { renderTopBar } from "../element/topbar.js";
-        import { renderSidebar } from "../element/sidebar.js";
-
         const firebaseConfig = {
             apiKey: "AIzaSyDYrzxyQ1oGaVRIdnFfYvjydWZz3xdxpTs",
             authDomain: "dialogika-co.firebaseapp.com",
@@ -291,8 +288,39 @@
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
 
-        renderTopBar(document.getElementById("topbarContainer"));
-        renderSidebar(document.getElementById("sidebarContainer"));
+        // Render TopBar & SideBar secara aman (mendukung path ./element/ maupun ../element/)
+        async function loadUIComponents() {
+            try {
+                let topbarMod;
+                try {
+                    topbarMod = await import("./element/topbar.js");
+                } catch (_) {
+                    topbarMod = await import("../element/topbar.js");
+                }
+                const el = document.getElementById("topbarContainer");
+                if (el && topbarMod && typeof topbarMod.renderTopBar === "function") {
+                    topbarMod.renderTopBar(el);
+                }
+            } catch (e) {
+                console.warn("Gagal render topbar:", e);
+            }
+
+            try {
+                let sidebarMod;
+                try {
+                    sidebarMod = await import("./element/sidebar.js");
+                } catch (_) {
+                    sidebarMod = await import("../element/sidebar.js");
+                }
+                const el = document.getElementById("sidebarContainer");
+                if (el && sidebarMod && typeof sidebarMod.renderSidebar === "function") {
+                    sidebarMod.renderSidebar(el);
+                }
+            } catch (e) {
+                console.warn("Gagal render sidebar:", e);
+            }
+        }
+        loadUIComponents();
 
         // --- State ---
         let allInterns = [];
@@ -333,22 +361,37 @@
         // --- Load Interns ---
         async function loadInterns() {
             try {
-                const q = query(
-                    collection(db, 'users'),
-                    where('access.role_id', '==', 'internship'),
-                    where("status", "==", "Active")
-                );
-                const snap = await getDocs(q);
+                let snap;
+                try {
+                    const q = query(
+                        collection(db, 'users'),
+                        where('access.role_id', 'in', ['intern', 'internship']),
+                        where("status", "==", "Active")
+                    );
+                    snap = await getDocs(q);
+                } catch (queryErr) {
+                    console.warn('Query filter gagal, mencoba fallback scan koleksi users:', queryErr);
+                    snap = await getDocs(collection(db, 'users'));
+                }
+
                 const users = [];
                 snap.forEach(docSnap => {
                     const d = docSnap.data() || {};
-                    users.push({
-                        id: docSnap.id,
-                        name: d.name || d.email || 'Tanpa Nama'
-                    });
+                    const role = String(d.role || (d.access && d.access.role_id) || "").toLowerCase().trim();
+                    const status = String(d.status || d.internshipStatus || "").trim().toLowerCase();
+                    const isIntern = role === "intern" || role === "internship" || role.includes("intern");
+                    const isActive = status === "active";
+
+                    if (isIntern && isActive) {
+                        users.push({
+                            id: docSnap.id,
+                            name: d.name || d.email || 'Tanpa Nama'
+                        });
+                    }
                 });
                 users.sort((a, b) => a.name.localeCompare(b.name));
                 allInterns = users;
+                internSelect.innerHTML = '<option value="">-- Pilih Nama --</option>';
                 users.forEach(u => {
                     const opt = document.createElement('option');
                     opt.value = u.id;
@@ -477,7 +520,7 @@
 
             if (!openAt || !closeAt) {
                 banner.classList.remove('hidden');
-                banner.innerHTML = '<span>âš ï¸ Jadwal quiz belum diatur. Hubungi admin.</span>';
+                banner.innerHTML = '<span><i class="bi bi-exclamation-triangle me-1"></i> Jadwal quiz belum diatur. Hubungi admin.</span>';
                 banner.style.background = '#fef3c7';
                 banner.style.color = '#92400e';
                 banner.style.border = '1px solid #f59e0b';
@@ -496,7 +539,7 @@
                 let timeText = '';
                 if (d > 0) timeText += d + ' hari ';
                 timeText += String(h).padStart(2, '0') + ':' + String(m).padStart(2, '0') + ':' + String(s).padStart(2, '0');
-                banner.innerHTML = '<span>ðŸ”’ Quiz belum dibuka. Buka dalam: <strong>' + timeText + '</strong></span>';
+                banner.innerHTML = '<span><i class="bi bi-lock me-1"></i> Quiz belum dibuka. Buka dalam: <strong>' + timeText + '</strong></span>';
                 banner.style.background = '#fef3c7';
                 banner.style.color = '#92400e';
                 banner.style.border = '1px solid #f59e0b';
@@ -511,14 +554,14 @@
                 let timeText = '';
                 if (d > 0) timeText += d + ' hari ';
                 timeText += String(h).padStart(2, '0') + ':' + String(m).padStart(2, '0') + ':' + String(s).padStart(2, '0');
-                banner.innerHTML = '<span>âœ… Quiz tersedia! Sisa waktu: <strong>' + timeText + '</strong></span>';
+                banner.innerHTML = '<span><i class="bi bi-check-circle me-1"></i> Quiz tersedia! Sisa waktu: <strong>' + timeText + '</strong></span>';
                 banner.style.background = '#ecfdf5';
                 banner.style.color = '#065f46';
                 banner.style.border = '1px solid #10b981';
             } else {
                 quizStatus = 'closed';
                 banner.classList.remove('hidden');
-                banner.innerHTML = '<span>ðŸ”’ Quiz sudah ditutup</span>';
+                banner.innerHTML = '<span><i class="bi bi-lock me-1"></i> Quiz sudah ditutup</span>';
                 banner.style.background = '#fef2f2';
                 banner.style.color = '#991b1b';
                 banner.style.border = '1px solid #ef4444';
@@ -748,7 +791,7 @@
                         <p class="text-xs mt-0.5" style="color:#64748b">
                             ${isC
                                 ? `Jawaban: <span style="color:#10b981;font-weight:600">${a.selected}</span>`
-                                : `Kamu: <span style="color:#ef4444;font-weight:600">${a.selected}</span> â€” Benar: <span style="color:#10b981;font-weight:600">${a.correct}</span>`
+                                : `Kamu: <span style="color:#ef4444;font-weight:600">${a.selected}</span> &mdash; Benar: <span style="color:#10b981;font-weight:600">${a.correct}</span>`
                             }
                         </p>
                     </div>
